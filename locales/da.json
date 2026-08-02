@@ -210,6 +210,8 @@
     "close": "Luk",
     "general": "Generelt",
     "sound": "Lyd",
+    "music": "Musik",
+    "musicMuted": "Musikken spiller, når lyden er slået til — lyd-knappen slår alt fra.",
     "on": "Til",
     "off": "Fra",
     "hardMode": "Hard mode",

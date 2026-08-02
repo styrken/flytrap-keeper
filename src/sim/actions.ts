@@ -241,6 +241,10 @@ function applyAction(s: GameState, action: Action, now: number, realNow: number)
       if (s.settings.sound === action.on) return s
       return { ...s, settings: { ...s.settings, sound: action.on } }
     }
+    case 'setMusic': {
+      if (s.settings.music === action.on) return s
+      return { ...s, settings: { ...s.settings, music: action.on } }
+    }
     case 'setLocale': {
       if (s.settings.locale === action.locale) return s
       return { ...s, settings: { ...s.settings, locale: action.locale } }

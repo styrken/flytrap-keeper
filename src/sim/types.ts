@@ -97,7 +97,7 @@ export interface GameState {
   minigames: { lastRaindropAt: number | null }
   /** Three daily tasks, redrawn each UTC day. */
   quests: { day: string; items: QuestState[] }
-  settings: { sound: boolean; locale: string; hardMode: boolean }
+  settings: { sound: boolean; music: boolean; locale: string; hardMode: boolean }
   /** Distinct real-world days with at least one care action. */
   careStreak: { days: number; lastDay: string | null }
   achievements: string[]
@@ -123,5 +123,6 @@ export type Action =
   | { type: 'removePlant'; plantId: string }
   | { type: 'setTimeScale'; scale: number }
   | { type: 'setSound'; on: boolean }
+  | { type: 'setMusic'; on: boolean }
   | { type: 'setLocale'; locale: string }
   | { type: 'setHardMode'; on: boolean }

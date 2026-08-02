@@ -207,6 +207,8 @@
     "close": "Close",
     "general": "General",
     "sound": "Sound",
+    "music": "Music",
+    "musicMuted": "Music plays once sound is turned on — the sound toggle mutes everything.",
     "on": "On",
     "off": "Off",
     "hardMode": "Hard mode",

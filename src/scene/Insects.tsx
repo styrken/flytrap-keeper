@@ -4,8 +4,16 @@ import { useEffect, useRef, useState } from 'react'
 import type { Group } from 'three'
 import { Vector3 } from 'three'
 import { playCatch, playOuch } from '../audio'
-import { type InsectKind, INSECTS, SPECIES, insectKindFromRoll, isTrapReady } from '../sim'
+import {
+  type InsectKind,
+  INSECTS,
+  SPECIES,
+  insectKindFromRoll,
+  isTrapReady,
+  nightInsectKindFromRoll,
+} from '../sim'
 import { type RoomView, gameNow, useGame } from '../store'
+import { daylightFactor } from './daylight'
 import { insectBus } from './insectBus'
 import { plantsInRoom, trapApproachPoint } from './plantLayout'
 
@@ -14,6 +22,16 @@ const INSECT_STYLE: Record<InsectKind, { size: number; color: string; wing: stri
   mosquito: { size: 0.65, color: '#6b6b6b', wing: '#d8e4ea' },
   spider: { size: 1.25, color: '#5a3a2e', wing: '#5a3a2e' },
   beetle: { size: 1.6, color: '#2e6b5a', wing: '#245448' },
+  moth: { size: 1.15, color: '#b8a486', wing: '#ece2c8' },
+}
+
+/** Moths spawn only while the floor lamp glows (same dusk threshold as its light). */
+function mothsAbout(room: RoomView): boolean {
+  return (
+    room === 'bedroom' &&
+    useGame.getState().state.inventory.items.includes('lamp') &&
+    daylightFactor(gameNow()) < 0.6
+  )
 }
 
 interface FloatLabel {
@@ -67,7 +85,11 @@ export function Insects({ room }: { room: RoomView }) {
         timers.current.push(window.setTimeout(trySpawn, 20_000))
         return
       }
-      setVisit({ id: Date.now(), kind: insectKindFromRoll(Math.random()) })
+      const roll = Math.random()
+      setVisit({
+        id: Date.now(),
+        kind: mothsAbout(room) ? nightInsectKindFromRoll(roll) : insectKindFromRoll(roll),
+      })
     }
     timers.current.push(window.setTimeout(trySpawn, delay))
     return () => {
@@ -116,6 +138,8 @@ export function Insects({ room }: { room: RoomView }) {
 const ENTRY = new Vector3(2.6, 1.5, 0.55)
 const EXIT = new Vector3(-2.6, 2.1, 0.4)
 const ROAM_CENTER = new Vector3(0, 1.05, 0.4)
+/** Where the floor lamp's shade glows — a moth's favourite spot in the world. */
+const LAMP_ROAM = new Vector3(-3.15, 0.95, 2.75)
 const VISIT_SECONDS = 16
 
 function InsectVisit({
@@ -186,17 +210,20 @@ function InsectVisit({
         insectBus.presence.slot = slot
       }
     } else {
-      // roam in loose loops around the sill
+      // roam in loose loops around the sill — moths orbit the lamp instead
       if (insectBus.presence) {
         insectBus.presence.plantId = null
         insectBus.presence.trapIndex = null
         insectBus.presence.slot = null
       }
       if (approach.current && t >= approach.current.until) approach.current = null
+      const lampy = kind === 'moth' && room === 'bedroom'
+      const roam = lampy ? LAMP_ROAM : ROAM_CENTER
+      const radius = lampy ? 0.32 : 0.85
       target.current.set(
-        ROAM_CENTER.x + Math.sin(t * 0.9 + p) * 0.85,
-        ROAM_CENTER.y + Math.sin(t * 1.4 + p * 2) * 0.35,
-        ROAM_CENTER.z + Math.cos(t * 1.1 + p) * 0.25,
+        roam.x + Math.sin(t * (lampy ? 1.7 : 0.9) + p) * radius,
+        roam.y + Math.sin(t * 1.4 + p * 2) * 0.35,
+        roam.z + Math.cos(t * (lampy ? 1.5 : 1.1) + p) * (lampy ? 0.32 : 0.25),
       )
       if (t >= nextApproachAt.current) {
         const targets = snapperTargets(room)

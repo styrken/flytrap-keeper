@@ -1,7 +1,7 @@
 import type { GameState } from './types'
 
 export const SAVE_KEY = 'flytrap-keeper:save'
-export const SAVE_VERSION = 11
+export const SAVE_VERSION = 12
 
 type RawSave = Record<string, unknown>
 type Migration = (data: RawSave) => RawSave
@@ -80,6 +80,11 @@ const MIGRATIONS: Record<number, Migration> = {
     const locale =
       typeof settings.locale === 'string' && settings.locale !== 'en' ? settings.locale : ''
     return { ...data, settings: { ...settings, locale } }
+  },
+  // v11 -> v12: night life (star wishes) — nothing wished for yet.
+  11: (data) => {
+    const minigames = (data.minigames ?? {}) as RawSave
+    return { ...data, minigames: { ...minigames, lastWishAt: null } }
   },
 }
 

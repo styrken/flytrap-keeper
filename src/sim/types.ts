@@ -1,7 +1,7 @@
 export type SpeciesId = 'dionaea' | 'drosera' | 'nepenthes' | 'sarracenia'
 export type PlacementId = 'north-window' | 'south-window' | 'growlight' | 'greenhouse'
 export type WeatherKind = 'sun' | 'clouds' | 'rain'
-export type InsectKind = 'fly' | 'mosquito' | 'spider' | 'beetle'
+export type InsectKind = 'fly' | 'mosquito' | 'spider' | 'beetle' | 'moth'
 export type Season = 'spring' | 'summer' | 'autumn' | 'winter'
 
 export type QuestId = 'water2' | 'catch2' | 'weed2' | 'pet2' | 'pour1' | 'mist1'
@@ -95,7 +95,7 @@ export interface GameState {
   activePlantId: string
   inventory: { dewdrops: number; items: string[] }
   weather: { rainBarrel: number }
-  minigames: { lastRaindropAt: number | null }
+  minigames: { lastRaindropAt: number | null; lastWishAt: number | null }
   /** Three daily tasks, redrawn each UTC day. */
   quests: { day: string; items: QuestState[] }
   /** locale '' means no explicit choice — the UI follows the browser language. */
@@ -112,6 +112,8 @@ export type Action =
   | { type: 'pet' }
   | { type: 'pullWeed'; plantId: string }
   | { type: 'catchRaindrop' }
+  | { type: 'wishOnStar' }
+  | { type: 'markFireflies' }
   | { type: 'feedTrap'; plantId: string; trapId: string }
   | { type: 'feedPlant' }
   | { type: 'catchInsect'; plantId: string; trapId: string; insect: InsectKind }

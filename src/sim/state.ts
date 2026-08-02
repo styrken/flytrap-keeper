@@ -50,7 +50,7 @@ export function createInitialState(now: number, seed: number): GameState {
     activePlantId: plant.id,
     inventory: { dewdrops: 0, items: [] },
     weather: { rainBarrel: SIM.BARREL_INITIAL },
-    minigames: { lastRaindropAt: null },
+    minigames: { lastRaindropAt: null, lastWishAt: null },
     quests: drawQuests(seed >>> 0, now, [plant]),
     settings: { sound: true, music: true, locale: '', hardMode: false },
     careStreak: { days: 0, lastDay: null },

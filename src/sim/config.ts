@@ -88,5 +88,10 @@ export const SIM = {
   QUEST_DEWDROPS: 5,
   QUEST_ALL_BONUS: 10,
 
+  /** Night life: wish on a shooting star, fireflies on some summer nights. */
+  STAR_WISH_DEWDROPS: 3,
+  STAR_WISH_COOLDOWN_SECONDS: 45,
+  FIREFLY_NIGHT_CHANCE: 0.45,
+
   NICKNAME_MAX_LENGTH: 20,
 } as const

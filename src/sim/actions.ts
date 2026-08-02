@@ -1,6 +1,6 @@
 import { award } from './achievements'
 import { SIM } from './config'
-import { INSECTS } from './insects'
+import { INSECTS, isFireflyNight } from './insects'
 import { progressQuest } from './quests'
 import { seasonAt } from './season'
 import { currentWeather } from './weather'
@@ -56,9 +56,25 @@ function applyAction(s: GameState, action: Action, now: number, realNow: number)
       if (last !== null && now - last < SIM.RAINDROP_COOLDOWN_SECONDS * 1000) return s
       return {
         ...s,
-        minigames: { lastRaindropAt: now },
+        minigames: { ...s.minigames, lastRaindropAt: now },
         inventory: { ...s.inventory, dewdrops: s.inventory.dewdrops + SIM.RAINDROP_DEWDROPS },
       }
+    }
+    case 'wishOnStar': {
+      // The sky decides when a star streaks by; the sim just bounds the pace.
+      const last = s.minigames.lastWishAt
+      if (last !== null && now - last < SIM.STAR_WISH_COOLDOWN_SECONDS * 1000) return s
+      const wished: GameState = {
+        ...s,
+        minigames: { ...s.minigames, lastWishAt: now },
+        inventory: { ...s.inventory, dewdrops: s.inventory.dewdrops + SIM.STAR_WISH_DEWDROPS },
+      }
+      return award(wished, 'first-wish')
+    }
+    case 'markFireflies': {
+      // View says "the player is watching fireflies" — verify the calendar agrees.
+      if (!isFireflyNight(s.rngSeed, now)) return s
+      return award(s, 'firefly-night')
     }
     case 'tapWater': {
       if (unavailable(plant) || plant.water >= 100) return s
@@ -152,6 +168,7 @@ function applyAction(s: GameState, action: Action, now: number, realNow: number)
         next = progressQuest(next, 'catch2')
       }
       if (action.insect === 'spider') next = award(next, 'spider-snack')
+      if (action.insect === 'moth') next = award(next, 'night-owl')
       return bumpCareStreak(next, now)
     }
     case 'move': {

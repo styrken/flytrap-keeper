@@ -11,6 +11,9 @@ export const ACHIEVEMENTS = [
   'rain-collector',
   'survivor',
   'in-bloom',
+  'night-owl',
+  'first-wish',
+  'firefly-night',
 ] as const
 
 export type AchievementId = (typeof ACHIEVEMENTS)[number]

@@ -54,6 +54,7 @@ export function Hud() {
   const setShowShop = useGame((s) => s.setShowShop)
   const setShowLexicon = useGame((s) => s.setShowLexicon)
   const setShowQuests = useGame((s) => s.setShowQuests)
+  const setStatInfo = useGame((s) => s.setStatInfo)
   const roomView = useGame((s) => s.roomView)
   const setRoomView = useGame((s) => s.setRoomView)
   const setShowFriends = useSocial((s) => s.setShowFriends)
@@ -206,21 +207,60 @@ export function Hud() {
           </p>
         </div>
         <div className="meters">
-          <Meter icon="💧" label={t('stats.water')} value={plant.water} kind="water" />
-          <Meter icon="🪰" label={t('stats.nutrition')} value={plant.nutrition} kind="nutrition" />
-          <Meter icon="❤️" label={t('stats.health')} value={plant.health} kind="health" />
+          <Meter
+            icon="💧"
+            label={t('stats.water')}
+            value={plant.water}
+            kind="water"
+            onInfo={() => setStatInfo('water')}
+          />
+          <Meter
+            icon="🪰"
+            label={t('stats.nutrition')}
+            value={plant.nutrition}
+            kind="nutrition"
+            onInfo={() => setStatInfo('nutrition')}
+          />
+          <Meter
+            icon="❤️"
+            label={t('stats.health')}
+            value={plant.health}
+            kind="health"
+            onInfo={() => setStatInfo('health')}
+          />
           {species.needsMisting && (
-            <Meter icon="💨" label={t('stats.humidity')} value={plant.humidity} kind="humidity" />
+            <Meter
+              icon="💨"
+              label={t('stats.humidity')}
+              value={plant.humidity}
+              kind="humidity"
+              onInfo={() => setStatInfo('humidity')}
+            />
           )}
-          <Meter icon="🌱" label={t('stage.next')} value={progress.fraction * 100} kind="growth" />
+          <Meter
+            icon="🌱"
+            label={t('stage.next')}
+            value={progress.fraction * 100}
+            kind="growth"
+            onInfo={() => setStatInfo('growth')}
+          />
           <Meter
             icon="🛢️"
             label={t('stats.rainBarrel')}
             value={state.weather.rainBarrel}
             kind="barrel"
+            onInfo={() => setStatInfo('barrel')}
           />
           <div className="meters-foot">
-            <span aria-label={t('stats.dewdrops')}>🫧 {state.inventory.dewdrops}</span>
+            <button
+              type="button"
+              className="dew-count"
+              aria-label={t('stats.dewdrops')}
+              title={t('stats.dewdrops')}
+              onClick={() => setStatInfo('dewdrops')}
+            >
+              🫧 {state.inventory.dewdrops}
+            </button>
             <span>
               <button
                 type="button"

@@ -15,6 +15,7 @@ import { Onboarding } from './ui/Onboarding'
 import { QuestsDialog } from './ui/QuestsDialog'
 import { ConflictDialog, SettingsDialog } from './ui/SettingsDialog'
 import { ShopDialog } from './ui/ShopDialog'
+import { StatInfoDialog } from './ui/StatInfoDialog'
 import { VisitHud } from './ui/VisitHud'
 
 export default function App() {
@@ -48,6 +49,7 @@ export default function App() {
       <Onboarding />
       <ShopDialog />
       <QuestsDialog />
+      <StatInfoDialog />
       <LexiconDialog />
       <FriendsDialog />
       <SettingsDialog />

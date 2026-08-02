@@ -12,6 +12,38 @@
     "rainBarrel": "Regnvandstønde",
     "dewdrops": "Dugdråber"
   },
+  "statInfo": {
+    "whatTitle": "Hvad er det?",
+    "howTitle": "Sådan bruger du det",
+    "water": {
+      "what": "Jordens fugt. Den falder stille og roligt døgnet rundt — også mens du er væk. Under 20 % bliver planten tørstig, og sundheden begynder at dale; ved nul tørrer den hurtigt ud. Fra 40 % og op kommer sundheden sig af sig selv.",
+      "how": "Tryk på Vand for en tår fra regnvandstønden — kødædende planter insisterer på regnvand. Er tønden løbet tør, virker postevand i en snæver vending, men kalken koster lidt sundhed."
+    },
+    "nutrition": {
+      "what": "Hvor mæt planten er. Insekter er en bonus, ikke aftensmad — lys og vand holder den i live — men en fuld mave sætter væksten op med op til halvdelen.",
+      "how": "Arter med fælder spiser, når du tapper en fælde med et insekt tæt på. De andre tager tørrede fluer med Fodr-knappen med nogle timers mellemrum — og solduggens klæbrige blade fanger selv småkravl helt af sig selv."
+    },
+    "health": {
+      "what": "Plantens almene tilstand. Den daler, mens jorden er tør (eller luften, for de tropiske arter), og kommer sig af sig selv, når der igen er vand nok. Ved 15 % visner planten; den retter sig igen ved 40 %. Kun i hard mode kan en plante dø for alvor.",
+      "how": "Hold vandet pænt oppe, dis de fugtelskende arter, og und vinterdvale til dem, der har brug for den. En visnet plante holder pause fra vækst og fangst, til den er ovenpå igen."
+    },
+    "humidity": {
+      "what": "Luftens fugt — kun tropiske arter går op i den. Under 25 % gnaver den tørre luft i sundheden, og under 40 % går væksten langsommere.",
+      "how": "Giv planten en omgang dis i ny og næ. Drivhuset holder på fugten, så luftfugtigheden falder kun halvt så hurtigt derinde."
+    },
+    "growth": {
+      "what": "Fremskridt mod næste stadie — fra spire hele vejen til udvokset plante. Væksten kører på lys og vand, med en mæthedsbonus på op til +50 %. En visnet eller knastør plante vokser ikke.",
+      "how": "Stil planten på den solrigeste plads, den kan lide, og hold vandet oppe og maven fuld. Statuslinjen gætter på, hvornår næste stadie rammer med den pasning, du giver."
+    },
+    "barrel": {
+      "what": "Dit lager af opsamlet regnvand — det eneste vand, kødædende planter for alvor elsker. Tønden fylder sig selv, hver gang det regner.",
+      "how": "Hver vanding trækker fra tønden. Løber den tør, så vent på regn — eller ty til postevand, som altid virker, men koster lidt sundhed i kalk."
+    },
+    "dewdrops": {
+      "what": "Spillets valuta. Daglig pasning, dagens opgaver, bedrifter, luget ukrudt, kæleture, perfekte hældninger og blomstring giver alle dugdråber.",
+      "how": "Brug dem i butikken på nye arter, udstyr som growlampen og drivhuset — og hyggelig pynt til værelset."
+    }
+  },
   "stage": {
     "0": "Spire",
     "1": "Ung plante",

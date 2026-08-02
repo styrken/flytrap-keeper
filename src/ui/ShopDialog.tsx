@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { MAX_PLANTS, SHOP_ITEMS, type ShopItem, activePlant } from '../sim'
+import { SHOP_ITEMS, type ShopItem, activePlant, plantCapacity } from '../sim'
 import { useGame } from '../store'
 
 export function ShopDialog() {
@@ -13,7 +13,7 @@ export function ShopDialog() {
   const plant = activePlant(state)
 
   const statusOf = (item: ShopItem): 'buy' | 'owned' | 'full' | 'poor' => {
-    if (item.kind === 'seed' && state.plants.length >= MAX_PLANTS) return 'full'
+    if (item.kind === 'seed' && state.plants.length >= plantCapacity(state)) return 'full'
     if ((item.kind === 'unlock' || item.kind === 'deco') && state.inventory.items.includes(item.id))
       return 'owned'
     if (item.kind === 'pot' && plant?.potColor === item.potColor) return 'owned'
@@ -56,7 +56,7 @@ export function ShopDialog() {
                   {status === 'owned'
                     ? `✓ ${t('shop.owned')}`
                     : status === 'full'
-                      ? t('shop.sillFull')
+                      ? t('shop.noSpots')
                       : `🫧 ${item.cost}`}
                 </button>
               </div>

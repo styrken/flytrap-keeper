@@ -1,33 +1,50 @@
 import { useGLTF } from '@react-three/drei'
 import { playSplash } from '../audio'
 import { canRainWater } from '../sim'
+import { useIsVisiting, useSceneDispatch, useSceneState } from '../sceneView'
 import { useGame } from '../store'
 import { RainBarrel } from './Barrel'
+import { Greenhouse } from './Greenhouse'
 import { Insects } from './Insects'
 import { palette } from './palette'
 import { PlantPot } from './PlantPot'
+import { plantsInRoom } from './plantLayout'
 import { Room, RoomDecor } from './Room'
-import { WeatherSky } from './WeatherSky'
+import { SkyMood, WeatherSky } from './WeatherSky'
 
 const MODEL_WATERING_CAN = '/models/watering-can.glb'
 
 export function Diorama() {
-  const plants = useGame((s) => s.state.plants)
-  const hasGnome = useGame((s) => s.state.inventory.items.includes('gnome'))
+  const room = useGame((s) => s.roomView)
+  const visiting = useIsVisiting()
+  const plants = useSceneState((s) => s.plants)
+  const hasGnome = useSceneState((s) => s.inventory.items.includes('gnome'))
+  const shown = plantsInRoom(plants, room)
   return (
     <group>
-      <Room />
-      <RoomDecor />
-      <Windowsill />
-      <WindowFrame />
-      <WeatherSky />
-      {plants.map((plant, slot) => (
+      <SkyMood />
+      {room === 'bedroom' ? (
+        <>
+          <Room />
+          <RoomDecor />
+          <Windowsill />
+          <WindowFrame />
+          <WeatherSky />
+          <WateringCan position={[1.3, 0.06, 0.32]} yaw={-0.7} />
+          <RainBarrel position={[-1.3, 0.06, 0.16]} />
+          {hasGnome && <Gnome position={[1.34, 0.06, -0.12]} />}
+        </>
+      ) : (
+        <>
+          <Greenhouse />
+          <WateringCan position={[1.75, -0.884, 1.35]} yaw={-0.4} />
+          <RainBarrel position={[-2.6, -0.884, 1.6]} />
+        </>
+      )}
+      {shown.map((plant, slot) => (
         <PlantPot key={plant.id} plant={plant} slot={slot} />
       ))}
-      <WateringCan position={[1.3, 0.06, 0.32]} yaw={-0.7} />
-      <RainBarrel position={[-1.3, 0.06, 0.16]} />
-      {hasGnome && <Gnome position={[1.34, 0.06, -0.12]} />}
-      <Insects />
+      {!visiting && <Insects key={room} room={room} />}
     </group>
   )
 }
@@ -64,8 +81,9 @@ function WindowFrame() {
 
 function WateringCan({ position, yaw }: { position: [number, number, number]; yaw: number }) {
   const { scene } = useGLTF(MODEL_WATERING_CAN)
-  const waterable = useGame((s) => canRainWater(s.state))
-  const dispatch = useGame((s) => s.dispatch)
+  const visiting = useIsVisiting()
+  const waterable = useSceneState(canRainWater) && !visiting
+  const dispatch = useSceneDispatch()
   return (
     <group
       position={position}

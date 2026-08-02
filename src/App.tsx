@@ -3,14 +3,18 @@ import { Canvas } from '@react-three/fiber'
 import { Suspense } from 'react'
 import { Diorama } from './scene/Diorama'
 import { Lights } from './scene/Lights'
+import { useIsVisiting } from './sceneView'
+import { FriendsDialog } from './ui/FriendsDialog'
 import { Hud } from './ui/Hud'
 import { LexiconDialog } from './ui/LexiconDialog'
 import { Onboarding } from './ui/Onboarding'
 import { QuestsDialog } from './ui/QuestsDialog'
 import { ConflictDialog, SettingsDialog } from './ui/SettingsDialog'
 import { ShopDialog } from './ui/ShopDialog'
+import { VisitHud } from './ui/VisitHud'
 
 export default function App() {
+  const visiting = useIsVisiting()
   return (
     <div className="app">
       <Canvas camera={{ position: [2.4, 1.7, 3.4], fov: 42 }} dpr={[1, 2]}>
@@ -30,11 +34,12 @@ export default function App() {
           maxAzimuthAngle={1.45}
         />
       </Canvas>
-      <Hud />
+      {visiting ? <VisitHud /> : <Hud />}
       <Onboarding />
       <ShopDialog />
       <QuestsDialog />
       <LexiconDialog />
+      <FriendsDialog />
       <SettingsDialog />
       <ConflictDialog />
     </div>

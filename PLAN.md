@@ -327,10 +327,12 @@ _Mål: En Venus flytrap i 3D man reelt kan passe over flere dage — og som gemm
 - [x] Værelset bygget færdigt: alle vægge (dollhouse-teknik — sidevægge er ensidede og usynlige udefra), matteret sidevindue, seng, skrivebord, stol, væghylde med kaktus, vægur; kameraet kan dreje meget længere rundt (azimuth ±1,45 rad)
 - [x] Indret-dit-værelse i butikken: tæppe (35), plakat (30), hylderadio (45), gulvlampe (55, lyser om aftenen) og computer (90, skærmen gløder) — samme deco-mekanisme som nissen, så gamle saves virker uændret. _Fravalg: fri træk-og-slip-placering — faste, håndplacerede pladser er langt bedre på mobil._
 - [x] Spilhastighed (speed mode): valgbart tempo ×1/×10/×60/×600 i indstillinger via et spil-ur i simmen (skala + ankre) — forfald, fordøjelse, vejr, årstider og dag/nat følger med, mens `updatedAt` forbliver væg-ur af hensyn til sky-synk. HUD'en viser spiltid med ⏩-badge; offline-loftet gælder fortsat i spiltimer; gamle saves migreres (v8).
+- [x] **Drivhuset**: købbart i butikken (250 🫧) — et glashus med egen scene (glasvægge/-tag, pottebord, tomatkasse) og tre ekstra pladser. Ny placering `greenhouse` med godt lys til alle arter og halveret fugtighedstab (godt til kandebæreren); rumskifter i HUD'en, insekter og minispil følger med derud. Save-version 9 (ingen nye felter — bumpet så gamle klienter afviser fremfor at fejlsimulere den nye placering).
+- [x] **Venner, chat og besøg**: venneliste via brugernavn (anmod/acceptér — at tilføje tilbage ER at acceptere), 1:1-chat med ulæst-prik, og læse-besøg i vennens værelse/drivhus: klienten henter vennens save-blob og renderer den read-only (kig, men rør ikke — alle handlinger er slået fra). Kræver sky-konto; serveren fik to nye endpoints (`/api/friends`, `/api/chat`) og to små tabeller (venskaber + beskeder) — den fortolker stadig ikke saves. Handel/gaver er fortsat bevidst fravalgt.
 
 ### Backlog (senere, efter lyst)
 
-Passkeys (WebAuthn) · PWA + påmindelser ("Your plant is thirsty 🌱") · rigtige vejrdata via API · dele/forære frø til venner · butterwort som art nr. 5 · flere sprog · drivhus-scene.
+Passkeys (WebAuthn) · PWA + påmindelser ("Your plant is thirsty 🌱") · rigtige vejrdata via API · dele/forære frø til venner · butterwort som art nr. 5 · flere sprog.
 
 ## 13. Risici og modtræk
 
@@ -349,7 +351,7 @@ Passkeys (WebAuthn) · PWA + påmindelser ("Your plant is thirsty 🌱") · rigt
 
 ## 14. Afgrænsning (bevidst fravalgt)
 
-Multiplayer og handel mellem spillere · mail, nyhedsbreve og tredjeparts-login · push-notifikationer · native apps · fotorealisme · monetization. Backenden forbliver en "dum" save-opbevaring — al spillogik bor i klienten.
+Handel og gaver mellem spillere · mail, nyhedsbreve og tredjeparts-login · push-notifikationer · native apps · fotorealisme · monetization. Backenden forbliver dum om spillet: den opbevarer saves, venskaber og chatbeskeder uden at fortolke dem — al spillogik bor i klienten. (Venneliste, chat og læse-besøg kom til efter launch som en bevidst, lille undtagelse fra "ingen multiplayer".)
 
 ## 15. Åbne spørgsmål
 

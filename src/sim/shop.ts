@@ -1,4 +1,4 @@
-import type { ShopItemId, SpeciesId } from './types'
+import type { GameState, PlantState, ShopItemId, SpeciesId } from './types'
 
 export interface ShopItem {
   id: ShopItemId
@@ -8,13 +8,30 @@ export interface ShopItem {
   potColor?: string
 }
 
+/** Pots on the windowsill. */
 export const MAX_PLANTS = 3
+/** Extra bench spots once the greenhouse is built. */
+export const GREENHOUSE_CAPACITY = 3
+
+export const inGreenhouse = (plant: PlantState) => plant.placement === 'greenhouse'
+
+export const hasGreenhouse = (state: GameState) => state.inventory.items.includes('greenhouse')
+
+export const sillPlantCount = (state: GameState) =>
+  state.plants.filter((plant) => !inGreenhouse(plant)).length
+
+export const greenhousePlantCount = (state: GameState) => state.plants.filter(inGreenhouse).length
+
+/** Total pots the collection can hold right now. */
+export const plantCapacity = (state: GameState) =>
+  MAX_PLANTS + (hasGreenhouse(state) ? GREENHOUSE_CAPACITY : 0)
 
 export const SHOP_ITEMS: ShopItem[] = [
   { id: 'seed-drosera', cost: 50, kind: 'seed', speciesId: 'drosera' },
   { id: 'seed-nepenthes', cost: 120, kind: 'seed', speciesId: 'nepenthes' },
   { id: 'seed-sarracenia', cost: 200, kind: 'seed', speciesId: 'sarracenia' },
   { id: 'growlight', cost: 150, kind: 'unlock' },
+  { id: 'greenhouse', cost: 250, kind: 'unlock' },
   { id: 'gnome', cost: 60, kind: 'deco' },
   { id: 'rug', cost: 35, kind: 'deco' },
   { id: 'poster', cost: 30, kind: 'deco' },

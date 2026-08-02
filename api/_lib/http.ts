@@ -54,12 +54,17 @@ export function requireDb(res: ServerResponse): Db | null {
   return db
 }
 
-// Best-effort per-instance rate limit for the auth endpoints.
+// Best-effort per-instance rate limit for the auth and social endpoints.
 const hits = new Map<string, { count: number; resetAt: number }>()
 const WINDOW_MS = 10 * 60_000
 const MAX_HITS = 20
 
-export function rateLimited(req: IncomingMessage, res: ServerResponse, route: string): boolean {
+export function rateLimited(
+  req: IncomingMessage,
+  res: ServerResponse,
+  route: string,
+  maxHits = MAX_HITS,
+): boolean {
   const forwarded = req.headers['x-forwarded-for']
   const ip = (Array.isArray(forwarded) ? forwarded[0] : forwarded)?.split(',')[0]?.trim() ?? 'local'
   const key = `${route}:${ip}`
@@ -70,7 +75,7 @@ export function rateLimited(req: IncomingMessage, res: ServerResponse, route: st
     return false
   }
   entry.count += 1
-  if (entry.count > MAX_HITS) {
+  if (entry.count > maxHits) {
     send(res, 429, { error: 'rate-limited' })
     return true
   }

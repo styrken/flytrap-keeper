@@ -70,7 +70,12 @@
   "placement": {
     "south-window": "Sydvindue",
     "north-window": "Nordvindue",
-    "growlight": "Growlampe"
+    "growlight": "Growlampe",
+    "greenhouse": "Drivhus"
+  },
+  "room": {
+    "bedroom": "Værelset",
+    "greenhouse": "Drivhuset"
   },
   "time": {
     "day": "d",
@@ -97,7 +102,7 @@
     "title": "Butik",
     "pitch": "Optjente dugdråber køber nye frø, udstyr og lidt pynt.",
     "owned": "Ejet",
-    "sillFull": "Karmen er fuld",
+    "noSpots": "Ingen ledige pladser",
     "items": {
       "seed-drosera": {
         "name": "Soldug-frø",
@@ -114,6 +119,10 @@
       "growlight": {
         "name": "Growlampe",
         "desc": "Perfekt lys i al slags vejr — en ny plads til enhver plante."
+      },
+      "greenhouse": {
+        "name": "Drivhus",
+        "desc": "Et lille glashus i haven — tre solrige, fugtige pladser til flere planter."
       },
       "gnome": {
         "name": "Vindueskarm-nisse",
@@ -269,5 +278,48 @@
     "body": "Der findes en sky-save fra {{date}}. Hvilken vil du beholde?",
     "useCloud": "Brug sky-saven",
     "keepLocal": "Behold denne enheds"
+  },
+  "friends": {
+    "title": "Venner",
+    "pitch": "Tilføj venner med brugernavn — chat, besøg deres værelser og hep på deres planter.",
+    "needAccount": "Venner bor i skyen: log ind eller opret en gratis konto under Indstillinger først.",
+    "addPlaceholder": "Vens brugernavn",
+    "add": "Tilføj",
+    "incoming": "Vil være venner",
+    "outgoing": "Venter på svar",
+    "accept": "Sig ja",
+    "decline": "Afvis",
+    "cancel": "Fortryd",
+    "empty": "Ingen venner endnu — byt brugernavne med nogen, og tilføj dem her!",
+    "requestSent": "Anmodning sendt 🌱",
+    "chat": "Chat",
+    "visit": "Besøg",
+    "remove": "Fjern",
+    "removeConfirm": "Helt sikker?",
+    "lastTended": "passede haven {{time}}",
+    "neverTended": "har ikke plantet endnu",
+    "chatPlaceholder": "Skriv noget sødt…",
+    "send": "Send",
+    "noMessages": "Ingen beskeder endnu — sig hej!",
+    "back": "Tilbage",
+    "visitLoading": "Går over til {{name}}…",
+    "errors": {
+      "not-found": "Ingen spiller med det brugernavn.",
+      "self": "Det er jo dig! Tilføj en anden.",
+      "already-friends": "I er allerede venner.",
+      "max-friends": "Din venneliste er fuld.",
+      "empty-message": "Skriv noget først.",
+      "message-too-long": "Beskeden er lidt for lang.",
+      "rate-limited": "For mange forsøg — prøv igen om lidt.",
+      "network": "Kunne ikke nå serveren.",
+      "unknown": "Noget gik galt."
+    }
+  },
+  "visit": {
+    "title": "På besøg hos {{name}}",
+    "leave": "Hjem igen",
+    "hint": "Kig, men rør ikke — det er deres have. Vink hej i chatten!",
+    "empty": "{{name}} har ikke plantet noget endnu.",
+    "error": "Kunne ikke hente værelset lige nu."
   }
 }

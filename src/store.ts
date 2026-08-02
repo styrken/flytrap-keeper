@@ -5,6 +5,7 @@ import {
   SAVE_KEY,
   apply,
   createInitialState,
+  hasGreenhouse,
   loadFromString,
   saveToString,
   tick,
@@ -21,6 +22,8 @@ const ONBOARDED_KEY = 'flytrap-keeper:onboarded'
  */
 export const gameNow = () => toGameTime(useGame.getState().state.time, Date.now())
 
+export type RoomView = 'bedroom' | 'greenhouse'
+
 interface GameStore {
   state: GameState
   showOnboarding: boolean
@@ -30,6 +33,8 @@ interface GameStore {
   showShop: boolean
   showLexicon: boolean
   showQuests: boolean
+  /** Which room the camera is in — pure view state, never saved. */
+  roomView: RoomView
   sync: SyncState
   /** A cloud save awaiting a keep-local-or-take-cloud decision. */
   conflict: CloudSave | null
@@ -41,6 +46,7 @@ interface GameStore {
   setShowShop: (show: boolean) => void
   setShowLexicon: (show: boolean) => void
   setShowQuests: (show: boolean) => void
+  setRoomView: (room: RoomView) => void
   setSync: (sync: SyncState) => void
   /** Replace the whole game state (cloud adopt / file import) and persist it. */
   adoptState: (state: GameState) => void
@@ -58,6 +64,7 @@ export const useGame = create<GameStore>()((set, get) => ({
   showShop: false,
   showLexicon: false,
   showQuests: false,
+  roomView: 'bedroom',
   sync: { kind: 'unknown' },
   conflict: null,
   dispatch: (action) => {
@@ -89,10 +96,13 @@ export const useGame = create<GameStore>()((set, get) => ({
   setShowShop: (show) => set({ showShop: show }),
   setShowLexicon: (show) => set({ showLexicon: show }),
   setShowQuests: (show) => set({ showQuests: show }),
+  setRoomView: (room) => set({ roomView: room }),
   setSync: (sync) => set({ sync }),
   adoptState: (rawState) => {
     const state = tick(rawState, Date.now())
     set({ state, conflict: null })
+    // An adopted save without a greenhouse can't leave the camera stranded there.
+    if (!hasGreenhouse(state)) set({ roomView: 'bedroom' })
     persist(state)
     armTicker()
   },
@@ -112,6 +122,7 @@ export const useGame = create<GameStore>()((set, get) => ({
       showShop: false,
       showLexicon: false,
       showQuests: false,
+      roomView: 'bedroom',
       conflict: null,
     })
     persist(state)

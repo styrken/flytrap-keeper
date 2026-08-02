@@ -70,7 +70,12 @@
   "placement": {
     "south-window": "South window",
     "north-window": "North window",
-    "growlight": "Grow light"
+    "growlight": "Grow light",
+    "greenhouse": "Greenhouse"
+  },
+  "room": {
+    "bedroom": "Room",
+    "greenhouse": "Greenhouse"
   },
   "time": {
     "day": "d",
@@ -97,7 +102,7 @@
     "title": "Shop",
     "pitch": "Earned dewdrops buy new seeds, gear and a little flair.",
     "owned": "Owned",
-    "sillFull": "Sill is full",
+    "noSpots": "No free spots",
     "items": {
       "seed-drosera": {
         "name": "Sundew seeds",
@@ -114,6 +119,10 @@
       "growlight": {
         "name": "Grow light",
         "desc": "Perfect light in any weather — a new spot for any plant."
+      },
+      "greenhouse": {
+        "name": "Greenhouse",
+        "desc": "A little glass house in the garden — three sunny, humid spots for more plants."
       },
       "gnome": {
         "name": "Windowsill gnome",
@@ -266,5 +275,48 @@
     "body": "There's a cloud save from {{date}}. Which one do you want to keep?",
     "useCloud": "Use the cloud save",
     "keepLocal": "Keep this device's"
+  },
+  "friends": {
+    "title": "Friends",
+    "pitch": "Add friends by username — chat, visit their rooms and cheer their plants on.",
+    "needAccount": "Friends live in the cloud: sign in or create a free account under Settings first.",
+    "addPlaceholder": "Friend's username",
+    "add": "Add",
+    "incoming": "Wants to be friends",
+    "outgoing": "Waiting for an answer",
+    "accept": "Accept",
+    "decline": "Decline",
+    "cancel": "Cancel",
+    "empty": "No friends yet — swap usernames with someone and add them here!",
+    "requestSent": "Request sent 🌱",
+    "chat": "Chat",
+    "visit": "Visit",
+    "remove": "Remove",
+    "removeConfirm": "Really?",
+    "lastTended": "tended {{time}}",
+    "neverTended": "hasn't planted yet",
+    "chatPlaceholder": "Write something nice…",
+    "send": "Send",
+    "noMessages": "No messages yet — say hi!",
+    "back": "Back",
+    "visitLoading": "Walking over to {{name}}'s…",
+    "errors": {
+      "not-found": "No player with that username.",
+      "self": "That's you! Add someone else.",
+      "already-friends": "You're already friends.",
+      "max-friends": "Your friend list is full.",
+      "empty-message": "Write something first.",
+      "message-too-long": "That message is a bit too long.",
+      "rate-limited": "Too many attempts — try again in a bit.",
+      "network": "Could not reach the server.",
+      "unknown": "Something went wrong."
+    }
+  },
+  "visit": {
+    "title": "Visiting {{name}}",
+    "leave": "Go home",
+    "hint": "Look, don't touch — it's their garden. Wave hello in the chat!",
+    "empty": "{{name}} hasn't planted anything yet.",
+    "error": "Couldn't load that room right now."
   }
 }

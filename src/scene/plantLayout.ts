@@ -1,13 +1,26 @@
 import { Vector3 } from 'three'
+import type { PlantState } from '../sim'
+import type { RoomView } from '../store'
 
 export const STAGE_SCALE = [0.55, 0.75, 1, 1.15]
 
-/** Windowsill pot slots — plant i sits at POT_SLOTS[i]. */
+/**
+ * Pot slots — plant i of a room sits at POT_SLOTS[i]. The greenhouse bench
+ * deliberately shares the sill's geometry, so one slot table serves both
+ * rooms (and insect flight paths just work).
+ */
 export const POT_SLOTS: [number, number, number][] = [
   [0, 0.06, 0.05],
   [-0.82, 0.06, 0.1],
   [0.82, 0.06, 0.1],
 ]
+
+export const roomOfPlant = (plant: Pick<PlantState, 'placement'>): RoomView =>
+  plant.placement === 'greenhouse' ? 'greenhouse' : 'bedroom'
+
+/** The plants standing in `room`, in slot order. */
+export const plantsInRoom = (plants: PlantState[], room: RoomView): PlantState[] =>
+  plants.filter((plant) => roomOfPlant(plant) === room)
 
 /** Rosette slots for up to 5 flytrap traps: azimuth, outward tilt, stem length. */
 export const STEM_LAYOUT = [

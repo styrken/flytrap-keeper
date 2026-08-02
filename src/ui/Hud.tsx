@@ -1,13 +1,16 @@
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { playSplash, playToast } from '../audio'
+import { roomOfPlant } from '../scene/plantLayout'
 import {
   HOUR_MS,
   SIM,
   activePlant,
   canFeedPlant,
+  canMoveTo,
   currentWeather,
   firstReadyTrap,
+  hasGreenhouse,
   hasWeed,
   mood,
   msToNextStage,
@@ -18,6 +21,7 @@ import {
   stageProgress,
   toGameTime,
 } from '../sim'
+import { useFriendsPip, useSocial } from '../socialStore'
 import { gameNow, useGame } from '../store'
 import { FlytrapIcon } from './FlytrapIcon'
 import { Meter } from './Meter'
@@ -50,6 +54,10 @@ export function Hud() {
   const setShowShop = useGame((s) => s.setShowShop)
   const setShowLexicon = useGame((s) => s.setShowLexicon)
   const setShowQuests = useGame((s) => s.setShowQuests)
+  const roomView = useGame((s) => s.roomView)
+  const setRoomView = useGame((s) => s.setRoomView)
+  const setShowFriends = useSocial((s) => s.setShowFriends)
+  const friendsPip = useFriendsPip()
   const plant = activePlant(state)
   const [editingName, setEditingName] = useState(false)
   const renameCancelled = useRef(false)
@@ -222,6 +230,14 @@ export function Hud() {
               </button>
               <button
                 type="button"
+                className={`icon-btn${friendsPip ? ' has-pip' : ''}`}
+                aria-label={t('friends.title')}
+                onClick={() => setShowFriends(true)}
+              >
+                👥
+              </button>
+              <button
+                type="button"
                 className="icon-btn"
                 aria-label={t('shop.title')}
                 onClick={() => setShowShop(true)}
@@ -303,6 +319,24 @@ export function Hud() {
       </div>
 
       <footer className="hud-bottom">
+        {hasGreenhouse(state) && (
+          <div className="plant-switcher room-switcher" role="group" aria-label={t('actions.spot')}>
+            <button
+              type="button"
+              className={roomView === 'bedroom' ? 'active' : ''}
+              onClick={() => setRoomView('bedroom')}
+            >
+              🛏️ {t('room.bedroom')}
+            </button>
+            <button
+              type="button"
+              className={roomView === 'greenhouse' ? 'active' : ''}
+              onClick={() => setRoomView('greenhouse')}
+            >
+              🌿 {t('room.greenhouse')}
+            </button>
+          </div>
+        )}
         {state.plants.length > 1 && (
           <div className="plant-switcher">
             {state.plants.map((candidate) => (
@@ -310,7 +344,11 @@ export function Hud() {
                 key={candidate.id}
                 type="button"
                 className={candidate.id === plant.id ? 'active' : ''}
-                onClick={() => dispatch({ type: 'selectPlant', plantId: candidate.id })}
+                onClick={() => {
+                  dispatch({ type: 'selectPlant', plantId: candidate.id })
+                  // Tapping a plant in the other room walks you over there.
+                  setRoomView(roomOfPlant(candidate))
+                }}
               >
                 {SPECIES_ICON[candidate.speciesId]} {candidate.nickname}
               </button>
@@ -378,14 +416,26 @@ export function Hud() {
             <button
               type="button"
               className={plant.placement === 'south-window' ? 'active' : ''}
-              onClick={() => dispatch({ type: 'move', placement: 'south-window' })}
+              disabled={
+                plant.placement !== 'south-window' && !canMoveTo(state, plant, 'south-window')
+              }
+              onClick={() => {
+                dispatch({ type: 'move', placement: 'south-window' })
+                setRoomView('bedroom')
+              }}
             >
               ☀️ {t('placement.south-window')}
             </button>
             <button
               type="button"
               className={plant.placement === 'north-window' ? 'active' : ''}
-              onClick={() => dispatch({ type: 'move', placement: 'north-window' })}
+              disabled={
+                plant.placement !== 'north-window' && !canMoveTo(state, plant, 'north-window')
+              }
+              onClick={() => {
+                dispatch({ type: 'move', placement: 'north-window' })
+                setRoomView('bedroom')
+              }}
             >
               ⛅ {t('placement.north-window')}
             </button>
@@ -393,9 +443,28 @@ export function Hud() {
               <button
                 type="button"
                 className={plant.placement === 'growlight' ? 'active' : ''}
-                onClick={() => dispatch({ type: 'move', placement: 'growlight' })}
+                disabled={plant.placement !== 'growlight' && !canMoveTo(state, plant, 'growlight')}
+                onClick={() => {
+                  dispatch({ type: 'move', placement: 'growlight' })
+                  setRoomView('bedroom')
+                }}
               >
                 💡 {t('placement.growlight')}
+              </button>
+            )}
+            {hasGreenhouse(state) && (
+              <button
+                type="button"
+                className={plant.placement === 'greenhouse' ? 'active' : ''}
+                disabled={
+                  plant.placement !== 'greenhouse' && !canMoveTo(state, plant, 'greenhouse')
+                }
+                onClick={() => {
+                  dispatch({ type: 'move', placement: 'greenhouse' })
+                  setRoomView('greenhouse')
+                }}
+              >
+                🌿 {t('placement.greenhouse')}
               </button>
             )}
           </div>

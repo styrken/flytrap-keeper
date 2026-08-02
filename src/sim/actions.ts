@@ -4,8 +4,8 @@ import { INSECTS } from './insects'
 import { progressQuest } from './quests'
 import { seasonAt } from './season'
 import { currentWeather } from './weather'
-import { isTrapReady } from './selectors'
-import { MAX_PLANTS, shopItem } from './shop'
+import { canMoveTo, isTrapReady } from './selectors'
+import { MAX_PLANTS, plantCapacity, shopItem, sillPlantCount } from './shop'
 import { SPECIES } from './species'
 import { createPlant } from './state'
 import { tick } from './tick'
@@ -156,7 +156,7 @@ function applyAction(s: GameState, action: Action, now: number, realNow: number)
     }
     case 'move': {
       if (unavailable(plant) || plant.placement === action.placement) return s
-      if (action.placement === 'growlight' && !s.inventory.items.includes('growlight')) return s
+      if (!canMoveTo(s, plant, action.placement)) return s
       return withPlant(s, { ...plant, placement: action.placement })
     }
     case 'rename': {
@@ -173,9 +173,11 @@ function applyAction(s: GameState, action: Action, now: number, realNow: number)
       const item = shopItem(action.item)
       if (!item || s.inventory.dewdrops < item.cost) return s
       if (item.kind === 'seed') {
-        if (s.plants.length >= MAX_PLANTS || !item.speciesId) return s
+        if (s.plants.length >= plantCapacity(s) || !item.speciesId) return s
         const id = `p${s.plants.map((p) => p.id).reduce((max, pid) => Math.max(max, Number(pid.slice(1)) || 0), 0) + 1}`
         const sprout = createPlant(id, item.speciesId, now)
+        // A full sill sends the new sprout straight to the greenhouse bench.
+        if (sillPlantCount(s) >= MAX_PLANTS) sprout.placement = 'greenhouse'
         return {
           ...s,
           plants: [...s.plants, sprout],

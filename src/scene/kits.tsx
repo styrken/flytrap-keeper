@@ -5,7 +5,7 @@ import { useMemo, useRef } from 'react'
 import type { Group } from 'three'
 import { playSnap, playTease } from '../audio'
 import { type PlantState, type TrapState, isTrapReady } from '../sim'
-import { gameNow, useGame } from '../store'
+import { sceneNow, useIsVisiting, useSceneDispatch } from '../sceneView'
 import { insectBus } from './insectBus'
 import { palette } from './palette'
 import { STAGE_SCALE, STEM_LAYOUT } from './plantLayout'
@@ -121,7 +121,8 @@ function Trap({
   plant: PlantState
   position: [number, number, number]
 }) {
-  const dispatch = useGame((s) => s.dispatch)
+  const dispatch = useSceneDispatch()
+  const visiting = useIsVisiting()
   const root = useRef<Group>(null)
   const upper = useRef<Group>(null)
   const teaseRequest = useRef(false)
@@ -131,7 +132,7 @@ function Trap({
 
   const withered = trap.witheredAt !== null
   const closed = trap.digestingUntil !== null || withered
-  const interactive = !plant.wilted && !plant.dormant && !plant.dead
+  const interactive = !plant.wilted && !plant.dormant && !plant.dead && !visiting
 
   useFrame((frame, delta) => {
     const g = upper.current
@@ -173,7 +174,7 @@ function Trap({
       position={position}
       rotation-z={withered ? 0.5 : 0}
       onPointerDown={(e) => {
-        if (!interactive || !isTrapReady(trap, gameNow())) return
+        if (!interactive || !isTrapReady(trap, sceneNow())) return
         e.stopPropagation()
         const presence = insectBus.presence
         if (presence && presence.plantId === plant.id && presence.trapIndex === index) {
@@ -191,7 +192,7 @@ function Trap({
         }
       }}
       onPointerOver={() => {
-        if (interactive && isTrapReady(trap, gameNow())) document.body.style.cursor = 'pointer'
+        if (interactive && isTrapReady(trap, sceneNow())) document.body.style.cursor = 'pointer'
       }}
       onPointerOut={() => {
         document.body.style.cursor = 'auto'

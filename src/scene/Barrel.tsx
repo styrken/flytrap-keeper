@@ -1,12 +1,13 @@
-import { useGame } from '../store'
 import { playSplash } from '../audio'
 import { SIM, canRainWater } from '../sim'
+import { useIsVisiting, useSceneDispatch, useSceneState } from '../sceneView'
 
 /** The rain barrel: its water level is visible at a glance, and tapping it waters the plant. */
 export function RainBarrel({ position }: { position: [number, number, number] }) {
-  const rainBarrel = useGame((s) => s.state.weather.rainBarrel)
-  const waterable = useGame((s) => canRainWater(s.state))
-  const dispatch = useGame((s) => s.dispatch)
+  const rainBarrel = useSceneState((s) => s.weather.rainBarrel)
+  const visiting = useIsVisiting()
+  const waterable = useSceneState(canRainWater) && !visiting
+  const dispatch = useSceneDispatch()
 
   const fillHeight = Math.max(0.02, 0.3 * (rainBarrel / SIM.BARREL_CAP))
 

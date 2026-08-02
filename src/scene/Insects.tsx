@@ -5,9 +5,9 @@ import type { Group } from 'three'
 import { Vector3 } from 'three'
 import { playCatch, playOuch } from '../audio'
 import { type InsectKind, INSECTS, SPECIES, insectKindFromRoll, isTrapReady } from '../sim'
-import { gameNow, useGame } from '../store'
+import { type RoomView, gameNow, useGame } from '../store'
 import { insectBus } from './insectBus'
-import { trapApproachPoint } from './plantLayout'
+import { plantsInRoom, trapApproachPoint } from './plantLayout'
 
 const INSECT_STYLE: Record<InsectKind, { size: number; color: string; wing: string }> = {
   fly: { size: 1, color: '#3b3b3b', wing: '#bcd4de' },
@@ -22,12 +22,12 @@ interface FloatLabel {
   position: [number, number, number]
 }
 
-/** Any open trap on any healthy flytrap, with its slot for positioning. */
-function snapperTargets() {
+/** Any open trap on any healthy flytrap in the shown room, with its slot. */
+function snapperTargets(room: RoomView) {
   const state = useGame.getState().state
   const now = gameNow()
   const targets: { plantId: string; trapIndex: number; slot: number; stage: number }[] = []
-  state.plants.forEach((plant, slot) => {
+  plantsInRoom(state.plants, room).forEach((plant, slot) => {
     if (!SPECIES[plant.speciesId].isSnapper) return
     if (plant.wilted || plant.dormant || plant.dead) return
     plant.traps.forEach((trap, trapIndex) => {
@@ -39,7 +39,8 @@ function snapperTargets() {
   return targets
 }
 
-export function Insects() {
+/** Mount with `key={room}` — switching rooms shoos the current guest out. */
+export function Insects({ room }: { room: RoomView }) {
   const [visit, setVisit] = useState<{ id: number; kind: InsectKind } | null>(null)
   const [labels, setLabels] = useState<FloatLabel[]>([])
   const timers = useRef<number[]>([])
@@ -62,7 +63,7 @@ export function Insects() {
     const delay = firstSpawn.current ? 8_000 : 22_000 + Math.random() * 48_000
     firstSpawn.current = false
     const trySpawn = () => {
-      if (document.visibilityState !== 'visible' || snapperTargets().length === 0) {
+      if (document.visibilityState !== 'visible' || snapperTargets(room).length === 0) {
         timers.current.push(window.setTimeout(trySpawn, 20_000))
         return
       }
@@ -73,7 +74,7 @@ export function Insects() {
       timers.current.forEach((t) => window.clearTimeout(t))
       timers.current = []
     }
-  }, [visit])
+  }, [visit, room])
 
   // The traps report a successful snap through the bus.
   useEffect(() => {
@@ -100,7 +101,9 @@ export function Insects() {
 
   return (
     <group>
-      {visit && <InsectVisit key={visit.id} kind={visit.kind} onDone={() => setVisit(null)} />}
+      {visit && (
+        <InsectVisit key={visit.id} kind={visit.kind} room={room} onDone={() => setVisit(null)} />
+      )}
       {labels.map((label) => (
         <Html key={label.id} position={label.position} center zIndexRange={[10, 0]}>
           <div className="float-label">{label.text}</div>
@@ -115,7 +118,15 @@ const EXIT = new Vector3(-2.6, 2.1, 0.4)
 const ROAM_CENTER = new Vector3(0, 1.05, 0.4)
 const VISIT_SECONDS = 16
 
-function InsectVisit({ kind, onDone }: { kind: InsectKind; onDone: () => void }) {
+function InsectVisit({
+  kind,
+  room,
+  onDone,
+}: {
+  kind: InsectKind
+  room: RoomView
+  onDone: () => void
+}) {
   const group = useRef<Group>(null)
   const wings = useRef<Group>(null)
   const age = useRef(0)
@@ -188,7 +199,7 @@ function InsectVisit({ kind, onDone }: { kind: InsectKind; onDone: () => void })
         ROAM_CENTER.z + Math.cos(t * 1.1 + p) * 0.25,
       )
       if (t >= nextApproachAt.current) {
-        const targets = snapperTargets()
+        const targets = snapperTargets(room)
         if (targets.length > 0) {
           const pick = targets[Math.floor(Math.random() * targets.length)]
           approach.current = { ...pick, until: t + 1.6 }

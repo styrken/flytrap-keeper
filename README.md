@@ -52,3 +52,5 @@ After setup, every push to the default branch deploys to production and every pu
 - [x] Phase 5 — seasons, winter dormancy, flowering, hard mode, Danish translation
 - [x] Post-launch — onboarding, pour & golden-drop minigames, daily tasks, start-over button
 - [x] Post-launch — full room (walls, bed, desk, second window) and buyable room decor
+- [x] Post-launch — a walkable keeper avatar: stroll the room with WASD/arrows (touch joystick on mobile) while the camera follows
+- [x] Post-launch — jumping: Space (or the Hop button) hops onto the bed and chair, chair → desk works, and the bed is bouncy

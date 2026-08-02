@@ -7,6 +7,7 @@ import { RainBarrel } from './Barrel'
 import { Greenhouse } from './Greenhouse'
 import { Insects } from './Insects'
 import { palette } from './palette'
+import { Pets } from './Pets'
 import { PlantPot } from './PlantPot'
 import { plantsInRoom } from './plantLayout'
 import { Room, RoomDecor } from './Room'
@@ -44,6 +45,7 @@ export function Diorama() {
       {shown.map((plant, slot) => (
         <PlantPot key={plant.id} plant={plant} slot={slot} />
       ))}
+      <Pets room={room} />
       {!visiting && <Insects key={room} room={room} />}
     </group>
   )

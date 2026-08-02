@@ -9,6 +9,7 @@ import {
   activePlant,
   canFeedPlant,
   canMoveTo,
+  catAtWindow,
   currentWeather,
   firstReadyTrap,
   hasGreenhouse,
@@ -340,6 +341,14 @@ export function Hud() {
 
       <div className="hud-middle">
         {toast && <p className="toast">{toast}</p>}
+        {catAtWindow(state, now) && (
+          <div className="banner calm">
+            <span>🐱 {t('status.catAtWindow')}</span>
+            <button type="button" onClick={() => dispatch({ type: 'letCatIn' })}>
+              {t('actions.letCatIn')}
+            </button>
+          </div>
+        )}
         {plant.dead ? (
           <div className="banner">
             <span>{t('status.dead', { name: plant.nickname })}</span>

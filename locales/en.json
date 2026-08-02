@@ -98,7 +98,8 @@
     "wake": "Wake up",
     "cutFlower": "Cut the stalk",
     "letBloom": "Let it bloom",
-    "removePlant": "Clear the pot"
+    "removePlant": "Clear the pot",
+    "letCatIn": "Let it in"
   },
   "placement": {
     "south-window": "South window",
@@ -127,6 +128,7 @@
     "dailyBonus": "Daily care bonus: +5 dewdrops",
     "dormant": "{{name}} is sleeping through winter. 💤 Sweet dreams until spring.",
     "winterHint": "It's winter — {{name}} would love a long nap. Skipping it wears the plant down.",
+    "catAtWindow": "A soaked little cat is meowing at the window…",
     "flowerChoice": "{{name}} is sending up a flower stalk! Cutting it is the safe choice — blooming costs strength but rewards seeds.",
     "blooming": "{{name}} is in bloom 🌼 — beautiful, and a little exhausting.",
     "dead": "💀 {{name}} didn't make it. Hard mode is unforgiving."
@@ -136,6 +138,7 @@
     "pitch": "Earned dewdrops buy new seeds, gear and a little flair.",
     "owned": "Owned",
     "noSpots": "No free spots",
+    "needsGreenhouse": "Needs the greenhouse",
     "items": {
       "seed-drosera": {
         "name": "Sundew seeds",
@@ -168,6 +171,10 @@
       "greenhouse": {
         "name": "Greenhouse",
         "desc": "A little glass house in the garden — three sunny, humid spots for more plants."
+      },
+      "tadpole-jar": {
+        "name": "Tadpole jar",
+        "desc": "A tiny swimmer today, a greenhouse frog in a week. Real frogs ambush insects from pitcher plants!"
       },
       "gnome": {
         "name": "Windowsill gnome",
@@ -254,7 +261,11 @@
     "night-owl": "Night owl",
     "first-wish": "Wish upon a star",
     "firefly-night": "Firefly night",
-    "cultivar-collector": "Cultivar collector"
+    "cultivar-collector": "Cultivar collector",
+    "pet-frog": "Metamorphosis!",
+    "pet-cat": "Rainy-day friend",
+    "pet-snail": "World's calmest pet",
+    "full-house": "Full house"
   },
   "onboarding": {
     "welcome1": "Flytrap Keeper is a calm, real-time care game. Your carnivorous plant lives on while you're away — drop by a few times a day, tend to it, and watch it grow from seedling to bloom.",

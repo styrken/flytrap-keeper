@@ -4,8 +4,9 @@ import { INSECTS, isFireflyNight } from './insects'
 import { progressQuest } from './quests'
 import { seasonAt } from './season'
 import { currentWeather } from './weather'
+import { catAtWindow, petCount } from './pets'
 import { canMoveTo, isTrapReady } from './selectors'
-import { MAX_PLANTS, plantCapacity, shopItem, sillPlantCount } from './shop'
+import { MAX_PLANTS, hasGreenhouse, plantCapacity, shopItem, sillPlantCount } from './shop'
 import { CULTIVARS, SPECIES } from './species'
 import { createPlant } from './state'
 import { tick } from './tick'
@@ -75,6 +76,38 @@ function applyAction(s: GameState, action: Action, now: number, realNow: number)
       // View says "the player is watching fireflies" — verify the calendar agrees.
       if (!isFireflyNight(s.rngSeed, now)) return s
       return award(s, 'firefly-night')
+    }
+    case 'letCatIn': {
+      // Only works while the soaked cat actually sits at the window.
+      if (!catAtWindow(s, now)) return s
+      let next: GameState = { ...s, pets: { ...s.pets, cat: true } }
+      next = award(next, 'pet-cat')
+      if (petCount(next, now) >= 3) next = award(next, 'full-house')
+      return next
+    }
+    case 'rescueSnail': {
+      if (s.pets.snail) return s
+      const last = s.pets.lastSnailAt
+      if (last !== null && now - last < SIM.SNAIL_RESCUE_COOLDOWN_HOURS * HOUR_MS) return s
+      const snailRescues = s.pets.snailRescues + 1
+      // The third gentle relocation earns its trust — it moves into a jar.
+      const keep = snailRescues >= SIM.SNAIL_KEEP_AT
+      let next: GameState = bumpCareStreak(
+        {
+          ...s,
+          pets: { ...s.pets, snailRescues, lastSnailAt: now, snail: keep },
+          inventory: {
+            ...s.inventory,
+            dewdrops: s.inventory.dewdrops + SIM.SNAIL_RESCUE_DEWDROPS,
+          },
+        },
+        now,
+      )
+      if (keep) {
+        next = award(next, 'pet-snail')
+        if (petCount(next, now) >= 3) next = award(next, 'full-house')
+      }
+      return next
     }
     case 'tapWater': {
       if (unavailable(plant) || plant.water >= 100) return s
@@ -207,13 +240,19 @@ function applyAction(s: GameState, action: Action, now: number, realNow: number)
       }
       if (item.kind === 'unlock' || item.kind === 'deco') {
         if (s.inventory.items.includes(item.id)) return s
-        return {
+        // The tadpole needs somewhere to hop off to when it's done growing.
+        if (item.id === 'tadpole-jar' && !hasGreenhouse(s)) return s
+        const bought: GameState = {
           ...s,
           inventory: {
             dewdrops: s.inventory.dewdrops - item.cost,
             items: [...s.inventory.items, item.id],
           },
         }
+        if (item.id === 'tadpole-jar') {
+          return { ...bought, pets: { ...bought.pets, tadpoleSince: now } }
+        }
+        return bought
       }
       if (item.kind === 'accessory') {
         // Dressing up the active plant — repeatable per plant, swaps the old one.

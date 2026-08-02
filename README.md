@@ -59,3 +59,4 @@ After setup, every push to the default branch deploys to production and every pu
 - [x] Post-launch — night life: moths orbit the floor lamp after dark, fireflies visit on some summer nights, and shooting stars grant wishes
 - [x] Post-launch — cultivars: three real flytrap rarities ('Justina Davis', 'B52', 'Red Dragon') as rare seeds with their own looks and lexicon facts
 - [x] Post-launch — photo mode (postcard snapshots with save/share) and plant accessories: googly eyes that ride the snapping jaw, and a little bow
+- [x] Post-launch — pets (zero needs, pure company): a tadpole that metamorphoses into a greenhouse frog, a rainy-day cat you let in at the window, and a snail that moves in after three gentle rescues

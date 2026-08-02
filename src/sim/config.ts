@@ -93,5 +93,12 @@ export const SIM = {
   STAR_WISH_COOLDOWN_SECONDS: 45,
   FIREFLY_NIGHT_CHANCE: 0.45,
 
+  /** Pets: zero needs by design — company, not chores. */
+  TADPOLE_STAGE_DAYS: [1.5, 3.5, 5.5, 7],
+  CAT_VISIT_CHANCE: 0.4,
+  SNAIL_RESCUE_DEWDROPS: 2,
+  SNAIL_RESCUE_COOLDOWN_HOURS: 4,
+  SNAIL_KEEP_AT: 3,
+
   NICKNAME_MAX_LENGTH: 20,
 } as const

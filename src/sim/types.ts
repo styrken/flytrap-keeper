@@ -36,6 +36,7 @@ export type ShopItemId =
   | 'pot-plum'
   | 'googly-eyes'
   | 'bow'
+  | 'tadpole-jar'
 
 export interface TrapState {
   id: string
@@ -87,6 +88,23 @@ export interface PlantState {
   criticalSince: number | null
 }
 
+/**
+ * Pets have no needs — the plants are the ones that need you. These flags
+ * only remember who has moved in and how the frog's metamorphosis is going.
+ */
+export interface PetsState {
+  /** Game-clock ms when the tadpole jar was bought; the frog grows from here. */
+  tadpoleSince: number | null
+  /** The rainy-day cat was let in and now sleeps on the bed. */
+  cat: boolean
+  /** Gentle snail relocations so far — enough of them and it moves in. */
+  snailRescues: number
+  /** The snail lives in a jar on the desk now (air holes included). */
+  snail: boolean
+  /** Last rescue, so back-to-back taps can't farm the little reward. */
+  lastSnailAt: number | null
+}
+
 export interface GameTime {
   /** Game ms per real ms — 1 is real time. */
   scale: number
@@ -111,6 +129,7 @@ export interface GameState {
   minigames: { lastRaindropAt: number | null; lastWishAt: number | null }
   /** Three daily tasks, redrawn each UTC day. */
   quests: { day: string; items: QuestState[] }
+  pets: PetsState
   /** locale '' means no explicit choice — the UI follows the browser language. */
   settings: { sound: boolean; music: boolean; locale: string; hardMode: boolean }
   /** Distinct real-world days with at least one care action. */
@@ -127,6 +146,8 @@ export type Action =
   | { type: 'catchRaindrop' }
   | { type: 'wishOnStar' }
   | { type: 'markFireflies' }
+  | { type: 'letCatIn' }
+  | { type: 'rescueSnail' }
   | { type: 'feedTrap'; plantId: string; trapId: string }
   | { type: 'feedPlant' }
   | { type: 'catchInsect'; plantId: string; trapId: string; insect: InsectKind }

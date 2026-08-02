@@ -98,7 +98,8 @@
     "wake": "Væk den",
     "cutFlower": "Klip stilken",
     "letBloom": "Lad den blomstre",
-    "removePlant": "Ryd potten"
+    "removePlant": "Ryd potten",
+    "letCatIn": "Luk den ind"
   },
   "placement": {
     "south-window": "Sydvindue",
@@ -127,6 +128,7 @@
     "dailyBonus": "Daglig pasningsbonus: +5 dugdråber",
     "dormant": "{{name}} sover vintersøvn. 💤 Sov godt — vi ses til foråret.",
     "winterHint": "Det er vinter — {{name}} trænger til en lang lur. Springes den over, slides planten.",
+    "catAtWindow": "En gennemblødt lille kat mjaver ude ved ruden…",
     "flowerChoice": "{{name}} skyder en blomsterstilk! At klippe den er det sikre valg — blomstring koster kræfter, men giver frø.",
     "blooming": "{{name}} blomstrer 🌼 — smukt, men lidt udmattende.",
     "dead": "💀 {{name}} klarede den ikke. Hard mode er nådesløs."
@@ -136,6 +138,7 @@
     "pitch": "Optjente dugdråber køber nye frø, udstyr og lidt pynt.",
     "owned": "Ejet",
     "noSpots": "Ingen ledige pladser",
+    "needsGreenhouse": "Kræver drivhuset",
     "items": {
       "seed-drosera": {
         "name": "Soldug-frø",
@@ -168,6 +171,10 @@
       "greenhouse": {
         "name": "Drivhus",
         "desc": "Et lille glashus i haven — tre solrige, fugtige pladser til flere planter."
+      },
+      "tadpole-jar": {
+        "name": "En frø (ikke et frø)",
+        "desc": "En lille svømmer i dag, en drivhus-frø om en uge. Ægte frøer hugger insekter fra kandeplanter!"
       },
       "gnome": {
         "name": "Vindueskarm-nisse",
@@ -257,7 +264,11 @@
     "night-owl": "Natteravn",
     "first-wish": "Ønsk dig noget",
     "firefly-night": "Ildfluenat",
-    "cultivar-collector": "Kultivar-samler"
+    "cultivar-collector": "Kultivar-samler",
+    "pet-frog": "Fuldendt forvandling!",
+    "pet-cat": "Regnvejrsven",
+    "pet-snail": "Verdens roligste kæledyr",
+    "full-house": "Fuldt hus"
   },
   "onboarding": {
     "welcome1": "Flytrap Keeper er et roligt pasningsspil i realtid. Din kødædende plante lever videre, mens du er væk — kig forbi et par gange om dagen, pas den, og se den vokse fra spire til blomst.",

@@ -15,6 +15,10 @@ export const ACHIEVEMENTS = [
   'first-wish',
   'firefly-night',
   'cultivar-collector',
+  'pet-frog',
+  'pet-cat',
+  'pet-snail',
+  'full-house',
 ] as const
 
 export type AchievementId = (typeof ACHIEVEMENTS)[number]

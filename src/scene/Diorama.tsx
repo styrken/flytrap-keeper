@@ -6,7 +6,7 @@ import { RainBarrel } from './Barrel'
 import { Insects } from './Insects'
 import { palette } from './palette'
 import { PlantPot } from './PlantPot'
-import { Room } from './Room'
+import { Room, RoomDecor } from './Room'
 import { WeatherSky } from './WeatherSky'
 
 const MODEL_WATERING_CAN = '/models/watering-can.glb'
@@ -17,6 +17,7 @@ export function Diorama() {
   return (
     <group>
       <Room />
+      <RoomDecor />
       <Windowsill />
       <WindowFrame />
       <WeatherSky />

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import da from '../locales/da.json'
 import en from '../locales/en.json'
 import { initI18n } from '../src/i18n'
+import { SHOP_ITEMS } from '../src/sim'
 
 const keyPaths = (node: unknown, prefix = ''): string[] => {
   if (typeof node === 'string') return [prefix]
@@ -43,5 +44,13 @@ describe('i18n', () => {
 
   it('the Danish translation covers exactly the English keys', () => {
     expect(keyPaths(da).sort()).toEqual(keyPaths(en).sort())
+  })
+
+  it('every shop item has a name and description', () => {
+    const paths = new Set(keyPaths(en))
+    for (const item of SHOP_ITEMS) {
+      expect(paths.has(`shop.items.${item.id}.name`), item.id).toBe(true)
+      expect(paths.has(`shop.items.${item.id}.desc`), item.id).toBe(true)
+    }
   })
 })

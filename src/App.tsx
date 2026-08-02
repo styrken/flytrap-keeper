@@ -26,8 +26,8 @@ export default function App() {
           maxDistance={7}
           minPolarAngle={0.7}
           maxPolarAngle={1.5}
-          minAzimuthAngle={-0.85}
-          maxAzimuthAngle={0.85}
+          minAzimuthAngle={-1.45}
+          maxAzimuthAngle={1.45}
         />
       </Canvas>
       <Hud />

@@ -118,6 +118,26 @@
         "name": "Vindueskarm-nisse",
         "desc": "Ren pynt. Dømmer lydløst din vandingsrytme."
       },
+      "rug": {
+        "name": "Hyggeligt tæppe",
+        "desc": "Binder hele værelset sammen."
+      },
+      "poster": {
+        "name": "Monsterfilm-plakat",
+        "desc": "ATTACK OF THE GIANT FLYTRAP — en klassiker. Hænger over skrivebordet."
+      },
+      "radio": {
+        "name": "Hylderadio",
+        "desc": "Spiller plantevenlige toner på væghylden."
+      },
+      "lamp": {
+        "name": "Gulvlampe",
+        "desc": "Et varmt skær til læsehjørnet — hyggeligst efter mørkets frembrud."
+      },
+      "computer": {
+        "name": "Skrivebords-computer",
+        "desc": "Til at slå kødædende plante-fakta op. Absolut ikke til spil."
+      },
       "pot-blue": { "name": "Blå potte", "desc": "Ompot den valgte plante i roligt blåt." },
       "pot-mint": { "name": "Mintgrøn potte", "desc": "Ompot den valgte plante i frisk mint." },
       "pot-plum": {

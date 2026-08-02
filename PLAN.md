@@ -323,6 +323,9 @@ _Mål: En Venus flytrap i 3D man reelt kan passe over flere dage — og som gemm
 ### Efter launch
 
 - [x] Daglige opgaver: 3 tilfældige (men deterministiske pr. dag) opgaver — vand ×2, fang ×2, lug ×2, kæl ×2, perfekt hældning, dis kandebæreren (kun når man ejer en levende Nepenthes). +5 🫧 pr. opgave, +10 bonus når alle tre er klaret; 📋-knap med rød prik i HUD'en og toast ved fuldførelse. Nulstilles ved UTC-midnat.
+- [x] "Start forfra"-knap under Din save (to-trins bekræftelse) + genoptagelig onboarding efter reload
+- [x] Værelset bygget færdigt: alle vægge (dollhouse-teknik — sidevægge er ensidede og usynlige udefra), matteret sidevindue, seng, skrivebord, stol, væghylde med kaktus, vægur; kameraet kan dreje meget længere rundt (azimuth ±1,45 rad)
+- [x] Indret-dit-værelse i butikken: tæppe (35), plakat (30), hylderadio (45), gulvlampe (55, lyser om aftenen) og computer (90, skærmen gløder) — samme deco-mekanisme som nissen, så gamle saves virker uændret. _Fravalg: fri træk-og-slip-placering — faste, håndplacerede pladser er langt bedre på mobil._
 
 ### Backlog (senere, efter lyst)
 

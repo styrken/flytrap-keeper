@@ -118,6 +118,26 @@
         "name": "Windowsill gnome",
         "desc": "Purely decorative. Judges your watering schedule silently."
       },
+      "rug": {
+        "name": "Cosy rug",
+        "desc": "Ties the whole room together."
+      },
+      "poster": {
+        "name": "Monster-movie poster",
+        "desc": "ATTACK OF THE GIANT FLYTRAP — a classic. Hangs over the desk."
+      },
+      "radio": {
+        "name": "Shelf radio",
+        "desc": "Plays plant-friendly tunes on the wall shelf."
+      },
+      "lamp": {
+        "name": "Floor lamp",
+        "desc": "A warm glow for the reading corner — cosiest after dark."
+      },
+      "computer": {
+        "name": "Desk computer",
+        "desc": "For looking up carnivorous-plant facts. Definitely not for games."
+      },
       "pot-blue": { "name": "Blue pot", "desc": "Repot the selected plant in calm blue." },
       "pot-mint": { "name": "Mint pot", "desc": "Repot the selected plant in fresh mint." },
       "pot-plum": { "name": "Plum pot", "desc": "Repot the selected plant in royal plum." }

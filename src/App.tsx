@@ -17,7 +17,7 @@ import { ShopDialog } from './ui/ShopDialog'
 export default function App() {
   return (
     <div className="app">
-      <Canvas camera={{ position: [SPAWN.x, 1.05, SPAWN.z + 2.45], fov: 42 }} dpr={[1, 2]}>
+      <Canvas camera={{ position: [SPAWN.x, 1.35, SPAWN.z + 2.6], fov: 42 }} dpr={[1, 2]}>
         <color attach="background" args={['#ead9c2']} />
         <Lights />
         <Suspense fallback={null}>
@@ -30,8 +30,8 @@ export default function App() {
           enablePan={false}
           enableDamping
           dampingFactor={0.16}
-          minDistance={1.4}
-          maxDistance={6}
+          minDistance={1.7}
+          maxDistance={7}
           minPolarAngle={0.7}
           maxPolarAngle={1.5}
           minAzimuthAngle={-1.45}

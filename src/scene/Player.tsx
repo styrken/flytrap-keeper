@@ -23,6 +23,10 @@ const SKIN = '#e8c49a'
 const HAIR = '#5f4630'
 const SHOE = '#4c3a28'
 
+/** The body parts below are authored at ~0.85 units tall; this scales the
+ * whole kid up to ~1.36 so the room reads as a room, not a cathedral. */
+const AVATAR_SCALE = 1.6
+
 /** What the follow logic needs from OrbitControls (set via makeDefault). */
 interface FollowControls {
   target: Vector3
@@ -142,11 +146,15 @@ export function Player() {
     setX(armL.current, airborne ? -0.6 : -swing * 0.75)
     setX(armR.current, airborne ? -0.35 : swing * 0.75)
 
-    const stepBounce = airborne ? 0 : Math.abs(Math.sin(phase.current)) * 0.035 * s
+    const stepBounce = airborne ? 0 : Math.abs(Math.sin(phase.current)) * 0.055 * s
     g.position.set(pos.current.x, FLOOR_Y + after.y + stepBounce, pos.current.z)
     g.rotation.y = yaw.current
     const sq = squash.current
-    g.scale.set(1 + 0.1 * sq, 1 - 0.16 * sq, 1 + 0.1 * sq)
+    g.scale.set(
+      AVATAR_SCALE * (1 + 0.1 * sq),
+      AVATAR_SCALE * (1 - 0.16 * sq),
+      AVATAR_SCALE * (1 + 0.1 * sq),
+    )
 
     // The blob shadow stays on whatever is below, shrinking with air height.
     if (shadow.current) {
@@ -181,11 +189,16 @@ export function Player() {
     <>
       {/* soft blob shadow to ground the figure — projected on the surface below */}
       <mesh ref={shadow} rotation-x={-Math.PI / 2} position={[SPAWN.x, FLOOR_Y + 0.025, SPAWN.z]}>
-        <circleGeometry args={[0.19, 12]} />
+        <circleGeometry args={[0.3, 12]} />
         <meshBasicMaterial color="#3a2d21" transparent opacity={0.16} />
       </mesh>
 
-      <group ref={root} position={[SPAWN.x, FLOOR_Y, SPAWN.z]} rotation-y={SPAWN.yaw}>
+      <group
+        ref={root}
+        position={[SPAWN.x, FLOOR_Y, SPAWN.z]}
+        rotation-y={SPAWN.yaw}
+        scale={AVATAR_SCALE}
+      >
         {/* legs (pivot at the hip) */}
         <group ref={legL} position={[-0.062, 0.3, 0]}>
           <mesh position={[0, -0.15, 0]}>

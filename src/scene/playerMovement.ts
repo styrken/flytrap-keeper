@@ -29,18 +29,18 @@ export interface VerticalState {
 /** Top surface of the room's floor box (see Room.tsx). */
 export const FLOOR_Y = -0.89
 /** Feet-circle radius — a chunky kid takes up about this much floor. */
-export const PLAYER_RADIUS = 0.16
+export const PLAYER_RADIUS = 0.26
 /** Walking speed in room units per second. */
-export const PLAYER_SPEED = 1.75
+export const PLAYER_SPEED = 2.2
 /** Height above the feet the camera looks at (about the avatar's head). */
-export const HEAD_HEIGHT = 0.62
+export const HEAD_HEIGHT = 1.0
 /** Where a session starts: on the rug, facing the windowsill. */
 export const SPAWN = { x: 0.5, z: 2.3, yaw: Math.PI }
 
-/** Gravity and jump impulse: apex ≈ v²/2g ≈ 0.54 — onto the bed or chair
+/** Gravity and jump impulse: apex ≈ v²/2g ≈ 0.6 — onto the bed or chair
  * from the floor, onto the desk from the chair, never onto the windowsill. */
 export const GRAVITY = 8
-export const JUMP_VELOCITY = 2.95
+export const JUMP_VELOCITY = 3.1
 /** Ledges lower than this are stepped onto instead of blocking. */
 export const STEP_UP = 0.08
 /** A landing faster than this on the bed bounces back up. */
@@ -56,7 +56,7 @@ export const WALL = Number.POSITIVE_INFINITY
  * middle of the window wall is a collider (not a bound), so the avatar can
  * still walk right up to the window left and right of it.
  */
-export const ROOM_BOUNDS = { minX: -3.4, maxX: 3.4, minZ: -0.34, maxZ: 3.88 }
+export const ROOM_BOUNDS = { minX: -3.31, maxX: 3.31, minZ: -0.24, maxZ: 3.79 }
 
 /** Footprints of the fixed furniture (positions from Room.tsx / Diorama.tsx). */
 const FURNITURE: Collider[] = [

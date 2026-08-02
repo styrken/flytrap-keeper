@@ -160,10 +160,10 @@ describe('jumping', () => {
     return { state: s, peak, bounced }
   }
 
-  it('a jump rises about half a unit and lands back on the floor', () => {
+  it('a jump rises about six tenths of a unit and lands back on the floor', () => {
     const { state, peak } = simulate({ y: 0, vy: 0, grounded: true }, FLOOR, 2, true)
-    expect(peak).toBeGreaterThan(0.5)
-    expect(peak).toBeLessThan(0.6)
+    expect(peak).toBeGreaterThan(0.55)
+    expect(peak).toBeLessThan(0.65)
     expect(state).toEqual({ y: 0, vy: 0, grounded: true })
   })
 

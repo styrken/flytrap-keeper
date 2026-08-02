@@ -1,8 +1,8 @@
 import { SIM } from './config'
 import { drawQuests } from './quests'
 import { SAVE_VERSION } from './save'
-import { DEFAULT_NICKNAMES, SPECIES } from './species'
-import type { GameState, PlantState, SpeciesId, TrapState } from './types'
+import { CULTIVAR_NICKNAMES, DEFAULT_NICKNAMES, SPECIES } from './species'
+import type { CultivarId, GameState, PlantState, SpeciesId, TrapState } from './types'
 
 export const freshTrap = (id: string): TrapState => ({
   id,
@@ -11,12 +11,18 @@ export const freshTrap = (id: string): TrapState => ({
   witheredAt: null,
 })
 
-export function createPlant(id: string, speciesId: SpeciesId, now: number): PlantState {
+export function createPlant(
+  id: string,
+  speciesId: SpeciesId,
+  now: number,
+  cultivar: CultivarId | null = null,
+): PlantState {
   const trapCount = SPECIES[speciesId].stages[0].trapCount
   return {
     id,
     speciesId,
-    nickname: DEFAULT_NICKNAMES[speciesId],
+    cultivar,
+    nickname: cultivar ? CULTIVAR_NICKNAMES[cultivar] : DEFAULT_NICKNAMES[speciesId],
     water: 90,
     nutrition: 60,
     health: 100,

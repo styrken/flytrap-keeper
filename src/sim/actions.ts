@@ -6,7 +6,7 @@ import { seasonAt } from './season'
 import { currentWeather } from './weather'
 import { canMoveTo, isTrapReady } from './selectors'
 import { MAX_PLANTS, plantCapacity, shopItem, sillPlantCount } from './shop'
-import { SPECIES } from './species'
+import { CULTIVARS, SPECIES } from './species'
 import { createPlant } from './state'
 import { tick } from './tick'
 import { TIME_SCALES, toGameTime, withTimeScale } from './time'
@@ -192,15 +192,18 @@ function applyAction(s: GameState, action: Action, now: number, realNow: number)
       if (item.kind === 'seed') {
         if (s.plants.length >= plantCapacity(s) || !item.speciesId) return s
         const id = `p${s.plants.map((p) => p.id).reduce((max, pid) => Math.max(max, Number(pid.slice(1)) || 0), 0) + 1}`
-        const sprout = createPlant(id, item.speciesId, now)
+        const sprout = createPlant(id, item.speciesId, now, item.cultivarId ?? null)
         // A full sill sends the new sprout straight to the greenhouse bench.
         if (sillPlantCount(s) >= MAX_PLANTS) sprout.placement = 'greenhouse'
-        return {
+        let next: GameState = {
           ...s,
           plants: [...s.plants, sprout],
           activePlantId: sprout.id,
           inventory: { ...s.inventory, dewdrops: s.inventory.dewdrops - item.cost },
         }
+        const grown = new Set(next.plants.map((p) => p.cultivar))
+        if (CULTIVARS.every((c) => grown.has(c))) next = award(next, 'cultivar-collector')
+        return next
       }
       if (item.kind === 'unlock' || item.kind === 'deco') {
         if (s.inventory.items.includes(item.id)) return s

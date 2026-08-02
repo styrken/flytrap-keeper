@@ -81,10 +81,18 @@ const MIGRATIONS: Record<number, Migration> = {
       typeof settings.locale === 'string' && settings.locale !== 'en' ? settings.locale : ''
     return { ...data, settings: { ...settings, locale } }
   },
-  // v11 -> v12: night life (star wishes) — nothing wished for yet.
+  // v11 -> v12: night life (star wishes) and cultivars — existing plants are
+  // the plain species, and nothing has been wished for yet.
   11: (data) => {
     const minigames = (data.minigames ?? {}) as RawSave
-    return { ...data, minigames: { ...minigames, lastWishAt: null } }
+    return {
+      ...data,
+      minigames: { ...minigames, lastWishAt: null },
+      plants: ((Array.isArray(data.plants) ? data.plants : []) as RawSave[]).map((plant) => ({
+        ...plant,
+        cultivar: null,
+      })),
+    }
   },
 }
 

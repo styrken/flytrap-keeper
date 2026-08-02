@@ -149,6 +149,18 @@
         "name": "Trumpet pitcher rhizome",
         "desc": "Sun-hungry trumpets that need a real winter rest."
       },
+      "seed-justina": {
+        "name": "‘Justina Davis’ seeds",
+        "desc": "A rare flytrap that stays entirely green — gentle, sun-proof elegance."
+      },
+      "seed-b52": {
+        "name": "‘B52’ seeds",
+        "desc": "A rare giant flytrap — grows the biggest traps of them all."
+      },
+      "seed-red-dragon": {
+        "name": "‘Red Dragon’ seeds",
+        "desc": "A rare all-red flytrap — Akai Ryū wears autumn colours all year."
+      },
       "growlight": {
         "name": "Grow light",
         "desc": "Perfect light in any weather — a new spot for any plant."
@@ -190,6 +202,20 @@
     "title": "Species lexicon",
     "locked": "??? — grow this species to unlock its story."
   },
+  "cultivar": {
+    "b52": {
+      "name": "B52",
+      "facts": "A celebrated giant among flytraps — its traps grow well past five centimetres, among the largest ever raised. The name was simply the grower's bench label, not the bomber."
+    },
+    "red-dragon": {
+      "name": "Red Dragon",
+      "facts": "An all-red cultivar — 'Akai Ryū' is Japanese for red dragon. The burgundy comes from anthocyanin, the same pigment that reddens autumn leaves, and it deepens in strong light."
+    },
+    "justina": {
+      "name": "Justina Davis",
+      "facts": "Stays entirely green even in blazing sun — a natural variant that makes no red pigment at all. Named after the wife of the colonial governor who wrote the first known description of the Venus flytrap."
+    }
+  },
   "quests": {
     "title": "Daily tasks",
     "reset": "New tasks tomorrow",
@@ -219,7 +245,8 @@
     "in-bloom": "In bloom",
     "night-owl": "Night owl",
     "first-wish": "Wish upon a star",
-    "firefly-night": "Firefly night"
+    "firefly-night": "Firefly night",
+    "cultivar-collector": "Cultivar collector"
   },
   "onboarding": {
     "welcome1": "Flytrap Keeper is a calm, real-time care game. Your carnivorous plant lives on while you're away — drop by a few times a day, tend to it, and watch it grow from seedling to bloom.",

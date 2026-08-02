@@ -149,6 +149,18 @@
         "name": "Trompetkande-rodstok",
         "desc": "Solhungrende trompeter med behov for ægte vinterdvale."
       },
+      "seed-justina": {
+        "name": "‘Justina Davis’-frø",
+        "desc": "En sjælden fluefanger, der forbliver helt grøn — blid, solsikker elegance."
+      },
+      "seed-b52": {
+        "name": "‘B52’-frø",
+        "desc": "En sjælden kæmpe-fluefanger — får de største fælder af dem alle."
+      },
+      "seed-red-dragon": {
+        "name": "‘Red Dragon’-frø",
+        "desc": "En sjælden helrød fluefanger — Akai Ryū bærer efterårsfarver hele året."
+      },
       "growlight": {
         "name": "Growlampe",
         "desc": "Perfekt lys i al slags vejr — en ny plads til enhver plante."
@@ -193,6 +205,20 @@
     "title": "Artsleksikon",
     "locked": "??? — dyrk arten for at låse dens historie op."
   },
+  "cultivar": {
+    "b52": {
+      "name": "B52",
+      "facts": "En berømt kæmpe blandt fluefangere — fælderne bliver godt over fem centimeter, blandt de største nogensinde. Navnet var bare gartnerens bakke-mærkat, ikke bombeflyet."
+    },
+    "red-dragon": {
+      "name": "Red Dragon",
+      "facts": "En helrød kultivar — 'Akai Ryū' er japansk for rød drage. Det dybrøde kommer fra anthocyanin, samme pigment som farver efterårsblade, og bliver dybere i stærkt lys."
+    },
+    "justina": {
+      "name": "Justina Davis",
+      "facts": "Forbliver helt grøn selv i bagende sol — en naturlig variant helt uden rødt pigment. Opkaldt efter hustruen til kolonitidens guvernør, der skrev den første kendte beskrivelse af Venusfluefangeren."
+    }
+  },
   "quests": {
     "title": "Dagens opgaver",
     "reset": "Nye opgaver i morgen",
@@ -222,7 +248,8 @@
     "in-bloom": "I blomst",
     "night-owl": "Natteravn",
     "first-wish": "Ønsk dig noget",
-    "firefly-night": "Ildfluenat"
+    "firefly-night": "Ildfluenat",
+    "cultivar-collector": "Kultivar-samler"
   },
   "onboarding": {
     "welcome1": "Flytrap Keeper er et roligt pasningsspil i realtid. Din kødædende plante lever videre, mens du er væk — kig forbi et par gange om dagen, pas den, og se den vokse fra spire til blomst.",

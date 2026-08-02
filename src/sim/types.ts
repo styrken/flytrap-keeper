@@ -1,4 +1,6 @@
 export type SpeciesId = 'dionaea' | 'drosera' | 'nepenthes' | 'sarracenia'
+/** Real Dionaea cultivars — visual rarities of the same species, same care. */
+export type CultivarId = 'b52' | 'red-dragon' | 'justina'
 export type PlacementId = 'north-window' | 'south-window' | 'growlight' | 'greenhouse'
 export type WeatherKind = 'sun' | 'clouds' | 'rain'
 export type InsectKind = 'fly' | 'mosquito' | 'spider' | 'beetle' | 'moth'
@@ -16,6 +18,9 @@ export type ShopItemId =
   | 'seed-drosera'
   | 'seed-nepenthes'
   | 'seed-sarracenia'
+  | 'seed-b52'
+  | 'seed-red-dragon'
+  | 'seed-justina'
   | 'growlight'
   | 'greenhouse'
   | 'gnome'
@@ -47,6 +52,8 @@ export interface FloweringState {
 export interface PlantState {
   id: string
   speciesId: SpeciesId
+  /** Cosmetic rarity of the species (dionaea only for now) — care is identical. */
+  cultivar: CultivarId | null
   nickname: string
   water: number
   nutrition: number

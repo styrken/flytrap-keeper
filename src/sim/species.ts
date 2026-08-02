@@ -1,4 +1,4 @@
-import type { PlacementId, SpeciesId } from './types'
+import type { CultivarId, PlacementId, SpeciesId } from './types'
 
 export interface StageDef {
   xpThreshold: number
@@ -86,4 +86,14 @@ export const DEFAULT_NICKNAMES: Record<SpeciesId, string> = {
   drosera: 'Dewy',
   nepenthes: 'Pia',
   sarracenia: 'Sara',
+}
+
+/** All collectable cultivars, in shop order — owning them all is an achievement. */
+export const CULTIVARS: CultivarId[] = ['b52', 'red-dragon', 'justina']
+
+/** Cultivar sprouts arrive with a fitting name of their own. */
+export const CULTIVAR_NICKNAMES: Record<CultivarId, string> = {
+  b52: 'Bertha',
+  'red-dragon': 'Draco',
+  justina: 'Justina',
 }

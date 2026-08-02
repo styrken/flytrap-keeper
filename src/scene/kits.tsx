@@ -4,7 +4,7 @@ import { useFrame } from '@react-three/fiber'
 import { useMemo, useRef } from 'react'
 import type { Group } from 'three'
 import { playSnap, playTease } from '../audio'
-import { type PlantState, type TrapState, isTrapReady } from '../sim'
+import { type CultivarId, type PlantState, type TrapState, isTrapReady } from '../sim'
 import { sceneNow, useIsVisiting, useSceneDispatch } from '../sceneView'
 import { insectBus } from './insectBus'
 import { palette } from './palette'
@@ -40,10 +40,27 @@ export function PlantKit({ plant }: { plant: PlantState }) {
   )
 }
 
+/**
+ * Real Dionaea cultivars, told apart the honest way: colour and proportion.
+ * B52 grows giant traps, Red Dragon is anthocyanin-red all over, and
+ * Justina Davis never colours up at all.
+ */
+const CULTIVAR_LOOK: Record<
+  CultivarId,
+  { trap: string; mouth: string; stem: string; trapScale: number }
+> = {
+  b52: { trap: palette.trap, mouth: palette.mouth, stem: palette.stem, trapScale: 1.28 },
+  'red-dragon': { trap: '#9a4258', mouth: '#6e2338', stem: '#8a5560', trapScale: 1 },
+  justina: { trap: '#63c05e', mouth: '#a5d97f', stem: palette.stem, trapScale: 1 },
+}
+
+const cultivarLook = (plant: PlantState) => (plant.cultivar ? CULTIVAR_LOOK[plant.cultivar] : null)
+
 const kitColors = (plant: PlantState) => {
   const dull = plant.wilted || plant.dead
+  const look = cultivarLook(plant)
   return {
-    stem: plant.dead ? '#8a7355' : dull ? palette.stemWilted : palette.stem,
+    stem: plant.dead ? '#8a7355' : dull ? palette.stemWilted : (look?.stem ?? palette.stem),
     leaf: plant.dead ? '#96825f' : dull ? '#87a05f' : '#7fae4f',
     accent: plant.dead ? '#7a6248' : '#d4506e',
   }
@@ -53,6 +70,7 @@ const kitColors = (plant: PlantState) => {
 
 function DionaeaKit({ plant }: { plant: PlantState }) {
   const colors = kitColors(plant)
+  const trapScale = cultivarLook(plant)?.trapScale ?? 1
   return (
     <group>
       {plant.traps.map((trap, i) => {
@@ -65,7 +83,9 @@ function DionaeaKit({ plant }: { plant: PlantState }) {
                 <boxGeometry args={[0.045, stemHeight, 0.045]} />
                 <meshStandardMaterial color={colors.stem} />
               </mesh>
-              <Trap trap={trap} index={i} plant={plant} position={[0, stemHeight + 0.02, 0]} />
+              <group position={[0, stemHeight + 0.02, 0]} scale={trapScale}>
+                <Trap trap={trap} index={i} plant={plant} position={[0, 0, 0]} />
+              </group>
             </group>
           </group>
         )
@@ -161,12 +181,13 @@ function Trap({
     }
   })
 
+  const look = cultivarLook(plant)
   const trapColor = withered
     ? palette.trapWithered
     : plant.wilted || plant.dead
       ? palette.trapWilted
-      : palette.trap
-  const mouthColor = withered ? palette.mouthWithered : palette.mouth
+      : (look?.trap ?? palette.trap)
+  const mouthColor = withered ? palette.mouthWithered : (look?.mouth ?? palette.mouth)
 
   return (
     <group

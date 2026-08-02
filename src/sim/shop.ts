@@ -1,10 +1,12 @@
-import type { GameState, PlantState, ShopItemId, SpeciesId } from './types'
+import type { CultivarId, GameState, PlantState, ShopItemId, SpeciesId } from './types'
 
 export interface ShopItem {
   id: ShopItemId
   cost: number
   kind: 'seed' | 'unlock' | 'deco' | 'pot'
   speciesId?: SpeciesId
+  /** Seed of a named rarity — same species, its own look. */
+  cultivarId?: CultivarId
   potColor?: string
 }
 
@@ -30,6 +32,15 @@ export const SHOP_ITEMS: ShopItem[] = [
   { id: 'seed-drosera', cost: 50, kind: 'seed', speciesId: 'drosera' },
   { id: 'seed-nepenthes', cost: 120, kind: 'seed', speciesId: 'nepenthes' },
   { id: 'seed-sarracenia', cost: 200, kind: 'seed', speciesId: 'sarracenia' },
+  { id: 'seed-justina', cost: 100, kind: 'seed', speciesId: 'dionaea', cultivarId: 'justina' },
+  { id: 'seed-b52', cost: 120, kind: 'seed', speciesId: 'dionaea', cultivarId: 'b52' },
+  {
+    id: 'seed-red-dragon',
+    cost: 140,
+    kind: 'seed',
+    speciesId: 'dionaea',
+    cultivarId: 'red-dragon',
+  },
   { id: 'growlight', cost: 150, kind: 'unlock' },
   { id: 'greenhouse', cost: 250, kind: 'unlock' },
   { id: 'gnome', cost: 60, kind: 'deco' },

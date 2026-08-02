@@ -199,7 +199,9 @@ export function Hud() {
               </button>
             )}{' '}
             <span className="hud-wide">
-              · {t(`species.${plant.speciesId}.name`)} · {t(`stage.${plant.stage}`)}
+              · {t(`species.${plant.speciesId}.name`)}
+              {plant.cultivar && <> ‘{t(`cultivar.${plant.cultivar}.name`)}’</>} ·{' '}
+              {t(`stage.${plant.stage}`)}
             </span>{' '}
             {MOOD_ICON[mood(plant, season === 'winter')]} ·{' '}
             <span title={t(`weather.${weather}`)}>{WEATHER_ICON[weather]}</span>{' '}

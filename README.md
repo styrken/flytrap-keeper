@@ -56,3 +56,6 @@ After setup, every push to the default branch deploys to production and every pu
 - [x] Post-launch — jumping: Space (or the Hop button) hops onto the bed and chair, chair → desk works, and the bed is bouncy
 - [x] Post-launch — greenhouse: a buyable glass room with three extra bench spots, bright light and humid air
 - [x] Post-launch — friends: add by username, chat, and visit each other's rooms read-only (requires a cloud account)
+- [x] Post-launch — night life: moths orbit the floor lamp after dark, fireflies visit on some summer nights, and shooting stars grant wishes
+- [x] Post-launch — cultivars: three real flytrap rarities ('Justina Davis', 'B52', 'Red Dragon') as rare seeds with their own looks and lexicon facts
+- [x] Post-launch — photo mode (postcard snapshots with save/share) and plant accessories: googly eyes that ride the snapping jaw, and a little bow

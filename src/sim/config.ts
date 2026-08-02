@@ -28,4 +28,6 @@ export const SIM = {
   DIGEST_HOURS: 4,
   TRAP_USES: 3,
   TRAP_REGROW_HOURS: 24,
+
+  NICKNAME_MAX_LENGTH: 20,
 } as const

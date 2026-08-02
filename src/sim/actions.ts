@@ -38,6 +38,11 @@ export function apply(state: GameState, action: Action, now: number): GameState 
       if (plant.placement === action.placement) return s
       return withPlant(s, { ...plant, placement: action.placement }, now)
     }
+    case 'rename': {
+      const nickname = action.nickname.trim().slice(0, SIM.NICKNAME_MAX_LENGTH)
+      if (!nickname || nickname === plant.nickname) return s
+      return withPlant(s, { ...plant, nickname }, now)
+    }
   }
 }
 

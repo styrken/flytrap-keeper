@@ -19,7 +19,8 @@
   "actions": {
     "water": "Water",
     "feed": "Feed",
-    "spot": "Window spot"
+    "spot": "Window spot",
+    "rename": "Name your plant"
   },
   "placement": {
     "south-window": "South window",

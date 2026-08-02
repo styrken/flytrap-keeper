@@ -159,6 +159,29 @@ describe('wilting and recovery', () => {
   })
 })
 
+describe('renaming', () => {
+  it('sets a trimmed nickname', () => {
+    const next = apply(init(), { type: 'rename', nickname: '  Audrey II  ' }, T0)
+    expect(activePlant(next)?.nickname).toBe('Audrey II')
+  })
+
+  it('rejects empty and whitespace-only names', () => {
+    const state = init()
+    expect(apply(state, { type: 'rename', nickname: '   ' }, T0)).toBe(state)
+    expect(apply(state, { type: 'rename', nickname: '' }, T0)).toBe(state)
+  })
+
+  it('clamps names to the max length', () => {
+    const next = apply(init(), { type: 'rename', nickname: 'A'.repeat(50) }, T0)
+    expect(activePlant(next)?.nickname).toHaveLength(SIM.NICKNAME_MAX_LENGTH)
+  })
+
+  it('is a no-op when the name is unchanged', () => {
+    const state = init()
+    expect(apply(state, { type: 'rename', nickname: 'Venus' }, T0)).toBe(state)
+  })
+})
+
 describe('growth stages', () => {
   it('advancing past a threshold raises the stage and grows new traps', () => {
     const state = init()

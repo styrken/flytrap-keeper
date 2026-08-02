@@ -40,3 +40,4 @@ export type Action =
   | { type: 'water' }
   | { type: 'feedTrap'; trapId: string }
   | { type: 'move'; placement: PlacementId }
+  | { type: 'rename'; nickname: string }

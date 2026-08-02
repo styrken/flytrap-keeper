@@ -1,3 +1,4 @@
+import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { activePlant, firstReadyTrap, mood, readyTrapCount, stageProgress } from '../sim'
 import { useGame } from '../store'
@@ -10,6 +11,8 @@ export function Hud() {
   const state = useGame((s) => s.state)
   const dispatch = useGame((s) => s.dispatch)
   const plant = activePlant(state)
+  const [editingName, setEditingName] = useState(false)
+  const renameCancelled = useRef(false)
   if (!plant) return null
 
   const now = state.lastTickAt
@@ -22,7 +25,39 @@ export function Hud() {
         <div>
           <h1>{t('app.title')}</h1>
           <p className="tagline">
-            {plant.nickname} · {t(`stage.${plant.stage}`)} {MOOD_ICON[mood(plant)]}
+            {editingName ? (
+              <input
+                className="name-input"
+                defaultValue={plant.nickname}
+                maxLength={20}
+                autoFocus
+                aria-label={t('actions.rename')}
+                onBlur={(e) => {
+                  if (!renameCancelled.current) {
+                    dispatch({ type: 'rename', nickname: e.target.value })
+                  }
+                  renameCancelled.current = false
+                  setEditingName(false)
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') e.currentTarget.blur()
+                  if (e.key === 'Escape') {
+                    renameCancelled.current = true
+                    e.currentTarget.blur()
+                  }
+                }}
+              />
+            ) : (
+              <button
+                type="button"
+                className="name-button"
+                aria-label={t('actions.rename')}
+                onClick={() => setEditingName(true)}
+              >
+                {plant.nickname} ✏️
+              </button>
+            )}{' '}
+            · {t(`stage.${plant.stage}`)} {MOOD_ICON[mood(plant)]}
           </p>
         </div>
         <div className="meters">

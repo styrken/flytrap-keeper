@@ -1130,14 +1130,24 @@ h1 {
     font-size: 0.92rem;
   }
 
+  /* Care actions show only their emoji (the aria-label keeps the name), so the
+     whole row — actions plus window spots — usually fits on a single line. */
+  .act-label,
   .seg-label {
     display: none;
   }
 
+  .actions > button:has(.act-label) {
+    min-height: 48px;
+    padding: 0 15px;
+    font-size: 1.2rem;
+    border-radius: 999px;
+  }
+
   .segmented button {
-    min-height: 46px;
+    min-height: 48px;
     padding: 0 13px;
-    font-size: 1.05rem;
+    font-size: 1.2rem;
   }
 
   .plant-switcher button {

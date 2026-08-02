@@ -248,8 +248,10 @@ function DataSection() {
   const { t } = useTranslation()
   const state = useGame((s) => s.state)
   const adoptState = useGame((s) => s.adoptState)
+  const resetGame = useGame((s) => s.resetGame)
   const fileInput = useRef<HTMLInputElement>(null)
   const [importError, setImportError] = useState(false)
+  const [confirmReset, setConfirmReset] = useState(false)
 
   const exportSave = () => {
     const blob = new Blob([saveToString(state)], { type: 'application/json' })
@@ -296,6 +298,21 @@ function DataSection() {
           e.target.value = ''
         }}
       />
+      <button
+        type="button"
+        className={confirmReset ? 'danger' : ''}
+        onClick={() => {
+          if (!confirmReset) {
+            setConfirmReset(true)
+            return
+          }
+          setConfirmReset(false)
+          resetGame()
+        }}
+      >
+        🌱 {confirmReset ? t('data.resetConfirm') : t('data.reset')}
+      </button>
+      {confirmReset && <p className="muted">{t('data.resetWarning')}</p>}
     </section>
   )
 }

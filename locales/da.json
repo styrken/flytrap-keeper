@@ -230,7 +230,10 @@
     "title": "Din save",
     "export": "Eksportér save-fil",
     "import": "Importér save-fil",
-    "importError": "Den fil ligner ikke en Flytrap Keeper-save."
+    "importError": "Den fil ligner ikke en Flytrap Keeper-save.",
+    "reset": "Start forfra",
+    "resetConfirm": "Helt sikker på at rydde haven?",
+    "resetWarning": "Rydder haven på denne enhed — og sky-saven, hvis du er logget ind. Eksportér en save-fil først, hvis du er i tvivl."
   },
   "conflict": {
     "title": "Sky-save fundet",

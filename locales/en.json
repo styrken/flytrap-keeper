@@ -227,7 +227,10 @@
     "title": "Your save",
     "export": "Export save file",
     "import": "Import save file",
-    "importError": "That file doesn't look like a Flytrap Keeper save."
+    "importError": "That file doesn't look like a Flytrap Keeper save.",
+    "reset": "Start over",
+    "resetConfirm": "Really wipe the garden?",
+    "resetWarning": "This clears the garden on this device — and the cloud save, if you're signed in. Export a save file first if you're unsure."
   },
   "conflict": {
     "title": "Cloud save found",

@@ -36,6 +36,8 @@ interface GameStore {
   setSync: (sync: SyncState) => void
   /** Replace the whole game state (cloud adopt / file import) and persist it. */
   adoptState: (state: GameState) => void
+  /** Wipe the garden and start over from onboarding. Overwrites the cloud save if signed in. */
+  resetGame: () => void
   resolveConflict: (choice: 'local' | 'cloud') => void
   signOut: () => void
 }
@@ -81,6 +83,26 @@ export const useGame = create<GameStore>()((set, get) => ({
   adoptState: (rawState) => {
     const state = tick(rawState, Date.now())
     set({ state, conflict: null })
+    persist(state)
+  },
+  resetGame: () => {
+    const now = Date.now()
+    const state = createInitialState(now, now >>> 0)
+    try {
+      localStorage.setItem(ONBOARDED_KEY, '0')
+    } catch {
+      // ignore
+    }
+    set({
+      state,
+      showOnboarding: true,
+      onboardingPlanted: false,
+      showSettings: false,
+      showShop: false,
+      showLexicon: false,
+      showQuests: false,
+      conflict: null,
+    })
     persist(state)
   },
   resolveConflict: (choice) => {
@@ -167,14 +189,23 @@ export function initGame(now = Date.now()) {
   const isFresh = state === null
   state = state ? tick(state, now) : createInitialState(now, now >>> 0)
 
-  let onboarded = false
+  // Onboarding flag: absent = pre-existing garden (or brand new), '0' = started
+  // but unfinished (reset / interrupted), '1' = completed.
+  let onboarded: string | null = null
   try {
-    onboarded = localStorage.getItem(ONBOARDED_KEY) === '1'
+    onboarded = localStorage.getItem(ONBOARDED_KEY)
   } catch {
     // ignore
   }
 
-  const showOnboarding = isFresh && !onboarded
+  const showOnboarding = isFresh ? onboarded !== '1' : onboarded === '0'
+  if (showOnboarding && onboarded !== '0') {
+    try {
+      localStorage.setItem(ONBOARDED_KEY, '0')
+    } catch {
+      // ignore
+    }
+  }
   useGame.setState({ state, showOnboarding, onboardingPlanted: !showOnboarding })
   try {
     localStorage.setItem(SAVE_KEY, saveToString(state))

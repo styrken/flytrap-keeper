@@ -1,4 +1,4 @@
-# Flytrap Keeper 🪴 *(working title)*
+# Flytrap Keeper 🪴
 
 A cozy 3D browser game about caring for carnivorous plants — water your Venus flytrap with rainwater, catch flies for it, find the right windowsill, and watch it grow from seed to flowering plant. Blocky, chunky visuals in the spirit of Roblox/Minecraft.
 

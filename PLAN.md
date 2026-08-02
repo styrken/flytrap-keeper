@@ -1,4 +1,4 @@
-# Flytrap Keeper (arbejdstitel) — scope og implementeringsplan
+# Flytrap Keeper — scope og implementeringsplan
 
 Et hyggeligt **3D-browserspil**, hvor du plejer og passer dine egne kødædende planter: vander med regnvand, fanger fluer til middag, finder den rigtige vindueskarm — og ser din Venusfluefanger vokse fra frø til blomstrende plante i en lille levende diorama-scene.
 
@@ -15,17 +15,7 @@ Et hyggeligt **3D-browserspil**, hvor du plejer og passer dine egne kødædende 
 
 ## 2. Navn
 
-Arbejdstitel: **Flytrap Keeper**. Kandidater (alle med Venus flytrap i centrum):
-
-| Navn | Kommentar |
-|---|---|
-| **Flytrap Keeper** ⭐ | Beskrivende, søgevenligt, skalerer til flere arter ("keeper of carnivorous plants") |
-| Little Venus | Charmerende og cozy; mindre selvforklarende |
-| Snap! A Venus Flytrap Tale | Legende, god som undertitel: *Flytrap Keeper — a Venus flytrap tale* |
-| Feed Me, Venus | Blink til Little Shop of Horrors; humoristisk |
-| Venus & Me | Blødt og personligt |
-
-⭐ = anbefaling. Navnet er kun en konstant i koden og titelskærmen — det kan ændres når som helst.
+**Besluttet: Flytrap Keeper.** Beskrivende, søgevenligt og skalerer til flere arter ("keeper of carnivorous plants"). Valgfri undertitel til titelskærmen: *— a Venus flytrap tale*.
 
 ## 3. Core loop
 
@@ -340,9 +330,8 @@ Multiplayer og handel mellem spillere · mail, nyhedsbreve og tredjeparts-login 
 
 ## 15. Åbne spørgsmål
 
-1. **Navn:** Er **Flytrap Keeper** godkendt, eller en anden fra listen i afsnit 2?
-2. **Stil-hældning:** Mest Roblox (chunky klodser, flade farver — planens antagelse) eller mest Minecraft (voxels og pixel-teksturer)? Antagelsen er chunky med flade farver og voxel-props som krydderi.
-3. **Dansk** som første oversættelse efter engelsk — korrekt antaget?
+1. **Stil-hældning:** Mest Roblox (chunky klodser, flade farver — planens antagelse) eller mest Minecraft (voxels og pixel-teksturer)? Antagelsen er chunky med flade farver og voxel-props som krydderi.
+2. **Dansk** som første oversættelse efter engelsk — korrekt antaget?
 
 ## 16. Første skridt
 

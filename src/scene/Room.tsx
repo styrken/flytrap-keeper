@@ -1,11 +1,13 @@
 // The room around the windowsill. Static architecture + furniture in <Room />,
 // purchasable decor in <RoomDecor />. Side walls are single-sided planes facing
 // inward, so the camera can orbit outside the room and still see in (dollhouse
-// trick) — only the window wall is solid boxes, since the camera never gets
-// behind it.
+// trick). The window wall needs solid boxes for its reveals, so it plays the
+// trick differently: <DollhouseWall> hides it while the camera is behind it —
+// and the same wrapper puts a fourth wall behind the camera's usual seat.
 import { useIsVisiting, useSceneState } from '../sceneView'
 import { useGame } from '../store'
 import { daylightFactor } from './daylight'
+import { DollhouseWall } from './dollhouse'
 import { palette } from './palette'
 
 const WALL = '#f2e9da'
@@ -22,23 +24,30 @@ export function Room() {
         <meshStandardMaterial color="#a8804f" />
       </mesh>
 
-      {/* window wall: four segments around the opening */}
-      <mesh position={[-2.525, 0.955, -0.56]}>
-        <boxGeometry args={[2.45, 3.89, 0.12]} />
-        <meshStandardMaterial color={WALL} />
-      </mesh>
-      <mesh position={[2.525, 0.955, -0.56]}>
-        <boxGeometry args={[2.45, 3.89, 0.12]} />
-        <meshStandardMaterial color={WALL} />
-      </mesh>
-      <mesh position={[0, 2.48, -0.56]}>
-        <boxGeometry args={[2.6, 0.84, 0.12]} />
-        <meshStandardMaterial color={WALL} />
-      </mesh>
-      <mesh position={[0, -0.44, -0.56]}>
-        <boxGeometry args={[2.6, 1.1, 0.12]} />
-        <meshStandardMaterial color={WALL} />
-      </mesh>
+      {/* window wall: four segments around the opening, ducking out of sight
+          (skirting included) whenever the camera orbits behind them */}
+      <DollhouseWall z={-0.5}>
+        <mesh position={[-2.525, 0.955, -0.56]}>
+          <boxGeometry args={[2.45, 3.89, 0.12]} />
+          <meshStandardMaterial color={WALL} />
+        </mesh>
+        <mesh position={[2.525, 0.955, -0.56]}>
+          <boxGeometry args={[2.45, 3.89, 0.12]} />
+          <meshStandardMaterial color={WALL} />
+        </mesh>
+        <mesh position={[0, 2.48, -0.56]}>
+          <boxGeometry args={[2.6, 0.84, 0.12]} />
+          <meshStandardMaterial color={WALL} />
+        </mesh>
+        <mesh position={[0, -0.44, -0.56]}>
+          <boxGeometry args={[2.6, 1.1, 0.12]} />
+          <meshStandardMaterial color={WALL} />
+        </mesh>
+        <mesh position={[0, -0.78, -0.49]}>
+          <boxGeometry args={[7.3, 0.22, 0.07]} />
+          <meshStandardMaterial color="#f0e6d4" />
+        </mesh>
+      </DollhouseWall>
 
       {/* side walls: inward-facing planes, invisible from outside */}
       <mesh position={[-3.65, 0.955, 1.655]} rotation-y={Math.PI / 2}>
@@ -50,11 +59,82 @@ export function Room() {
         <meshStandardMaterial color={WALL_SIDE} />
       </mesh>
 
-      {/* skirting boards */}
-      <mesh position={[0, -0.78, -0.49]}>
-        <boxGeometry args={[7.3, 0.22, 0.07]} />
-        <meshStandardMaterial color="#f0e6d4" />
-      </mesh>
+      {/* the fourth wall: on stage only while the camera is inside looking
+          back — from the front it hides, keeping the classic dollhouse view.
+          The keeper's crayon gallery lives here, so it's not just blank. */}
+      <DollhouseWall z={3.93} outside="south">
+        <mesh position={[0, 0.955, 3.93]} rotation-y={Math.PI}>
+          <planeGeometry args={[7.3, 3.89]} />
+          <meshStandardMaterial color={WALL_SIDE} />
+        </mesh>
+        <mesh position={[0, -0.78, 3.89]}>
+          <boxGeometry args={[7.3, 0.22, 0.07]} />
+          <meshStandardMaterial color="#f0e6d4" />
+        </mesh>
+        {/* drawing #1: the flytrap, of course — taped up at kid height */}
+        <group position={[-1.5, 0.85, 3.9]} rotation-z={0.06}>
+          <mesh>
+            <boxGeometry args={[0.5, 0.62, 0.03]} />
+            <meshStandardMaterial color="#fbf7ee" />
+          </mesh>
+          <mesh position={[0, -0.12, -0.02]}>
+            <boxGeometry args={[0.05, 0.24, 0.03]} />
+            <meshStandardMaterial color={palette.stem} />
+          </mesh>
+          <mesh position={[0.01, 0.08, -0.02]} rotation-z={-0.35}>
+            <boxGeometry args={[0.16, 0.11, 0.03]} />
+            <meshStandardMaterial color={palette.trap} />
+          </mesh>
+          <mesh position={[0.03, 0.07, -0.035]} rotation-z={-0.35}>
+            <boxGeometry args={[0.1, 0.03, 0.02]} />
+            <meshStandardMaterial color={palette.mouth} />
+          </mesh>
+        </group>
+        {/* drawing #2: the sun over the house */}
+        <group position={[-0.2, 0.97, 3.9]} rotation-z={-0.05}>
+          <mesh>
+            <boxGeometry args={[0.56, 0.46, 0.03]} />
+            <meshStandardMaterial color="#fbf7ee" />
+          </mesh>
+          <mesh position={[-0.14, 0.09, -0.02]} rotation-z={0.6}>
+            <boxGeometry args={[0.12, 0.12, 0.03]} />
+            <meshStandardMaterial color={palette.sun} />
+          </mesh>
+          <mesh position={[0.12, -0.07, -0.02]}>
+            <boxGeometry args={[0.16, 0.12, 0.03]} />
+            <meshStandardMaterial color="#ecd9a8" />
+          </mesh>
+          <mesh position={[0.12, 0.02, -0.02]}>
+            <boxGeometry args={[0.2, 0.06, 0.03]} />
+            <meshStandardMaterial color="#c96b52" />
+          </mesh>
+        </group>
+        {/* drawing #3: the keeper and a very happy fly */}
+        <group position={[1.15, 0.8, 3.9]} rotation-z={0.09}>
+          <mesh>
+            <boxGeometry args={[0.44, 0.58, 0.03]} />
+            <meshStandardMaterial color="#fbf7ee" />
+          </mesh>
+          <mesh position={[-0.08, -0.06, -0.02]}>
+            <boxGeometry args={[0.1, 0.16, 0.03]} />
+            <meshStandardMaterial color="#5d84ae" />
+          </mesh>
+          <mesh position={[-0.08, 0.08, -0.02]}>
+            <boxGeometry args={[0.08, 0.08, 0.03]} />
+            <meshStandardMaterial color="#e8c49a" />
+          </mesh>
+          <mesh position={[-0.08, 0.14, -0.02]}>
+            <boxGeometry args={[0.1, 0.04, 0.03]} />
+            <meshStandardMaterial color={palette.trap} />
+          </mesh>
+          <mesh position={[0.12, 0.12, -0.02]}>
+            <boxGeometry args={[0.06, 0.05, 0.03]} />
+            <meshStandardMaterial color="#3c2f24" />
+          </mesh>
+        </group>
+      </DollhouseWall>
+
+      {/* skirting boards along the side walls */}
       <mesh position={[-3.61, -0.78, 1.65]}>
         <boxGeometry args={[0.07, 0.22, 4.5]} />
         <meshStandardMaterial color="#f0e6d4" />

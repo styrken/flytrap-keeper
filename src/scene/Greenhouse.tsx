@@ -6,7 +6,7 @@
 import { useFrame } from '@react-three/fiber'
 import { useMemo, useRef } from 'react'
 import type { Group, InstancedMesh, Mesh, MeshStandardMaterial } from 'three'
-import { Color, DoubleSide, Object3D } from 'three'
+import { BackSide, Color, DoubleSide, Object3D } from 'three'
 import { currentWeather } from '../sim'
 import { sceneNow, useSceneState } from '../sceneView'
 import { daylightFactor } from './daylight'
@@ -225,11 +225,36 @@ export function Greenhouse() {
 
 const SKY_BASE = { sun: palette.sky, clouds: palette.skyDim, rain: '#87a0b4' } as const
 const NIGHT_SKY = new Color('#28324f')
-const RAIN_DROPS = 140
-const RAIN_X = 4.6
+const RAIN_DROPS = 160
 const RAIN_TOP = 3.4
 
-/** Backdrop sky, sun/clouds and rain streaking down the glass outside. */
+/** The sky drum is centered on the greenhouse lawn — dress it in cylinder
+ * coordinates: azimuth 0° faces north, +90° east, ±180° south. */
+const SKY_CENTER_Z = 1.2
+const onSky = (azDeg: number, y: number, r: number): [number, number, number] => {
+  const az = (azDeg * Math.PI) / 180
+  return [Math.sin(az) * r, y, SKY_CENTER_Z - Math.cos(az) * r]
+}
+const faceCenter = (azDeg: number) => (-azDeg * Math.PI) / 180
+
+/** Cloud banks all the way round the drum — [azimuth°, y, scale]. */
+const CLOUD_BANKS: [number, number, number][] = [
+  [-24, 5.4, 1],
+  [78, 5.8, 0.8],
+  [152, 5.1, 1.05],
+  [-104, 6.0, 0.85],
+]
+
+/** A raindrop spot on the lawn around the glass house — never inside it. */
+const rainSpot = (): { x: number; z: number } => {
+  for (;;) {
+    const x = -5.3 + Math.random() * 10.6
+    const z = -2.9 + Math.random() * 8.2
+    if (Math.abs(x) >= 3.85 || z <= -1.45 || z >= 3.55) return { x, z }
+  }
+}
+
+/** Sky drum, sun/clouds around it, and rain on the lawn outside the glass. */
 function GreenhouseWeather() {
   const weather = useSceneState((s) => currentWeather(s, s.lastTickAt))
   const skyMat = useRef<MeshStandardMaterial>(null)
@@ -260,9 +285,8 @@ function GreenhouseWeather() {
       rainMesh.visible = active
       if (active) {
         drops.current ??= Array.from({ length: RAIN_DROPS }, () => ({
-          x: -RAIN_X + Math.random() * RAIN_X * 2,
+          ...rainSpot(),
           y: Math.random() * RAIN_TOP,
-          z: -1.35 - Math.random() * 0.6,
           speed: 1.8 + Math.random() * 1.0,
         }))
         for (let i = 0; i < RAIN_DROPS; i++) {
@@ -280,28 +304,35 @@ function GreenhouseWeather() {
 
   return (
     <group>
-      {/* sky backdrop behind the back wall */}
-      <mesh position={[0, 1.6, -2.6]}>
-        <planeGeometry args={[13, 7]} />
-        <meshStandardMaterial ref={skyMat} color={palette.sky} />
+      {/* the sky: a drum around the glass house — weather in every direction,
+          same wrap-around fix as the garden's sky */}
+      <mesh position={[0, 0.5, SKY_CENTER_Z]}>
+        <cylinderGeometry args={[15.5, 15.5, 15, 14, 1, true]} />
+        <meshStandardMaterial ref={skyMat} color={palette.sky} side={BackSide} />
       </mesh>
-      <mesh ref={sun} position={[-2.4, 3.1, -2.5]} rotation-z={0.5}>
-        <boxGeometry args={[0.5, 0.5, 0.06]} />
+      {/* the sun keeps to its side of the sky — there's only one of it */}
+      <mesh ref={sun} position={onSky(-40, 6.0, 13.8)} rotation={[0, faceCenter(-40), 0.5]}>
+        <boxGeometry args={[1.1, 1.1, 0.1]} />
         <meshStandardMaterial color={palette.sun} />
       </mesh>
-      <group ref={clouds} position={[1.4, 3.0, -2.5]}>
-        <mesh>
-          <boxGeometry args={[1.1, 0.32, 0.07]} />
-          <meshStandardMaterial color="#f2f4f0" />
-        </mesh>
-        <mesh position={[-1.6, 0.4, 0]}>
-          <boxGeometry args={[0.8, 0.28, 0.07]} />
-          <meshStandardMaterial color="#f2f4f0" />
-        </mesh>
-        <mesh position={[-3.4, -0.3, 0]}>
-          <boxGeometry args={[0.9, 0.3, 0.07]} />
-          <meshStandardMaterial color="#f2f4f0" />
-        </mesh>
+      {/* cloud banks hang all around the drum, not just past the back wall */}
+      <group ref={clouds}>
+        {CLOUD_BANKS.map(([az, y, s]) => (
+          <group key={az} position={onSky(az, y, 13.5)} rotation-y={faceCenter(az)} scale={s}>
+            <mesh>
+              <boxGeometry args={[2.2, 0.6, 0.12]} />
+              <meshStandardMaterial color="#f2f4f0" />
+            </mesh>
+            <mesh position={[-1.8, 0.65, 0]}>
+              <boxGeometry args={[1.6, 0.5, 0.12]} />
+              <meshStandardMaterial color="#f2f4f0" />
+            </mesh>
+            <mesh position={[2.1, -0.45, 0]}>
+              <boxGeometry args={[1.4, 0.5, 0.12]} />
+              <meshStandardMaterial color="#f2f4f0" />
+            </mesh>
+          </group>
+        ))}
       </group>
       <instancedMesh ref={rain} args={[undefined, undefined, RAIN_DROPS]} visible={false}>
         <boxGeometry args={[0.014, 0.11, 0.014]} />

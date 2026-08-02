@@ -66,3 +66,4 @@ After setup, every push to the default branch deploys to production and every pu
 - [x] Post-launch — butterwort as species five: the lime-tolerant exception where tap water doesn't hurt, completing the classic carnivore lineup (and the Full collection achievement)
 - [x] Post-launch — the plant diary: every plant journals its milestones, from seed to bloom (and back from the brink), readable via the 📔 button
 - [x] Post-launch — SNAP!: a retro arcade game on the desk computer — a growing flytrap tongue, flies to eat, beetles to dodge, a daily pocket-money lid
+- [x] Post-launch — full-circle camera: orbit all the way around the keeper in every room — solid backdrops (the window wall, the house facade) duck out of sight while the camera is behind them, the outdoor sky is a drum around the whole lawn with sun, clouds and stars in every direction, and the bedroom gained a fourth wall (the keeper's crayon gallery) that only appears when you look back from inside

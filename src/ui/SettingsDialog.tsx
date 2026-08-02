@@ -40,6 +40,8 @@ function SoundSection() {
     dispatch({ type: 'setLocale', locale })
     void i18n.changeLanguage(locale)
   }
+  // '' = no explicit choice yet, so the buttons reflect the detected language.
+  const activeLocale = settings.locale || i18n.language
   return (
     <section className="dialog-section">
       <h3>{t('settings.general')}</h3>
@@ -54,14 +56,14 @@ function SoundSection() {
       <div className="dialog-row">
         <button
           type="button"
-          className={settings.locale === 'en' ? 'primary' : ''}
+          className={activeLocale === 'en' ? 'primary' : ''}
           onClick={() => switchLocale('en')}
         >
           🇬🇧 English
         </button>
         <button
           type="button"
-          className={settings.locale === 'da' ? 'primary' : ''}
+          className={activeLocale === 'da' ? 'primary' : ''}
           onClick={() => switchLocale('da')}
         >
           🇩🇰 Dansk

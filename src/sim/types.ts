@@ -98,6 +98,7 @@ export interface GameState {
   minigames: { lastRaindropAt: number | null }
   /** Three daily tasks, redrawn each UTC day. */
   quests: { day: string; items: QuestState[] }
+  /** locale '' means no explicit choice — the UI follows the browser language. */
   settings: { sound: boolean; music: boolean; locale: string; hardMode: boolean }
   /** Distinct real-world days with at least one care action. */
   careStreak: { days: number; lastDay: string | null }

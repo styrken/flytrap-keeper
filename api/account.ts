@@ -1,6 +1,6 @@
 import type { ServerResponse } from 'node:http'
-import { deleteAccount, userIdFromCookie } from './_lib/core'
-import { type ApiRequest, guard, requireDb, send, sendResult, sessionSecret } from './_lib/http'
+import { deleteAccount, userIdFromCookie } from './_lib/core.js'
+import { type ApiRequest, guard, requireDb, send, sendResult, sessionSecret } from './_lib/http.js'
 
 export default function handler(req: ApiRequest, res: ServerResponse) {
   return guard(res, async () => {

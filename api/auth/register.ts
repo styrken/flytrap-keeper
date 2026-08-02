@@ -1,5 +1,5 @@
 import type { ServerResponse } from 'node:http'
-import { register } from '../_lib/core'
+import { register } from '../_lib/core.js'
 import {
   type ApiRequest,
   guard,
@@ -9,7 +9,7 @@ import {
   send,
   sendResult,
   sessionSecret,
-} from '../_lib/http'
+} from '../_lib/http.js'
 
 export default function handler(req: ApiRequest, res: ServerResponse) {
   return guard(res, async () => {

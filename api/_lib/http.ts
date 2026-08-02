@@ -1,8 +1,8 @@
 // Minimal HTTP plumbing for Vercel Node functions — no framework, no deps.
 import type { IncomingMessage, ServerResponse } from 'node:http'
-import type { ApiResult } from './core'
-import { getDb } from './db'
-import type { Db } from './db'
+import type { ApiResult } from './core.js'
+import { getDb } from './db.js'
+import type { Db } from './db.js'
 
 export type ApiRequest = IncomingMessage & { body?: unknown }
 

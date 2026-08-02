@@ -10,8 +10,8 @@ import {
   tokenFromCookieHeader,
   verifySecret,
   verifySession,
-} from './auth'
-import type { Db } from './db'
+} from './auth.js'
+import type { Db } from './db.js'
 
 export interface ApiResult {
   status: number

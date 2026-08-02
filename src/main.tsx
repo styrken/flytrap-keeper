@@ -15,6 +15,7 @@ void initI18n().then((i18n) => {
   initSocial()
   initAudioUnlock()
   initMusic()
+  // An explicitly chosen language wins; '' keeps the browser-detected one.
   const { locale } = useGame.getState().state.settings
   if (locale && locale !== i18n.language) void i18n.changeLanguage(locale)
   createRoot(root).render(

@@ -110,6 +110,7 @@ Hver art har sin egen pasningsprofil, 3D-modelsæt og leksikontekst med ægte fa
 - **Engelsk er kildesproget** — al spiltekst skrives på engelsk fra dag ét.
 - Alle strenge går gennem i18n-laget fra første commit (ingen hårdkodede tekster): `t('care.water.action')` → `locales/en.json`.
 - **Dansk som første oversættelse** når teksterne er stabile (fase 5) — strukturen gør, at flere sprog blot er endnu en JSON-fil.
+- **Sproget følger browseren** (`navigator.languages`), til spilleren vælger eksplicit i indstillingerne — valget gemmes i saven (`locale: ''` = automatisk).
 - Datoer/tal formateres via `Intl` med aktiv locale. Leksikon-/tutorialtekster ligger også i locale-filerne.
 
 ## 9. Gemning og konto (ingen mail)
@@ -319,6 +320,7 @@ _Mål: En Venus flytrap i 3D man reelt kan passe over flere dage — og som gemm
 - [x] Frø → dugdråber (frø-udbyttet sælges til andre samlere; egne nye planter købes som frø i butikken)
 - [x] Ompotning via pottefarver i butikken + hard mode som tilvalg (permanent død efter 72 timer i bund; potten kan ryddes)
 - [x] **Dansk oversættelse** (`da.json`) med sprogskifter i indstillinger — testen håndhæver 1:1-nøgledækning med engelsk
+- [x] **Sprogvalg via browser-locale** — dansk browser starter på dansk; et eksplicit valg i indstillingerne vinder stadig
 - [x] Polering: humør/positurer for dvale og død, gravsten, valg-ring, tilgængelige dialoger
 
 ### Efter launch

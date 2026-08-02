@@ -55,4 +55,17 @@ describe('save/load', () => {
     expect(loaded!.settings.music).toBe(true)
     expect(loaded!.settings.sound).toBe(false)
   })
+
+  it("migrates a v10 save's default 'en' locale to auto, keeping an explicit 'da'", () => {
+    const state = createInitialState(T0, 42)
+    const asV10 = (locale: string) => {
+      const raw = JSON.parse(saveToString(state)) as Record<string, unknown>
+      raw.saveVersion = 10
+      ;(raw.settings as Record<string, unknown>).locale = locale
+      return JSON.stringify(raw)
+    }
+
+    expect(loadFromString(asV10('en'))!.settings.locale).toBe('')
+    expect(loadFromString(asV10('da'))!.settings.locale).toBe('da')
+  })
 })

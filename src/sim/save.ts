@@ -1,7 +1,7 @@
 import type { GameState } from './types'
 
 export const SAVE_KEY = 'flytrap-keeper:save'
-export const SAVE_VERSION = 10
+export const SAVE_VERSION = 11
 
 type RawSave = Record<string, unknown>
 type Migration = (data: RawSave) => RawSave
@@ -72,6 +72,15 @@ const MIGRATIONS: Record<number, Migration> = {
   // without the 'greenhouse' placement refuse these saves instead of
   // simulating a plant in a spot they don't know.
   9: (data) => data,
+  // v10 -> v11: the language now follows the browser unless explicitly chosen
+  // ('' = auto). A stored 'en' was the old default, indistinguishable from a
+  // real choice, so it resets to auto; 'da' was always a deliberate pick.
+  10: (data) => {
+    const settings = (data.settings ?? {}) as RawSave
+    const locale =
+      typeof settings.locale === 'string' && settings.locale !== 'en' ? settings.locale : ''
+    return { ...data, settings: { ...settings, locale } }
+  },
 }
 
 export function saveToString(state: GameState): string {

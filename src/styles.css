@@ -1042,3 +1042,107 @@ h1 {
 .segmented button.active {
   background: #f4c065;
 }
+
+/* ---------------------- compact HUD (phones & short windows) ---------------------- */
+
+/* On a phone the HUD competes with the scene for a small screen, so everything
+   slims down: the title goes, the tagline keeps only the essentials, the meters
+   flatten into one strip, and the window-spot buttons shrink to their icons. */
+@media (max-width: 640px), (max-height: 500px) {
+  .hud {
+    padding: calc(env(safe-area-inset-top, 0px) + 8px) 10px
+      calc(env(safe-area-inset-bottom, 0px) + 10px);
+  }
+
+  .hud-top {
+    gap: 8px;
+  }
+
+  .hud-id h1,
+  .hud-wide {
+    display: none;
+  }
+
+  .hud-id .tagline {
+    margin: 0;
+    font-size: 0.82rem;
+    opacity: 1;
+    background: rgba(255, 252, 245, 0.72);
+    backdrop-filter: blur(6px);
+    border-radius: 999px;
+    padding: 4px 12px;
+    box-shadow: 0 2px 8px rgba(58, 45, 33, 0.1);
+  }
+
+  .meters {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 8px;
+    width: min(100%, 380px);
+    padding: 8px 10px;
+  }
+
+  .meter {
+    flex: 1 1 0;
+    min-width: 0;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+  }
+
+  .meter-icon {
+    font-size: 0.72rem;
+    width: auto;
+  }
+
+  .meter .bar {
+    flex: none;
+    width: 100%;
+    height: 6px;
+  }
+
+  .meters-foot {
+    flex-basis: 100%;
+  }
+
+  .icon-btn {
+    font-size: 1.05rem;
+    padding: 3px 6px;
+  }
+
+  .hud-bottom {
+    gap: 8px;
+  }
+
+  .hint {
+    font-size: 0.78rem;
+    padding: 5px 12px;
+  }
+
+  .actions {
+    gap: 8px;
+  }
+
+  .actions > button {
+    min-height: 46px;
+    padding: 0 14px;
+    font-size: 0.92rem;
+  }
+
+  .seg-label {
+    display: none;
+  }
+
+  .segmented button {
+    min-height: 46px;
+    padding: 0 13px;
+    font-size: 1.05rem;
+  }
+
+  .plant-switcher button {
+    min-height: 34px;
+    padding: 0 12px;
+    font-size: 0.8rem;
+  }
+}

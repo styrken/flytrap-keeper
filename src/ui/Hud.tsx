@@ -162,7 +162,7 @@ export function Hud() {
   return (
     <div className="hud">
       <header className="hud-top">
-        <div>
+        <div className="hud-id">
           <h1>{t('app.title')}</h1>
           <p className="tagline">
             {editingName ? (
@@ -197,7 +197,9 @@ export function Hud() {
                 {plant.nickname} ✏️
               </button>
             )}{' '}
-            · {t(`species.${plant.speciesId}.name`)} · {t(`stage.${plant.stage}`)}{' '}
+            <span className="hud-wide">
+              · {t(`species.${plant.speciesId}.name`)} · {t(`stage.${plant.stage}`)}
+            </span>{' '}
             {MOOD_ICON[mood(plant, season === 'winter')]} ·{' '}
             <span title={t(`weather.${weather}`)}>{WEATHER_ICON[weather]}</span>{' '}
             <span title={t(`season.${season}`)}>{SEASON_ICON[season]}</span> · <GameClock />
@@ -419,12 +421,14 @@ export function Hud() {
               disabled={
                 plant.placement !== 'south-window' && !canMoveTo(state, plant, 'south-window')
               }
+              aria-label={t('placement.south-window')}
+              title={t('placement.south-window')}
               onClick={() => {
                 dispatch({ type: 'move', placement: 'south-window' })
                 setRoomView('bedroom')
               }}
             >
-              ☀️ {t('placement.south-window')}
+              ☀️ <span className="seg-label">{t('placement.south-window')}</span>
             </button>
             <button
               type="button"
@@ -432,24 +436,28 @@ export function Hud() {
               disabled={
                 plant.placement !== 'north-window' && !canMoveTo(state, plant, 'north-window')
               }
+              aria-label={t('placement.north-window')}
+              title={t('placement.north-window')}
               onClick={() => {
                 dispatch({ type: 'move', placement: 'north-window' })
                 setRoomView('bedroom')
               }}
             >
-              ⛅ {t('placement.north-window')}
+              ⛅ <span className="seg-label">{t('placement.north-window')}</span>
             </button>
             {state.inventory.items.includes('growlight') && (
               <button
                 type="button"
                 className={plant.placement === 'growlight' ? 'active' : ''}
                 disabled={plant.placement !== 'growlight' && !canMoveTo(state, plant, 'growlight')}
+                aria-label={t('placement.growlight')}
+                title={t('placement.growlight')}
                 onClick={() => {
                   dispatch({ type: 'move', placement: 'growlight' })
                   setRoomView('bedroom')
                 }}
               >
-                💡 {t('placement.growlight')}
+                💡 <span className="seg-label">{t('placement.growlight')}</span>
               </button>
             )}
             {hasGreenhouse(state) && (
@@ -459,12 +467,14 @@ export function Hud() {
                 disabled={
                   plant.placement !== 'greenhouse' && !canMoveTo(state, plant, 'greenhouse')
                 }
+                aria-label={t('placement.greenhouse')}
+                title={t('placement.greenhouse')}
                 onClick={() => {
                   dispatch({ type: 'move', placement: 'greenhouse' })
                   setRoomView('greenhouse')
                 }}
               >
-                🌿 {t('placement.greenhouse')}
+                🌿 <span className="seg-label">{t('placement.greenhouse')}</span>
               </button>
             )}
           </div>

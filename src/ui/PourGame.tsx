@@ -16,6 +16,7 @@ export function PourGame({ onDone }: { onDone: (perfect: boolean) => void }) {
   const resolve = (at: number | null) => {
     if (resolved.current) return
     resolved.current = true
+    cancelAnimationFrame(raf.current)
     const perfect = at !== null && Math.abs(at - 0.5) < PERFECT_ZONE
     setResult(perfect ? 'perfect' : 'good')
     window.setTimeout(() => onDone(perfect), perfect ? 750 : 450)

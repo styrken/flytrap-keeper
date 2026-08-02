@@ -24,6 +24,18 @@ export const gameNow = () => toGameTime(useGame.getState().state.time, Date.now(
 
 export type RoomView = 'bedroom' | 'greenhouse'
 
+/** The HUD stats a player can tap to open the little explainer dialog. */
+export const STAT_INFO_IDS = [
+  'water',
+  'nutrition',
+  'health',
+  'humidity',
+  'growth',
+  'barrel',
+  'dewdrops',
+] as const
+export type StatInfoId = (typeof STAT_INFO_IDS)[number]
+
 interface GameStore {
   state: GameState
   showOnboarding: boolean
@@ -33,6 +45,8 @@ interface GameStore {
   showShop: boolean
   showLexicon: boolean
   showQuests: boolean
+  /** Stat whose explainer dialog is open — pure view state, never saved. */
+  statInfo: StatInfoId | null
   /** Which room the camera is in — pure view state, never saved. */
   roomView: RoomView
   sync: SyncState
@@ -46,6 +60,7 @@ interface GameStore {
   setShowShop: (show: boolean) => void
   setShowLexicon: (show: boolean) => void
   setShowQuests: (show: boolean) => void
+  setStatInfo: (stat: StatInfoId | null) => void
   setRoomView: (room: RoomView) => void
   setSync: (sync: SyncState) => void
   /** Replace the whole game state (cloud adopt / file import) and persist it. */
@@ -64,6 +79,7 @@ export const useGame = create<GameStore>()((set, get) => ({
   showShop: false,
   showLexicon: false,
   showQuests: false,
+  statInfo: null,
   roomView: 'bedroom',
   sync: { kind: 'unknown' },
   conflict: null,
@@ -96,6 +112,7 @@ export const useGame = create<GameStore>()((set, get) => ({
   setShowShop: (show) => set({ showShop: show }),
   setShowLexicon: (show) => set({ showLexicon: show }),
   setShowQuests: (show) => set({ showQuests: show }),
+  setStatInfo: (statInfo) => set({ statInfo }),
   setRoomView: (room) => set({ roomView: room }),
   setSync: (sync) => set({ sync }),
   adoptState: (rawState) => {
@@ -122,6 +139,7 @@ export const useGame = create<GameStore>()((set, get) => ({
       showShop: false,
       showLexicon: false,
       showQuests: false,
+      statInfo: null,
       roomView: 'bedroom',
       conflict: null,
     })

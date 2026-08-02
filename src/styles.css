@@ -124,10 +124,30 @@ h1 {
   width: min(100%, 230px);
 }
 
+/* Each meter is a button: tapping it opens the stat explainer dialog. */
 .meter {
   display: flex;
   align-items: center;
   gap: 8px;
+  width: 100%;
+  pointer-events: auto;
+  border: none;
+  background: transparent;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  border-radius: 999px;
+}
+
+.meter:active {
+  transform: scale(0.97);
+}
+
+@media (hover: hover) {
+  .meter:hover .bar {
+    box-shadow: 0 0 0 2px rgba(58, 45, 33, 0.14);
+  }
 }
 
 .meter-icon {
@@ -137,6 +157,7 @@ h1 {
 }
 
 .bar {
+  display: block;
   flex: 1;
   height: 8px;
   border-radius: 999px;
@@ -145,6 +166,7 @@ h1 {
 }
 
 .fill {
+  display: block;
   height: 100%;
   border-radius: 999px;
   transition: width 0.6s ease;
@@ -180,6 +202,17 @@ h1 {
   justify-content: space-between;
   font-size: 0.85rem;
   font-weight: 600;
+}
+
+/* The dewdrop count is a stat too — tap it for the explainer. */
+.dew-count {
+  pointer-events: auto;
+  border: none;
+  background: transparent;
+  padding: 2px 4px;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
 }
 
 .icon-btn {
@@ -642,6 +675,28 @@ h1 {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
+}
+
+/* Stat explainer: the tapped meter shown big, with its live value. */
+.stat-info-meter {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.stat-info-meter .bar {
+  height: 10px;
+}
+
+.stat-info-pct {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-info-value {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
 }
 
 .muted {

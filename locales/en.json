@@ -12,6 +12,38 @@
     "rainBarrel": "Rain barrel",
     "dewdrops": "Dewdrops"
   },
+  "statInfo": {
+    "whatTitle": "What is it?",
+    "howTitle": "How do you use it?",
+    "water": {
+      "what": "Soil moisture. It drains slowly around the clock — even while you're away. Below 20% the plant turns thirsty and health starts to slip; at zero it dries out fast. From 40% up, health recovers on its own.",
+      "how": "Press Water for a pour from the rain barrel — carnivorous plants insist on rainwater. If the barrel runs dry, tap water works in a pinch, but the limescale costs a little health."
+    },
+    "nutrition": {
+      "what": "How well fed the plant is. Insects are a bonus meal, not dinner — light and water keep it alive — but a full belly speeds growth by up to half.",
+      "how": "Snappy species eat when you tap a trap with an insect close by. The others take dried flies with the Feed button every few hours — and the sundew's sticky leaves catch tiny prey all by themselves."
+    },
+    "health": {
+      "what": "The plant's overall condition. It slips while the soil is dry (or the air, for tropical species) and recovers by itself once water is topped up. At 15% the plant wilts; it perks back up at 40%. Only hard mode lets a plant die for good.",
+      "how": "Keep water comfortably topped up, mist the humidity lovers, and grant a winter rest to species that need one. A wilted plant pauses growing and snapping until it recovers."
+    },
+    "humidity": {
+      "what": "Air moisture — only tropical species mind it. Below 25% the dry air chips away at health, and below 40% growth slows down.",
+      "how": "Give the plant a misting now and then. The greenhouse holds moisture, so humidity drains at half pace in there."
+    },
+    "growth": {
+      "what": "Progress toward the next stage, from seedling all the way to a mature plant. Growth runs on light and water, with a well-fed bonus of up to +50%. A wilted or bone-dry plant stops growing.",
+      "how": "Park the plant in the sunniest spot it likes, keep the water up and the belly full. The status line guesses when the next stage arrives with the care you're giving."
+    },
+    "barrel": {
+      "what": "Your stash of collected rainwater — the only water carnivorous plants truly love. It refills on its own whenever it rains.",
+      "how": "Every watering draws from the barrel. If it runs low, wait for rain — or fall back on tap water, which always works but costs a little health in limescale."
+    },
+    "dewdrops": {
+      "what": "The game's currency. Daily care, quests, achievements, pulled weeds, petting, perfect pours and blooms all pay out dewdrops.",
+      "how": "Spend them in the shop on new species, gear like the grow light and the greenhouse, and cosy decor for the room."
+    }
+  },
   "stage": {
     "0": "Seedling",
     "1": "Young plant",

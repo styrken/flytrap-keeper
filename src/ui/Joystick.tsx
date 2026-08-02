@@ -1,25 +1,35 @@
 import { useEffect, useRef, useState } from 'react'
-import { setJoystick } from '../scene/playerInput'
+import { useTranslation } from 'react-i18next'
+import { queueJump, setJoystick } from '../scene/playerInput'
 
 const DEAD_ZONE = 0.18
 
 /**
- * On-screen thumbstick for walking on touch devices. It only renders on
- * coarse pointers; keyboard players never see it. Writes into the shared
- * player-input state, which the avatar reads every frame.
+ * On-screen controls for walking and jumping on touch devices: a thumbstick
+ * on the left, a Hop button on the right. Only renders on coarse pointers;
+ * keyboard players never see them. Writes into the shared player-input
+ * state, which the avatar reads every frame.
  */
-export function Joystick() {
+export function TouchControls() {
   const [coarse] = useState(
     () => typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches,
   )
+  if (!coarse) return null
+  return (
+    <>
+      <Joystick />
+      <JumpButton />
+    </>
+  )
+}
+
+function Joystick() {
   const base = useRef<HTMLDivElement>(null)
   const knob = useRef<HTMLDivElement>(null)
   const activePointer = useRef<number | null>(null)
 
   // If the joystick unmounts mid-drag, don't leave the avatar walking.
   useEffect(() => () => setJoystick(0, 0), [])
-
-  if (!coarse) return null
 
   const moveKnob = (dx: number, dy: number) => {
     if (knob.current) knob.current.style.transform = `translate(${dx}px, ${dy}px)`
@@ -73,5 +83,22 @@ export function Joystick() {
     >
       <div ref={knob} className="joystick-knob" />
     </div>
+  )
+}
+
+function JumpButton() {
+  const { t } = useTranslation()
+  return (
+    <button
+      type="button"
+      className="jump-btn"
+      aria-label={t('actions.jump')}
+      onPointerDown={(e) => {
+        e.preventDefault()
+        queueJump()
+      }}
+    >
+      {t('actions.jump')}
+    </button>
   )
 }

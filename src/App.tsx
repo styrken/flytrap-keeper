@@ -6,7 +6,7 @@ import { Lights } from './scene/Lights'
 import { Player } from './scene/Player'
 import { FLOOR_Y, HEAD_HEIGHT, SPAWN } from './scene/playerMovement'
 import { Hud } from './ui/Hud'
-import { Joystick } from './ui/Joystick'
+import { TouchControls } from './ui/Joystick'
 import { LexiconDialog } from './ui/LexiconDialog'
 import { MoveHint } from './ui/MoveHint'
 import { Onboarding } from './ui/Onboarding'
@@ -39,7 +39,7 @@ export default function App() {
         />
       </Canvas>
       <Hud />
-      <Joystick />
+      <TouchControls />
       <MoveHint />
       <Onboarding />
       <ShopDialog />

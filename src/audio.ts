@@ -55,6 +55,7 @@ export const playCatch = () => {
   window.setTimeout(() => blip(660, 1040, 0.12, 'sine', 0.12), 90)
 }
 export const playOuch = () => blip(200, 70, 0.25, 'sawtooth', 0.14)
+export const playBoing = () => blip(150, 520, 0.22, 'triangle', 0.12)
 export const playSplash = () => blip(700, 200, 0.2, 'triangle', 0.1)
 export const playToast = () => {
   blip(880, 1320, 0.16, 'sine', 0.1)

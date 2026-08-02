@@ -274,6 +274,29 @@ h1 {
   pointer-events: none;
 }
 
+.jump-btn {
+  position: absolute;
+  right: 18px;
+  bottom: clamp(230px, 35vh, 330px);
+  width: 74px;
+  height: 74px;
+  border-radius: 50%;
+  border: 2px solid rgba(58, 45, 33, 0.22);
+  background: rgba(255, 252, 245, 0.55);
+  color: #3a2d21;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  pointer-events: auto;
+  touch-action: none;
+  z-index: 5;
+}
+
+.jump-btn:active {
+  background: rgba(255, 252, 245, 0.9);
+  transform: scale(0.94);
+}
+
 .move-hint {
   position: absolute;
   left: 50%;

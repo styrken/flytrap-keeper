@@ -21,6 +21,7 @@ const KEY_VECTORS: Record<string, readonly [number, number]> = {
 
 const pressed = new Set<string>()
 const joystick = { x: 0, y: 0 }
+let jumpQueued = false
 
 let movedOnce = false
 const firstMoveListeners = new Set<() => void>()
@@ -57,7 +58,17 @@ function isTypingTarget(target: EventTarget | null): boolean {
 /** Attach the keyboard listeners; returns a cleanup function. */
 export function initPlayerInput(): () => void {
   const down = (e: KeyboardEvent) => {
-    if (!(e.code in KEY_VECTORS) || isTypingTarget(e.target)) return
+    if (isTypingTarget(e.target)) return
+    if (e.code === 'Space') {
+      if (!e.repeat) jumpQueued = true
+      noteMovement()
+      // Space would re-activate a still-focused HUD button — take the focus
+      // away so jumping never re-triggers the last clicked action.
+      if (e.target instanceof HTMLElement && e.target.tagName === 'BUTTON') e.target.blur()
+      e.preventDefault()
+      return
+    }
+    if (!(e.code in KEY_VECTORS)) return
     pressed.add(e.code)
     noteMovement()
     // Keep arrows from scrolling the page or walking button focus.
@@ -76,6 +87,19 @@ export function initPlayerInput(): () => void {
     window.removeEventListener('blur', clear)
     pressed.clear()
   }
+}
+
+/** Ask for a jump (touch button / Space). Consumed once by the next frame. */
+export function queueJump() {
+  jumpQueued = true
+  noteMovement()
+}
+
+/** True exactly once per queued jump — the frame loop drains it. */
+export function consumeJump(): boolean {
+  const queued = jumpQueued
+  jumpQueued = false
+  return queued
 }
 
 /** The joystick writes its deflection here ([-1, 1] each, y up = forward). */

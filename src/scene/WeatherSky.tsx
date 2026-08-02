@@ -1,9 +1,10 @@
+import { Html } from '@react-three/drei'
 import { useFrame, useThree } from '@react-three/fiber'
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { Group, InstancedMesh, Mesh, MeshStandardMaterial } from 'three'
 import { Color, Object3D } from 'three'
-import { setRainAmbience } from '../audio'
-import { currentWeather } from '../sim'
+import { playCatch, setRainAmbience } from '../audio'
+import { SIM, currentWeather } from '../sim'
 import { useGame } from '../store'
 import { daylightFactor } from './daylight'
 import { palette } from './palette'
@@ -117,6 +118,84 @@ export function WeatherSky() {
         <boxGeometry args={[0.012, 0.09, 0.012]} />
         <meshStandardMaterial color="#7fa8c9" transparent opacity={0.65} />
       </instancedMesh>
+      <GoldenDrop raining={weather === 'rain' && !reduceMotion} />
+    </group>
+  )
+}
+
+/** A shiny raindrop worth catching before it hits the sill — rain-only minigame. */
+function GoldenDrop({ raining }: { raining: boolean }) {
+  const dispatch = useGame((s) => s.dispatch)
+  const [drop, setDrop] = useState<{ id: number; x: number } | null>(null)
+  const [label, setLabel] = useState<{ x: number; y: number } | null>(null)
+  const group = useRef<Group>(null)
+  const y = useRef(2.0)
+
+  useEffect(() => {
+    if (!raining || drop) return
+    const timer = window.setTimeout(
+      () => {
+        y.current = 2.0
+        setDrop({ id: Date.now(), x: -1.05 + Math.random() * 2.1 })
+      },
+      7000 + Math.random() * 13000,
+    )
+    return () => window.clearTimeout(timer)
+  }, [raining, drop])
+
+  useEffect(() => {
+    if (!label) return
+    const timer = window.setTimeout(() => setLabel(null), 1200)
+    return () => window.clearTimeout(timer)
+  }, [label])
+
+  useFrame((_, delta) => {
+    if (!raining && drop) {
+      setDrop(null)
+      return
+    }
+    if (!drop || !group.current) return
+    y.current -= delta * 0.4
+    group.current.position.y = y.current
+    if (y.current < 0.2) setDrop(null) // missed — it just joins the rain
+  })
+
+  return (
+    <group>
+      {drop && raining && (
+        <group
+          ref={group}
+          position={[drop.x, 2.0, -0.45]}
+          onPointerDown={(e) => {
+            e.stopPropagation()
+            dispatch({ type: 'catchRaindrop' })
+            playCatch()
+            setLabel({ x: drop.x, y: y.current })
+            setDrop(null)
+          }}
+          onPointerOver={() => {
+            document.body.style.cursor = 'pointer'
+          }}
+          onPointerOut={() => {
+            document.body.style.cursor = 'auto'
+          }}
+        >
+          <mesh>
+            <boxGeometry args={[0.07, 0.11, 0.05]} />
+            <meshStandardMaterial color="#f4c542" emissive="#e8a820" emissiveIntensity={0.65} />
+          </mesh>
+          {/* generous invisible hit area for phone thumbs */}
+          <mesh visible={false}>
+            <boxGeometry args={[0.3, 0.34, 0.2]} />
+            <meshStandardMaterial />
+          </mesh>
+        </group>
+      )}
+      {label && (
+        <Html position={[label.x, label.y + 0.1, -0.45]} center zIndexRange={[10, 0]}>
+          <div className="float-label">+{SIM.RAINDROP_DEWDROPS} 🫧</div>
+        </Html>
+      )}
     </group>
   )
 }

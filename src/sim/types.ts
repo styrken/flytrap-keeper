@@ -69,6 +69,7 @@ export interface GameState {
   activePlantId: string
   inventory: { dewdrops: number; items: string[] }
   weather: { rainBarrel: number }
+  minigames: { lastRaindropAt: number | null }
   settings: { sound: boolean; locale: string; hardMode: boolean }
   /** Distinct real-world days with at least one care action. */
   careStreak: { days: number; lastDay: string | null }
@@ -76,11 +77,12 @@ export interface GameState {
 }
 
 export type Action =
-  | { type: 'water' }
+  | { type: 'water'; perfect?: boolean }
   | { type: 'tapWater' }
   | { type: 'mist' }
   | { type: 'pet' }
   | { type: 'pullWeed'; plantId: string }
+  | { type: 'catchRaindrop' }
   | { type: 'feedTrap'; plantId: string; trapId: string }
   | { type: 'feedPlant' }
   | { type: 'catchInsect'; plantId: string; trapId: string; insect: InsectKind }

@@ -143,12 +143,25 @@
     "in-bloom": "I blomst"
   },
   "onboarding": {
-    "welcome": "En lille venusfluefanger er flyttet ind i din vindueskarm. Den har brug for lys, regnvand — og en flue i ny og næ.",
+    "welcome1": "Flytrap Keeper er et roligt pasningsspil i realtid. Din kødædende plante lever videre, mens du er væk — kig forbi et par gange om dagen, pas den, og se den vokse fra spire til blomst.",
     "namePrompt": "Hvad skal den hedde?",
     "tip1": "Vand den fra regnvandstønden. Postevand virker, men kalken gør ondt.",
     "tip2": "Hver fælde kan kun klappe i nogle få gange, før den visner — en ny vokser frem.",
     "tip3": "Insektfangst er en lækker bonus. Lys og vand er det, der holder den i live.",
+    "seeTheSeed": "Vælg din første plante",
+    "packetName": "Venusfluefanger — starterfrø",
+    "packetDesc": "Klassikeren. Smækkæber, stor appetit og kærlighed til skarpt lys.",
+    "onTheHouse": "på husets regning",
+    "plant": "Plant frøet 🌱",
     "start": "Lad os gro!"
+  },
+  "pour": {
+    "title": "Rolige hænder…",
+    "hint": "Stop dråben i den gyldne zone for en bonus",
+    "now": "Hæld!",
+    "skip": "Bare hæld normalt",
+    "perfect": "Perfekt hældning! +{{n}} dugdråber",
+    "good": "Roligt og pænt"
   },
   "scene": {
     "hintDrag": "Træk for at se dig omkring",

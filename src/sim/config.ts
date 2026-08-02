@@ -77,5 +77,10 @@ export const SIM = {
   /** The first care action of each (UTC) day pays a check-in bonus. */
   DAILY_CARE_DEWDROPS: 5,
 
+  /** Minigames: a perfect pour when watering, golden drops while it rains. */
+  POUR_PERFECT_DEWDROPS: 2,
+  RAINDROP_DEWDROPS: 1,
+  RAINDROP_COOLDOWN_SECONDS: 8,
+
   NICKNAME_MAX_LENGTH: 20,
 } as const

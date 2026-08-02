@@ -16,6 +16,8 @@ const ONBOARDED_KEY = 'flytrap-keeper:onboarded'
 interface GameStore {
   state: GameState
   showOnboarding: boolean
+  /** During onboarding the pot starts empty; flips true at the planting step. */
+  onboardingPlanted: boolean
   showSettings: boolean
   showShop: boolean
   showLexicon: boolean
@@ -25,6 +27,7 @@ interface GameStore {
   dispatch: (action: Action) => void
   tickNow: () => void
   finishOnboarding: () => void
+  setOnboardingPlanted: () => void
   setShowSettings: (show: boolean) => void
   setShowShop: (show: boolean) => void
   setShowLexicon: (show: boolean) => void
@@ -38,6 +41,7 @@ interface GameStore {
 export const useGame = create<GameStore>()((set, get) => ({
   state: createInitialState(Date.now(), Date.now() >>> 0),
   showOnboarding: false,
+  onboardingPlanted: false,
   showSettings: false,
   showShop: false,
   showLexicon: false,
@@ -63,8 +67,9 @@ export const useGame = create<GameStore>()((set, get) => ({
     } catch {
       // ignore
     }
-    set({ showOnboarding: false })
+    set({ showOnboarding: false, onboardingPlanted: true })
   },
+  setOnboardingPlanted: () => set({ onboardingPlanted: true }),
   setShowSettings: (show) => set({ showSettings: show }),
   setShowShop: (show) => set({ showShop: show }),
   setShowLexicon: (show) => set({ showLexicon: show }),
@@ -165,7 +170,8 @@ export function initGame(now = Date.now()) {
     // ignore
   }
 
-  useGame.setState({ state, showOnboarding: isFresh && !onboarded })
+  const showOnboarding = isFresh && !onboarded
+  useGame.setState({ state, showOnboarding, onboardingPlanted: !showOnboarding })
   try {
     localStorage.setItem(SAVE_KEY, saveToString(state))
   } catch {

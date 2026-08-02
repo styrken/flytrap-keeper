@@ -1,7 +1,7 @@
 import type { GameState } from './types'
 
 export const SAVE_KEY = 'flytrap-keeper:save'
-export const SAVE_VERSION = 5
+export const SAVE_VERSION = 6
 
 type RawSave = Record<string, unknown>
 type Migration = (data: RawSave) => RawSave
@@ -53,6 +53,8 @@ const MIGRATIONS: Record<number, Migration> = {
       })),
     }
   },
+  // v5 -> v6: minigames (golden raindrops).
+  5: (data) => ({ ...data, minigames: { lastRaindropAt: null } }),
 }
 
 export function saveToString(state: GameState): string {

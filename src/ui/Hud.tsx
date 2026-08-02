@@ -19,6 +19,7 @@ import {
 } from '../sim'
 import { useGame } from '../store'
 import { Meter } from './Meter'
+import { PourGame } from './PourGame'
 
 const MOOD_ICON = {
   happy: '😊',
@@ -45,6 +46,7 @@ export function Hud() {
   const [editingName, setEditingName] = useState(false)
   const renameCancelled = useRef(false)
   const [toast, setToast] = useState<string | null>(null)
+  const [showPour, setShowPour] = useState(false)
   const prevAchievements = useRef<number | null>(null)
   const prevCareDays = useRef<number | null>(null)
 
@@ -281,10 +283,7 @@ export function Hud() {
         <div className="actions">
           <button
             type="button"
-            onClick={() => {
-              dispatch({ type: 'water' })
-              playSplash()
-            }}
+            onClick={() => setShowPour(true)}
             disabled={!needsWater || barrelLow}
           >
             💧 {t('actions.water')}
@@ -364,6 +363,15 @@ export function Hud() {
           </div>
         </div>
       </footer>
+      {showPour && (
+        <PourGame
+          onDone={(perfect) => {
+            setShowPour(false)
+            dispatch({ type: 'water', perfect })
+            playSplash()
+          }}
+        />
+      )}
     </div>
   )
 }

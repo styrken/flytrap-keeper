@@ -2,6 +2,7 @@ import { award } from './achievements'
 import { SIM } from './config'
 import { INSECTS } from './insects'
 import { seasonAt } from './season'
+import { currentWeather } from './weather'
 import { isTrapReady } from './selectors'
 import { MAX_PLANTS, shopItem } from './shop'
 import { SPECIES } from './species'
@@ -27,8 +28,23 @@ export function apply(state: GameState, action: Action, now: number): GameState 
       const paid: GameState = {
         ...s,
         weather: { ...s.weather, rainBarrel: s.weather.rainBarrel - SIM.WATER_COST },
+        // A perfectly timed pour earns a little extra.
+        inventory: action.perfect
+          ? { ...s.inventory, dewdrops: s.inventory.dewdrops + SIM.POUR_PERFECT_DEWDROPS }
+          : s.inventory,
       }
       return bumpCareStreak(withPlant(paid, { ...plant, water: 100 }, now), now)
+    }
+    case 'catchRaindrop': {
+      if (currentWeather(s, now) !== 'rain') return s
+      const last = s.minigames.lastRaindropAt
+      if (last !== null && now - last < SIM.RAINDROP_COOLDOWN_SECONDS * 1000) return s
+      return {
+        ...s,
+        minigames: { lastRaindropAt: now },
+        inventory: { ...s.inventory, dewdrops: s.inventory.dewdrops + SIM.RAINDROP_DEWDROPS },
+        updatedAt: now,
+      }
     }
     case 'tapWater': {
       if (unavailable(plant) || plant.water >= 100) return s

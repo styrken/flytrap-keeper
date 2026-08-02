@@ -16,6 +16,8 @@ export function PlantPot({ plant, slot }: { plant: PlantState; slot: number }) {
   const potColor = plant.potColor ?? palette.pot
   const rimColor = plant.potColor ?? palette.potRim
   const now = useGame((s) => s.state.lastTickAt)
+  // During onboarding the pot sits empty until the seed is ceremonially planted.
+  const hideKit = useGame((s) => s.showOnboarding && !s.onboardingPlanted)
   const kitWrap = useRef<Group>(null)
   const pulseRequest = useRef(false)
   const pulseStart = useRef(-1)
@@ -89,10 +91,12 @@ export function PlantPot({ plant, slot }: { plant: PlantState; slot: number }) {
           <meshStandardMaterial color="#a9a9a9" flatShading />
         </mesh>
       )}
-      <group ref={kitWrap} position={[0, 0.32, 0]}>
-        <PlantKit plant={plant} />
-      </group>
-      {weed && (
+      {!hideKit && (
+        <group ref={kitWrap} position={[0, 0.32, 0]}>
+          <PlantKit plant={plant} />
+        </group>
+      )}
+      {weed && !hideKit && (
         <group
           position={[0.16, 0.31, 0.13]}
           onPointerDown={(e) => {

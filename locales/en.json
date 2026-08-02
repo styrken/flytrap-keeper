@@ -140,12 +140,25 @@
     "in-bloom": "In bloom"
   },
   "onboarding": {
-    "welcome": "A tiny Venus flytrap has moved in on your windowsill. It needs light, rainwater — and the occasional fly.",
+    "welcome1": "Flytrap Keeper is a calm, real-time care game. Your carnivorous plant lives on while you're away — drop by a few times a day, tend to it, and watch it grow from seedling to bloom.",
     "namePrompt": "What will you name it?",
     "tip1": "Water it from the rain barrel. Tap water works, but the limescale hurts.",
     "tip2": "Each trap can only snap a few times before it withers — a new one grows back.",
     "tip3": "Catching insects is a tasty bonus. Light and water are what keep it alive.",
+    "seeTheSeed": "Choose your first plant",
+    "packetName": "Venus flytrap — starter seed",
+    "packetDesc": "The classic. Snappy jaws, a big appetite, and a love of bright light.",
+    "onTheHouse": "on the house",
+    "plant": "Plant the seed 🌱",
     "start": "Let's grow!"
+  },
+  "pour": {
+    "title": "Steady hands…",
+    "hint": "Stop the drop in the golden zone for a bonus",
+    "now": "Pour!",
+    "skip": "Just pour normally",
+    "perfect": "Perfect pour! +{{n}} dewdrops",
+    "good": "Nice and steady"
   },
   "scene": {
     "hintDrag": "Drag to look around",

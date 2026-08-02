@@ -232,6 +232,42 @@ describe('daily care bonus', () => {
   })
 })
 
+describe('minigames', () => {
+  it('a perfect pour pays a bonus on top of watering', () => {
+    const perfect = apply(init(), { type: 'water', perfect: true }, T0)
+    expect(activePlant(perfect)?.water).toBe(100)
+    expect(perfect.inventory.dewdrops).toBe(SIM.POUR_PERFECT_DEWDROPS + SIM.DAILY_CARE_DEWDROPS)
+
+    const plain = apply(init(), { type: 'water' }, T0)
+    expect(plain.inventory.dewdrops).toBe(SIM.DAILY_CARE_DEWDROPS)
+  })
+
+  it('golden raindrops only fall in the rain, with a cooldown', async () => {
+    const { weatherAt, weatherPeriodMs } = await import('../src/sim')
+    const findPeriod = (wanted: string) => {
+      for (let t = T0; t < T0 + h(24 * 30); t += weatherPeriodMs()) {
+        if (weatherAt(42, t) === wanted) return t
+      }
+      throw new Error('period not found')
+    }
+
+    const sunny = findPeriod('sun')
+    const dry = { ...init(), lastTickAt: sunny, updatedAt: sunny }
+    expect(apply(dry, { type: 'catchRaindrop' }, sunny)).toBe(dry)
+
+    const rainy = findPeriod('rain')
+    const wet = { ...init(), lastTickAt: rainy, updatedAt: rainy }
+    const caught = apply(wet, { type: 'catchRaindrop' }, rainy)
+    expect(caught.inventory.dewdrops).toBe(SIM.RAINDROP_DEWDROPS)
+    expect(caught.minigames.lastRaindropAt).toBe(rainy)
+
+    const tooSoon = apply(caught, { type: 'catchRaindrop' }, rainy + 3000)
+    expect(tooSoon.inventory.dewdrops).toBe(SIM.RAINDROP_DEWDROPS)
+    const later = apply(caught, { type: 'catchRaindrop' }, rainy + 9000)
+    expect(later.inventory.dewdrops).toBe(SIM.RAINDROP_DEWDROPS * 2)
+  })
+})
+
 describe('petting', () => {
   it('pays a dewdrop at most once per cooldown', () => {
     let state = apply(init(), { type: 'pet' }, T0)

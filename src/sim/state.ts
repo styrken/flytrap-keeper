@@ -52,7 +52,7 @@ export function createInitialState(now: number, seed: number): GameState {
     weather: { rainBarrel: SIM.BARREL_INITIAL },
     minigames: { lastRaindropAt: null },
     quests: drawQuests(seed >>> 0, now, [plant]),
-    settings: { sound: true, locale: 'en', hardMode: false },
+    settings: { sound: true, music: true, locale: 'en', hardMode: false },
     careStreak: { days: 0, lastDay: null },
     achievements: [],
   }

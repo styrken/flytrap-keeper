@@ -1,7 +1,7 @@
 import type { GameState } from './types'
 
 export const SAVE_KEY = 'flytrap-keeper:save'
-export const SAVE_VERSION = 8
+export const SAVE_VERSION = 9
 
 type RawSave = Record<string, unknown>
 type Migration = (data: RawSave) => RawSave
@@ -62,6 +62,11 @@ const MIGRATIONS: Record<number, Migration> = {
   7: (data) => {
     const base = typeof data.lastTickAt === 'number' ? data.lastTickAt : 0
     return { ...data, time: { scale: 1, realAnchor: base, gameAnchor: base } }
+  },
+  // v8 -> v9: calm background music, on by default.
+  8: (data) => {
+    const settings = (data.settings ?? {}) as RawSave
+    return { ...data, settings: { ...settings, music: true } }
   },
 }
 

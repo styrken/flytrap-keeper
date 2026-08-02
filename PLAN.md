@@ -291,6 +291,7 @@ _Mål: En Venus flytrap i 3D man reelt kan passe over flere dage — og som gemm
 - [x] Insekttyper med forskellig værdi + biller der skader fælden
 - [x] Vejrsystem + regnvandstønde i scenen (vand bliver en ressource; postevands-dilemmaet)
 - [x] Humør-poseringer, blad-svaj, dag/nat-lys, snap-/regn-lyde (syntetiseret Web Audio — ingen lydfiler)
+- [x] Rolig baggrundsmusik: generativ vuggevise (pad-akkorder + spilledåse-toner, syntetiseret — ingen lydfiler) med egen til/fra-knap i indstillinger
 - [x] Førstegangsflow/tutorial med navngivning og ægte pasningstips
 - [x] 8 achievements med dugdråbe-bonus og toast
 - [x] Kit-polering: fælde-tænder, regnvandstønde med synligt vandniveau, skyer og regn (flere voxel-props kan afløse løbende)

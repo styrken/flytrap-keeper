@@ -152,6 +152,169 @@ h1 {
   background: #58b862;
 }
 
+.fill.barrel {
+  background: #6b93a8;
+}
+
+.meters-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.icon-btn {
+  pointer-events: auto;
+  border: none;
+  background: transparent;
+  font-size: 1rem;
+  padding: 2px 4px;
+  cursor: pointer;
+}
+
+.hud-middle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.toast {
+  margin: 0;
+  background: rgba(88, 184, 98, 0.94);
+  color: #fffcf5;
+  border-radius: 14px;
+  padding: 10px 18px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  box-shadow: 0 2px 12px rgba(58, 45, 33, 0.2);
+  animation: toast-in 0.35s ease;
+}
+
+@keyframes toast-in {
+  from {
+    transform: translateY(-12px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.float-label {
+  background: rgba(255, 252, 245, 0.92);
+  color: #3a2d21;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(58, 45, 33, 0.25);
+  animation: float-up 1.3s ease-out forwards;
+  pointer-events: none;
+}
+
+@keyframes float-up {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(-26px);
+    opacity: 0;
+  }
+}
+
+.onboarding-backdrop {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(58, 45, 33, 0.35);
+  backdrop-filter: blur(3px);
+  pointer-events: auto;
+  z-index: 10;
+}
+
+.onboarding-card {
+  width: min(100%, 420px);
+  background: #fffcf5;
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 12px 40px rgba(58, 45, 33, 0.35);
+  color: #3a2d21;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.onboarding-card h2 {
+  margin: 0;
+  font-size: 1.4rem;
+}
+
+.onboarding-welcome {
+  margin: 0;
+  line-height: 1.45;
+}
+
+.onboarding-name {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.onboarding-name input {
+  font: inherit;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 2px solid rgba(58, 45, 33, 0.2);
+  background: #fff;
+}
+
+.onboarding-name input:focus {
+  outline: none;
+  border-color: #58b862;
+}
+
+.onboarding-tips {
+  margin: 0;
+  padding: 0 0 0 4px;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.onboarding-start {
+  min-height: 52px;
+  border: none;
+  border-radius: 16px;
+  background: #58b862;
+  color: #fffcf5;
+  font-size: 1.05rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.onboarding-start:active {
+  transform: scale(0.97);
+}
+
+.actions button.warn {
+  background: #eda75e;
+  color: #3a2d21;
+}
+
 .banner {
   align-self: center;
   margin: 0;

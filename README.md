@@ -37,7 +37,7 @@ One-time setup by the repo owner: import this repository at [vercel.com/new](htt
 - [x] Scope and implementation plan
 - [x] Phase 0 — foundation (Vite + React + react-three-fiber, GLB pipeline, i18n, CI) — _remaining: one-time Vercel import, see Deployment_
 - [x] Phase 1 — MVP: one plant you can care for, in 3D, saved locally
-- [ ] Phase 2 — game feel: fly-catching minigame, weather, sound, tutorial
+- [x] Phase 2 — game feel: fly-catching minigame, weather, sound, tutorial
 - [ ] Phase 3 — account & cloud sync (username + password, no email)
 - [ ] Phase 4 — collection: more species, currency, greenhouse
 - [ ] Phase 5 — seasons, dormancy, flowering, Danish translation

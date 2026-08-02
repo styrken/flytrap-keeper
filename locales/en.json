@@ -7,7 +7,9 @@
   "stats": {
     "water": "Water",
     "nutrition": "Nutrition",
-    "health": "Health"
+    "health": "Health",
+    "rainBarrel": "Rain barrel",
+    "dewdrops": "Dewdrops"
   },
   "stage": {
     "0": "Seedling",
@@ -16,21 +18,48 @@
     "3": "Mature",
     "next": "Growth to next stage"
   },
+  "weather": {
+    "sun": "Sunny",
+    "clouds": "Cloudy",
+    "rain": "Raining"
+  },
   "actions": {
     "water": "Water",
+    "tapWater": "Tap water",
     "feed": "Feed",
     "spot": "Window spot",
-    "rename": "Name your plant"
+    "rename": "Name your plant",
+    "sound": "Toggle sound"
   },
   "placement": {
     "south-window": "South window",
     "north-window": "North window"
   },
   "status": {
-    "wilted": "Oh no — {{name}} has wilted. Keep it watered and it will bounce back."
+    "wilted": "Oh no — {{name}} has wilted. Keep it watered and it will bounce back.",
+    "tapWaterWarning": "Tap water works in a pinch, but the limescale costs a little health."
+  },
+  "achievements": {
+    "toast": "Achievement unlocked",
+    "first-catch": "First catch!",
+    "spider-snack": "Spider snack",
+    "beetle-lesson": "That was a beetle…",
+    "stage-adult": "All grown up",
+    "stage-mature": "In full glory",
+    "green-thumb": "Green thumb",
+    "rain-collector": "Rain collector",
+    "survivor": "Back from the brink"
+  },
+  "onboarding": {
+    "welcome": "A tiny Venus flytrap has moved in on your windowsill. It needs light, rainwater — and the occasional fly.",
+    "namePrompt": "What will you name it?",
+    "tip1": "Water it from the rain barrel. Tap water works, but the limescale hurts.",
+    "tip2": "Each trap can only snap a few times before it withers — a new one grows back.",
+    "tip3": "Catching insects is a tasty bonus. Light and water are what keep it alive.",
+    "start": "Let's grow!"
   },
   "scene": {
     "hintDrag": "Drag to look around",
-    "hintSnap": "Tap an open trap to feed it"
+    "hintSnap": "Tap a trap when an insect is close — snap!"
   }
 }

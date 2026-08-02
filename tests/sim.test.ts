@@ -54,14 +54,31 @@ describe('needs decay', () => {
 })
 
 describe('watering', () => {
-  it('fills water to 100', () => {
+  it('fills water to 100 and pays from the rain barrel', () => {
     const next = apply(init(), { type: 'water' }, T0)
     expect(activePlant(next)?.water).toBe(100)
+    expect(next.weather.rainBarrel).toBe(SIM.BARREL_INITIAL - SIM.WATER_COST)
   })
 
   it('is a no-op when already full', () => {
     const full = apply(init(), { type: 'water' }, T0)
     expect(apply(full, { type: 'water' }, T0)).toBe(full)
+  })
+
+  it('is rejected when the barrel is too low', () => {
+    const state = init()
+    const dry = { ...state, weather: { ...state.weather, rainBarrel: SIM.WATER_COST - 1 } }
+    expect(apply(dry, { type: 'water' }, T0)).toBe(dry)
+  })
+
+  it('tap water always works but costs health', () => {
+    const state = init()
+    const dry = { ...state, weather: { ...state.weather, rainBarrel: 0 } }
+    const next = apply(dry, { type: 'tapWater' }, T0)
+    const p = activePlant(next)!
+    expect(p.water).toBe(100)
+    expect(p.health).toBe(100 - SIM.TAP_WATER_HEALTH_PENALTY)
+    expect(next.weather.rainBarrel).toBe(0)
   })
 })
 
@@ -69,7 +86,7 @@ describe('feeding and trap wear', () => {
   it('feeds a ready trap: nutrition up, one use spent, digestion started', () => {
     const next = apply(init(), { type: 'feedTrap', trapId: 't1' }, T0)
     const p = activePlant(next)!
-    expect(p.nutrition).toBe(90)
+    expect(p.nutrition).toBe(60 + SIM.HAND_FEED_NUTRITION)
     expect(p.traps[0].usesLeft).toBe(SIM.TRAP_USES - 1)
     expect(p.traps[0].digestingUntil).toBe(T0 + h(SIM.DIGEST_HOURS))
   })

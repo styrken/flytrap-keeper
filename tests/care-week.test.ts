@@ -16,7 +16,15 @@ describe('seven days of care', () => {
     for (let visit = 1; visit <= visits; visit++) {
       const at = T0 + h(12 * visit)
       state = tick(state, at)
-      state = apply(state, { type: 'water' }, at)
+      // Rain water when the barrel allows; fall back to tap water like a
+      // real player would rather than let the plant dry out.
+      const watered = apply(state, { type: 'water' }, at)
+      state =
+        watered !== state
+          ? watered
+          : activePlant(state)!.water < 50
+            ? apply(state, { type: 'tapWater' }, at)
+            : state
       // Feed every ready trap this visit — digestion limits the rest.
       for (;;) {
         const plant = activePlant(state)!

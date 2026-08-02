@@ -1,0 +1,202 @@
+import { Html } from '@react-three/drei'
+import { useFrame } from '@react-three/fiber'
+import { useEffect, useRef, useState } from 'react'
+import type { Group } from 'three'
+import { Vector3 } from 'three'
+import { playCatch, playOuch } from '../audio'
+import { type InsectKind, INSECTS, activePlant, insectKindFromRoll, isTrapReady } from '../sim'
+import { useGame } from '../store'
+import { insectBus } from './insectBus'
+import { trapApproachPoint } from './plantLayout'
+
+const INSECT_STYLE: Record<InsectKind, { size: number; color: string; wing: string }> = {
+  fly: { size: 1, color: '#3b3b3b', wing: '#bcd4de' },
+  mosquito: { size: 0.65, color: '#6b6b6b', wing: '#d8e4ea' },
+  spider: { size: 1.25, color: '#5a3a2e', wing: '#5a3a2e' },
+  beetle: { size: 1.6, color: '#2e6b5a', wing: '#245448' },
+}
+
+interface FloatLabel {
+  id: number
+  text: string
+  position: [number, number, number]
+}
+
+export function Insects() {
+  const [visit, setVisit] = useState<{ id: number; kind: InsectKind } | null>(null)
+  const [labels, setLabels] = useState<FloatLabel[]>([])
+  const timers = useRef<number[]>([])
+  const firstSpawn = useRef(true)
+
+  const addLabel = (text: string, position: Vector3) => {
+    const id = Date.now() + Math.random()
+    setLabels((prev) => [
+      ...prev.slice(-2),
+      { id, text, position: [position.x, position.y + 0.12, position.z] },
+    ])
+    timers.current.push(
+      window.setTimeout(() => setLabels((prev) => prev.filter((l) => l.id !== id)), 1400),
+    )
+  }
+
+  // Spawn loop: one visiting insect at a time, with pauses between visits.
+  useEffect(() => {
+    if (visit) return
+    const delay = firstSpawn.current ? 8_000 : 22_000 + Math.random() * 48_000
+    firstSpawn.current = false
+    const trySpawn = () => {
+      const plant = activePlant(useGame.getState().state)
+      if (document.visibilityState !== 'visible' || !plant || plant.wilted) {
+        timers.current.push(window.setTimeout(trySpawn, 20_000))
+        return
+      }
+      setVisit({ id: Date.now(), kind: insectKindFromRoll(Math.random()) })
+    }
+    timers.current.push(window.setTimeout(trySpawn, delay))
+    return () => {
+      timers.current.forEach((t) => window.clearTimeout(t))
+      timers.current = []
+    }
+  }, [visit])
+
+  // The traps report a successful snap through the bus.
+  useEffect(() => {
+    insectBus.onCaught = (trapIndex) => {
+      const presence = insectBus.presence
+      if (!presence) return
+      const stage = activePlant(useGame.getState().state)?.stage ?? 0
+      const point = trapApproachPoint(trapIndex, stage)
+      if (presence.kind === 'beetle') {
+        playOuch()
+        addLabel('💥', point)
+      } else {
+        playCatch()
+        const def = INSECTS[presence.kind]
+        addLabel(`+${def.nutrition} 🪰  +${def.dewdrops} 🫧`, point)
+      }
+      setVisit(null)
+    }
+    return () => {
+      insectBus.onCaught = null
+    }
+  }, [])
+
+  return (
+    <group>
+      {visit && <InsectVisit key={visit.id} kind={visit.kind} onDone={() => setVisit(null)} />}
+      {labels.map((label) => (
+        <Html key={label.id} position={label.position} center zIndexRange={[10, 0]}>
+          <div className="float-label">{label.text}</div>
+        </Html>
+      ))}
+    </group>
+  )
+}
+
+const ENTRY = new Vector3(2.6, 1.5, 0.55)
+const EXIT = new Vector3(-2.6, 2.1, 0.4)
+const ROAM_CENTER = new Vector3(0, 1.05, 0.4)
+const VISIT_SECONDS = 16
+
+function InsectVisit({ kind, onDone }: { kind: InsectKind; onDone: () => void }) {
+  const group = useRef<Group>(null)
+  const wings = useRef<Group>(null)
+  const age = useRef(0)
+  const approach = useRef<{ trapIndex: number; until: number } | null>(null)
+  const nextApproachAt = useRef(-1)
+  const phase = useRef(-1)
+  const target = useRef(new Vector3())
+  const style = INSECT_STYLE[kind]
+
+  useEffect(() => {
+    insectBus.presence = { kind, nearTrapIndex: null }
+    return () => {
+      insectBus.presence = null
+    }
+  }, [kind])
+
+  useFrame((_, delta) => {
+    const g = group.current
+    if (!g) return
+    if (phase.current < 0) {
+      // Randomize per-visit flight parameters outside render (lint: purity).
+      phase.current = Math.random() * Math.PI * 2
+      nextApproachAt.current = 2.5 + Math.random() * 2
+    }
+    age.current += delta
+    const t = age.current
+    const p = phase.current
+
+    if (wings.current) wings.current.scale.y = 0.6 + Math.abs(Math.sin(t * 40)) * 0.8
+
+    if (t < 2) {
+      // fly in
+      target.current.lerpVectors(ENTRY, ROAM_CENTER, t / 2)
+    } else if (t > VISIT_SECONDS) {
+      // leave; done once far out
+      target.current.lerp(EXIT, Math.min(1, delta * 1.2))
+      if (t > VISIT_SECONDS + 2.5) {
+        onDone()
+        return
+      }
+    } else if (approach.current && t < approach.current.until) {
+      // hover in front of a trap — the catch window
+      const stage = activePlant(useGame.getState().state)?.stage ?? 0
+      trapApproachPoint(approach.current.trapIndex, stage, target.current)
+      target.current.x += Math.sin(t * 9 + p) * 0.03
+      target.current.y += Math.cos(t * 7 + p) * 0.03
+      if (insectBus.presence) insectBus.presence.nearTrapIndex = approach.current.trapIndex
+    } else {
+      // roam in loose loops around the plant
+      if (insectBus.presence) insectBus.presence.nearTrapIndex = null
+      if (approach.current && t >= approach.current.until) approach.current = null
+      target.current.set(
+        ROAM_CENTER.x + Math.sin(t * 0.9 + p) * 0.85,
+        ROAM_CENTER.y + Math.sin(t * 1.4 + p * 2) * 0.35,
+        ROAM_CENTER.z + Math.cos(t * 1.1 + p) * 0.25,
+      )
+      if (t >= nextApproachAt.current) {
+        const plant = activePlant(useGame.getState().state)
+        if (plant) {
+          const now = Date.now()
+          const readyIndexes = plant.traps
+            .map((trap, index) => ({ trap, index }))
+            .filter(({ trap }) => isTrapReady(trap, now))
+            .map(({ index }) => index)
+          if (readyIndexes.length > 0) {
+            const trapIndex = readyIndexes[Math.floor(Math.random() * readyIndexes.length)]
+            approach.current = { trapIndex, until: t + 1.6 }
+          }
+        }
+        nextApproachAt.current = t + 3.5 + Math.random() * 2.5
+      }
+    }
+
+    g.position.lerp(target.current, Math.min(1, delta * 3.2))
+    g.position.x += Math.sin(t * 13 + p) * 0.004
+    g.position.y += Math.cos(t * 17 + p) * 0.004
+  })
+
+  return (
+    <group ref={group} position={ENTRY.toArray()} scale={0.11 * style.size}>
+      <mesh>
+        <boxGeometry args={[0.9, 0.5, 0.5]} />
+        <meshStandardMaterial color={style.color} />
+      </mesh>
+      <mesh position={[0.55, 0.08, 0]}>
+        <boxGeometry args={[0.28, 0.28, 0.28]} />
+        <meshStandardMaterial color={style.color} />
+      </mesh>
+      <group ref={wings} position={[-0.05, 0.32, 0]}>
+        <mesh position={[0, 0, 0.3]} rotation-x={0.5}>
+          <boxGeometry args={[0.6, 0.06, 0.45]} />
+          <meshStandardMaterial color={style.wing} transparent opacity={0.75} />
+        </mesh>
+        <mesh position={[0, 0, -0.3]} rotation-x={-0.5}>
+          <boxGeometry args={[0.6, 0.06, 0.45]} />
+          <meshStandardMaterial color={style.wing} transparent opacity={0.75} />
+        </mesh>
+      </group>
+    </group>
+  )
+}

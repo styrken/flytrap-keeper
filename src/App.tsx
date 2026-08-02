@@ -4,6 +4,7 @@ import { Suspense } from 'react'
 import { Diorama } from './scene/Diorama'
 import { Lights } from './scene/Lights'
 import { Hud } from './ui/Hud'
+import { Onboarding } from './ui/Onboarding'
 
 export default function App() {
   return (
@@ -26,6 +27,7 @@ export default function App() {
         />
       </Canvas>
       <Hud />
+      <Onboarding />
     </div>
   )
 }

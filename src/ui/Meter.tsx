@@ -7,7 +7,7 @@ export function Meter({
   icon: string
   label: string
   value: number
-  kind: 'water' | 'nutrition' | 'health' | 'growth'
+  kind: 'water' | 'nutrition' | 'health' | 'growth' | 'barrel'
 }) {
   const pct = Math.round(value)
   return (

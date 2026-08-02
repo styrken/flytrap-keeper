@@ -1,8 +1,10 @@
+import { award } from './achievements'
 import { SIM } from './config'
 import { SPECIES } from './species'
 import { freshTrap } from './state'
 import type { GameState, PlantState } from './types'
 import { clamp, HOUR_MS } from './util'
+import { weatherAt } from './weather'
 
 /**
  * Advance the world to `now`. Pure and deterministic — the same function handles
@@ -21,16 +23,40 @@ export function tick(state: GameState, now: number): GameState {
   const stepMs = SIM.TICK_STEP_MINUTES * 60_000
 
   // Simulate the window [now - simMs, now] in fixed sub-steps so threshold
-  // crossings (running dry, digestion finishing) land in the right order.
+  // crossings (running dry, digestion finishing, rain periods) land in order.
   let t = now - simMs
   let plants = state.plants
+  let rainBarrel = state.weather.rainBarrel
+  let barrelHitCap = false
   while (t < now) {
     const dt = Math.min(stepMs, now - t)
     t += dt
-    plants = plants.map((plant) => stepPlant(plant, dt / HOUR_MS, t))
+    const hours = dt / HOUR_MS
+    if (weatherAt(state.rngSeed, t) === 'rain') {
+      rainBarrel = clamp(rainBarrel + SIM.RAIN_FILL_PER_HOUR * hours, 0, SIM.BARREL_CAP)
+      if (rainBarrel >= SIM.BARREL_CAP) barrelHitCap = true
+    }
+    plants = plants.map((plant) => stepPlant(plant, hours, t))
   }
 
-  return { ...state, plants, lastTickAt: now, updatedAt: now }
+  let next: GameState = {
+    ...state,
+    plants,
+    weather: { ...state.weather, rainBarrel },
+    lastTickAt: now,
+    updatedAt: now,
+  }
+
+  const before = state.plants[0]
+  const after = plants[0]
+  if (before && after) {
+    if (after.stage >= 2) next = award(next, 'stage-adult')
+    if (after.stage >= 3) next = award(next, 'stage-mature')
+    if (before.wilted && !after.wilted) next = award(next, 'survivor')
+  }
+  if (barrelHitCap) next = award(next, 'rain-collector')
+
+  return next
 }
 
 function stepPlant(plant: PlantState, hours: number, t: number): PlantState {

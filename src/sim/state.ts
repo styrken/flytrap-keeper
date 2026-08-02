@@ -32,6 +32,9 @@ export function createInitialState(now: number, seed: number): GameState {
     rngSeed: seed >>> 0,
     plants: [plant],
     inventory: { dewdrops: 0, items: [] },
+    weather: { rainBarrel: SIM.BARREL_INITIAL },
+    settings: { sound: true },
+    careStreak: { days: 0, lastDay: null },
     achievements: [],
   }
 }

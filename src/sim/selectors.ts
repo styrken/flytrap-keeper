@@ -1,3 +1,4 @@
+import { SIM } from './config'
 import { SPECIES } from './species'
 import type { GameState, PlantState, TrapState } from './types'
 
@@ -35,6 +36,11 @@ export function stageProgress(plant: PlantState): StageProgress {
 
 export const lightLevel = (plant: PlantState): number =>
   SPECIES[plant.speciesId].lightLevels[plant.placement]
+
+export const canRainWater = (state: GameState): boolean => {
+  const plant = state.plants[0]
+  return !!plant && plant.water < 100 && state.weather.rainBarrel >= SIM.WATER_COST
+}
 
 export type Mood = 'happy' | 'thirsty' | 'hungry' | 'wilted'
 

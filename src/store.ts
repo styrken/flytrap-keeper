@@ -10,14 +10,19 @@ import {
   tick,
 } from './sim'
 
+const ONBOARDED_KEY = 'flytrap-keeper:onboarded'
+
 interface GameStore {
   state: GameState
+  showOnboarding: boolean
   dispatch: (action: Action) => void
   tickNow: () => void
+  finishOnboarding: () => void
 }
 
 export const useGame = create<GameStore>()((set, get) => ({
   state: createInitialState(Date.now(), Date.now() >>> 0),
+  showOnboarding: false,
   dispatch: (action) => {
     const next = apply(get().state, action, Date.now())
     if (next !== get().state) {
@@ -31,6 +36,14 @@ export const useGame = create<GameStore>()((set, get) => ({
       set({ state: next })
       persist(next)
     }
+  },
+  finishOnboarding: () => {
+    try {
+      localStorage.setItem(ONBOARDED_KEY, '1')
+    } catch {
+      // ignore
+    }
+    set({ showOnboarding: false })
   },
 }))
 
@@ -62,8 +75,17 @@ export function initGame(now = Date.now()) {
       }
     }
   }
+  const isFresh = state === null
   state = state ? tick(state, now) : createInitialState(now, now >>> 0)
-  useGame.setState({ state })
+
+  let onboarded = false
+  try {
+    onboarded = localStorage.getItem(ONBOARDED_KEY) === '1'
+  } catch {
+    // ignore
+  }
+
+  useGame.setState({ state, showOnboarding: isFresh && !onboarded })
   persist(state)
 
   window.setInterval(() => useGame.getState().tickNow(), 30_000)

@@ -1,13 +1,21 @@
 import type { GameState } from './types'
 
 export const SAVE_KEY = 'flytrap-keeper:save'
-export const SAVE_VERSION = 1
+export const SAVE_VERSION = 2
 
 type RawSave = Record<string, unknown>
 type Migration = (data: RawSave) => RawSave
 
 /** Keyed by the version being migrated FROM. Runs in sequence up to SAVE_VERSION. */
-const MIGRATIONS: Record<number, Migration> = {}
+const MIGRATIONS: Record<number, Migration> = {
+  // v1 -> v2: phase 2 added weather/rain barrel, sound setting, and care streak.
+  1: (data) => ({
+    ...data,
+    weather: { rainBarrel: 60 },
+    settings: { sound: true },
+    careStreak: { days: 0, lastDay: null },
+  }),
+}
 
 export function saveToString(state: GameState): string {
   return JSON.stringify(state)
@@ -40,6 +48,9 @@ export function loadFromString(raw: string): GameState | null {
 
 function looksLikeGameState(data: RawSave): boolean {
   if (typeof data.lastTickAt !== 'number' || typeof data.rngSeed !== 'number') return false
+  const weather = data.weather as RawSave | undefined
+  if (typeof weather !== 'object' || weather === null) return false
+  if (typeof weather.rainBarrel !== 'number') return false
   if (!Array.isArray(data.plants) || data.plants.length === 0) return false
   const plant = data.plants[0] as RawSave
   return (

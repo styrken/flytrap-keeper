@@ -24,10 +24,23 @@ export const SIM = {
   /** Feeding is a growth bonus, never a survival requirement (photosynthesis!). */
   NUTRITION_XP_BONUS_MAX: 0.5,
 
-  FEED_NUTRITION: 30,
+  HAND_FEED_NUTRITION: 20,
   DIGEST_HOURS: 4,
   TRAP_USES: 3,
   TRAP_REGROW_HOURS: 24,
+  /** Snapping at a beetle: no food, and the trap digests twice as long. */
+  BEETLE_DIGEST_FACTOR: 2,
+
+  WEATHER_PERIOD_HOURS: 3,
+  RAIN_FILL_PER_HOUR: 12,
+  BARREL_CAP: 100,
+  BARREL_INITIAL: 60,
+  WATER_COST: 25,
+  /** The limescale lesson: tap water always works but chips a little health. */
+  TAP_WATER_HEALTH_PENALTY: 8,
+
+  ACHIEVEMENT_DEWDROPS: 10,
+  GREEN_THUMB_DAYS: 7,
 
   NICKNAME_MAX_LENGTH: 20,
 } as const

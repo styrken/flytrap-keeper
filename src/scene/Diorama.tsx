@@ -1,6 +1,12 @@
 import { useGLTF } from '@react-three/drei'
+import { playSplash } from '../audio'
+import { canRainWater } from '../sim'
+import { useGame } from '../store'
+import { RainBarrel } from './Barrel'
 import { FlytrapPlant } from './FlytrapPlant'
+import { Insects } from './Insects'
 import { palette } from './palette'
+import { WeatherSky } from './WeatherSky'
 
 const MODEL_WATERING_CAN = '/models/watering-can.glb'
 
@@ -9,12 +15,14 @@ export function Diorama() {
     <group>
       <Windowsill />
       <WindowFrame />
-      <SkyBackdrop />
+      <WeatherSky />
       <group position={[0, 0.06, 0.05]}>
         <Pot />
         <FlytrapPlant position={[0, 0.32, 0]} />
       </group>
-      <WateringCan position={[1.05, 0.06, 0.28]} yaw={-0.7} />
+      <WateringCan position={[0.72, 0.06, 0.3]} yaw={-0.7} />
+      <RainBarrel position={[-0.62, 0.06, 0.28]} />
+      <Insects />
     </group>
   )
 }
@@ -49,21 +57,6 @@ function WindowFrame() {
   )
 }
 
-function SkyBackdrop() {
-  return (
-    <group>
-      <mesh position={[0, 1.11, -0.5]}>
-        <planeGeometry args={[2.5, 1.95]} />
-        <meshStandardMaterial color={palette.sky} />
-      </mesh>
-      <mesh position={[-0.7, 1.6, -0.47]} rotation-z={0.5}>
-        <boxGeometry args={[0.3, 0.3, 0.04]} />
-        <meshStandardMaterial color={palette.sun} />
-      </mesh>
-    </group>
-  )
-}
-
 function Pot() {
   return (
     <group>
@@ -85,8 +78,25 @@ function Pot() {
 
 function WateringCan({ position, yaw }: { position: [number, number, number]; yaw: number }) {
   const { scene } = useGLTF(MODEL_WATERING_CAN)
+  const waterable = useGame((s) => canRainWater(s.state))
+  const dispatch = useGame((s) => s.dispatch)
   return (
-    <group position={position} rotation-y={yaw}>
+    <group
+      position={position}
+      rotation-y={yaw}
+      onPointerDown={(e) => {
+        if (!waterable) return
+        e.stopPropagation()
+        dispatch({ type: 'water' })
+        playSplash()
+      }}
+      onPointerOver={() => {
+        if (waterable) document.body.style.cursor = 'pointer'
+      }}
+      onPointerOut={() => {
+        document.body.style.cursor = 'auto'
+      }}
+    >
       <primitive object={scene} />
     </group>
   )

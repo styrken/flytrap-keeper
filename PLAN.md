@@ -287,13 +287,13 @@ _Mål: En Venus flytrap i 3D man reelt kan passe over flere dage — og som gemm
 
 ### Fase 2 — Spilfølelse (~2 uger)
 
-- [ ] "Catch the fly": flue med 3D-flyvebane, landing, timing-snap med hængsel-animation
-- [ ] Insekttyper med forskellig værdi + biller der skader fælden
-- [ ] Vejrsystem + regnvandstønde i scenen (vand bliver en ressource; postevands-dilemmaet)
-- [ ] Humør-poseringer, blad-svaj, dag/nat-lys, snap-/regn-lyde
-- [ ] Førstegangsflow/tutorial med ægte pasningstips
-- [ ] 5-8 achievements
-- [ ] Venus flytrap-kit v1: proportioner, palette og voxel-props poleres
+- [x] "Catch the fly": flue med 3D-flyvebane, landing, timing-snap med hængsel-animation
+- [x] Insekttyper med forskellig værdi + biller der skader fælden
+- [x] Vejrsystem + regnvandstønde i scenen (vand bliver en ressource; postevands-dilemmaet)
+- [x] Humør-poseringer, blad-svaj, dag/nat-lys, snap-/regn-lyde (syntetiseret Web Audio — ingen lydfiler)
+- [x] Førstegangsflow/tutorial med navngivning og ægte pasningstips
+- [x] 8 achievements med dugdråbe-bonus og toast
+- [x] Kit-polering: fælde-tænder, regnvandstønde med synligt vandniveau, skyer og regn (flere voxel-props kan afløse løbende)
 
 ### Fase 3 — Konto og sky-synk (~1 uge)
 

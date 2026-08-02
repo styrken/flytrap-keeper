@@ -1,24 +1,15 @@
 import { useFrame } from '@react-three/fiber'
 import { useMemo, useRef } from 'react'
 import type { Group } from 'three'
+import { playSnap, playTease } from '../audio'
 import { type TrapState, activePlant, isTrapReady } from '../sim'
 import { useGame } from '../store'
+import { insectBus } from './insectBus'
 import { palette } from './palette'
-
-const STAGE_SCALE = [0.55, 0.75, 1, 1.15]
-
-/** Rosette slots for up to 5 traps: azimuth around the pot, outward tilt, stem length. */
-const STEM_LAYOUT = [
-  { azimuth: 0.4, tilt: 0.12, len: 1 },
-  { azimuth: 2.5, tilt: 0.5, len: 0.85 },
-  { azimuth: 4.5, tilt: 0.48, len: 0.9 },
-  { azimuth: 1.5, tilt: 0.62, len: 0.75 },
-  { azimuth: 5.6, tilt: 0.6, len: 0.8 },
-]
+import { STAGE_SCALE, STEM_LAYOUT } from './plantLayout'
 
 export function FlytrapPlant({ position }: { position: [number, number, number] }) {
   const plant = useGame((s) => activePlant(s.state))
-  const dispatch = useGame((s) => s.dispatch)
   const sway = useRef<Group>(null)
   const reduceMotion = useMemo(
     () => window.matchMedia('(prefers-reduced-motion: reduce)').matches,
@@ -52,9 +43,9 @@ export function FlytrapPlant({ position }: { position: [number, number, number] 
                 </mesh>
                 <Trap
                   trap={trap}
+                  index={i}
                   wilted={plant.wilted}
                   position={[0, stemHeight + 0.02, 0]}
-                  onFeed={() => dispatch({ type: 'feedTrap', trapId: trap.id })}
                 />
               </group>
             </group>
@@ -67,28 +58,57 @@ export function FlytrapPlant({ position }: { position: [number, number, number] 
 
 const TRAP_OPEN = -0.85
 const TRAP_CLOSED = -0.06
+const TRAP_TEASE = -0.45
+const TOOTH_COLOR = '#e8f0d8'
 
 function Trap({
   trap,
+  index,
   wilted,
   position,
-  onFeed,
 }: {
   trap: TrapState
+  index: number
   wilted: boolean
   position: [number, number, number]
-  onFeed: () => void
 }) {
+  const dispatch = useGame((s) => s.dispatch)
+  const root = useRef<Group>(null)
   const upper = useRef<Group>(null)
+  const teaseRequest = useRef(false)
+  const teaseUntil = useRef(-1)
+  const popStart = useRef(-1)
+  const prevDigesting = useRef(trap.digestingUntil !== null)
+
   const withered = trap.witheredAt !== null
   const closed = trap.digestingUntil !== null || withered
 
-  useFrame((_, delta) => {
+  useFrame((frame, delta) => {
     const g = upper.current
     if (!g) return
-    const target = closed ? TRAP_CLOSED : TRAP_OPEN
-    const speed = closed ? 16 : 3
+    const t = frame.clock.elapsedTime
+
+    // A fresh digestion (from any source: 3D tap, HUD button, insect) pops the trap.
+    const digestingNow = trap.digestingUntil !== null
+    if (digestingNow && !prevDigesting.current) popStart.current = t
+    prevDigesting.current = digestingNow
+
+    if (teaseRequest.current) {
+      teaseRequest.current = false
+      if (!closed) teaseUntil.current = t + 0.25
+    }
+
+    const teasing = !closed && t < teaseUntil.current
+    const target = closed ? TRAP_CLOSED : teasing ? TRAP_TEASE : TRAP_OPEN
+    const speed = closed || teasing ? 16 : 3
     g.rotation.x += (target - g.rotation.x) * Math.min(1, delta * speed)
+
+    if (root.current) {
+      const sincePop = t - popStart.current
+      const pop =
+        popStart.current >= 0 && sincePop < 0.35 ? Math.sin((sincePop / 0.35) * Math.PI) : 0
+      root.current.scale.setScalar(1 + pop * 0.18)
+    }
   })
 
   const trapColor = withered ? palette.trapWithered : wilted ? palette.trapWilted : palette.trap
@@ -96,15 +116,25 @@ function Trap({
 
   return (
     <group
+      ref={root}
       position={position}
       rotation-z={withered ? 0.5 : 0}
       onPointerDown={(e) => {
-        if (!isTrapReady(trap, Date.now())) return
+        if (wilted || !isTrapReady(trap, Date.now())) return
         e.stopPropagation()
-        onFeed()
+        const presence = insectBus.presence
+        if (presence && presence.nearTrapIndex === index) {
+          dispatch({ type: 'catchInsect', trapId: trap.id, insect: presence.kind })
+          insectBus.onCaught?.(index)
+          playSnap()
+        } else {
+          // Empty snap: a playful half-close that costs nothing.
+          teaseRequest.current = true
+          playTease()
+        }
       }}
       onPointerOver={() => {
-        if (isTrapReady(trap, Date.now())) document.body.style.cursor = 'pointer'
+        if (!wilted && isTrapReady(trap, Date.now())) document.body.style.cursor = 'pointer'
       }}
       onPointerOut={() => {
         document.body.style.cursor = 'auto'
@@ -118,11 +148,23 @@ function Trap({
         <boxGeometry args={[0.2, 0.014, 0.18]} />
         <meshStandardMaterial color={mouthColor} />
       </mesh>
+      {[-0.06, 0.02, 0.08].map((x) => (
+        <mesh key={`lo${x}`} position={[x, 0.075, 0.2]}>
+          <boxGeometry args={[0.025, 0.04, 0.025]} />
+          <meshStandardMaterial color={TOOTH_COLOR} />
+        </mesh>
+      ))}
       <group ref={upper} position={[0, 0.06, -0.03]} rotation-x={TRAP_OPEN}>
         <mesh position={[0, 0.03, 0.12]}>
           <boxGeometry args={[0.26, 0.06, 0.24]} />
           <meshStandardMaterial color={trapColor} />
         </mesh>
+        {[-0.08, 0, 0.08].map((x) => (
+          <mesh key={`up${x}`} position={[x, 0.015, 0.235]}>
+            <boxGeometry args={[0.025, 0.045, 0.025]} />
+            <meshStandardMaterial color={TOOTH_COLOR} />
+          </mesh>
+        ))}
       </group>
     </group>
   )

@@ -236,7 +236,7 @@ Sprog-note: al kode, kommentarer og strenge i koden er på engelsk; artsnavne o.
 ### 11.6 Mappestruktur
 
 ```
-plantespil/
+flytrap-keeper/
 ├── src/
 │   ├── sim/            # ren spillogik: tick, actions, species, config, save/migrations, sync-klient
 │   ├── scene/          # R3F: diorama, plantekits, minigame, vejr, animationer
@@ -266,7 +266,7 @@ Estimaterne er kalendertid i hobbytempo (aftener/weekender). 3D koster lidt ekst
 - [x] R3F-scene: klods-potte + placeholder-plante på vindueskarm, orbit med grænser, kører på telefon
 - [x] GLB-pipeline bevist: vandkande-prop genereret som GLB (`npm run generate:props`) og indlæst via `useGLTF` — MagicaVoxel-eksporter kan afløse 1:1 i `public/models/`
 - [x] i18next sat op med `locales/en.json` — al UI-tekst går gennem `t()`
-- [ ] Vercel koblet på repoet: preview pr. PR + produktion (manuel engangs-import på vercel.com — se README)
+- [x] Vercel koblet på repoet: preview pr. PR + produktion (manuel engangs-import på vercel.com — se README)
 - [x] GitHub Actions (typecheck/lint/test/build) + README med "sådan kører du det lokalt"
 
 ### Fase 1 — MVP: "Én plante lever" (2-3 uger)

@@ -99,7 +99,7 @@ Hver art har sin egen pasningsprofil, 3D-modelsæt og leksikontekst med ægte fa
 ## 7. Præsentation i 3D
 
 - **Scene:** Én diorama — vindueskarm med potte, vindue (vejr/dagslys udenfor), regnvandstønde og vandkande. Senere drivhuset som udvidet scene.
-- **Kamera:** Fast, indbydende vinkel med begrænset fri rotation/zoom (orbit med stramme grænser, pinch på mobil). Ingen fri navigation — det er en diorama, ikke en verden.
+- **Kamera & bevægelse:** Man går rundt i værelset som en lille passer-avatar (WASD/piletaster, virtuelt joystick på touch). Kameraet er et tredjepersons orbit-kamera der følger figuren: spilleren beholder sin valgte vinkel og zoom, og azimuth-grænserne holder kameraet på værelsessiden af vinduesvæggen, så udsigten aldrig blokeres. _(Oprindeligt var scenen et fast diorama-kamera — opgraderet efter launch.)_
 - **Kunststil:** **Blocky/chunky 3D à la Roblox/Minecraft** — modeller bygget af simple klodser og cylindre med flade farver, chunky proportioner og flat shading i en varm, blød palette. Bevidst valgt fordi stilen er charmerende _og_ meget billig at producere: ingen teksturmaling, ingen skulptering — og en stor klodset fluefanger-kæbe er sjov i sig selv. Props (potte, tønde, vindueskarm, pynt) kan laves som voxel-modeller i MagicaVoxel for ekstra Minecraft-vibe.
 - **Interaktion:** Klik/tap direkte på tingene via raycasting — vandkanden for at vande, fælden for at snappe, planten for at flytte den. Store hit-områder på touch.
 - **Animation:** Klods-stilen gør animation enkel: fælde-snap er en hængsel-rotation af overkæben, humør er poseringer/vip af hele planten, dertil blad-svaj, flue-flyvebaner og simple regn-partikler. Alt organisk sker i 3D; HUD er almindelig DOM ovenpå.
@@ -326,6 +326,7 @@ _Mål: En Venus flytrap i 3D man reelt kan passe over flere dage — og som gemm
 - [x] "Start forfra"-knap under Din save (to-trins bekræftelse) + genoptagelig onboarding efter reload
 - [x] Værelset bygget færdigt: alle vægge (dollhouse-teknik — sidevægge er ensidede og usynlige udefra), matteret sidevindue, seng, skrivebord, stol, væghylde med kaktus, vægur; kameraet kan dreje meget længere rundt (azimuth ±1,45 rad)
 - [x] Indret-dit-værelse i butikken: tæppe (35), plakat (30), hylderadio (45), gulvlampe (55, lyser om aftenen) og computer (90, skærmen gløder) — samme deco-mekanisme som nissen, så gamle saves virker uændret. _Fravalg: fri træk-og-slip-placering — faste, håndplacerede pladser er langt bedre på mobil._
+- [x] Passer-avatar i stedet for fast kamera: en lille blocky figur (grøn passer-kasket, fluefanger-badge) man går rundt med via WASD/piletaster eller virtuelt joystick på touch; gå-cyklus, drejning og blød følgekamera-logik. Kollision mod seng, skrivebord, stol, karm, vægge og den købte gulvlampe er ren, testbar matematik i `playerMovement.ts` (samme princip som sim-kernen). Klik-interaktionerne, insekt-minispillet og HUD'en er uændrede — figuren giver skala og nærvær, den gater ingen handlinger.
 
 ### Backlog (senere, efter lyst)
 

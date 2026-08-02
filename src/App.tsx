@@ -3,8 +3,12 @@ import { Canvas } from '@react-three/fiber'
 import { Suspense } from 'react'
 import { Diorama } from './scene/Diorama'
 import { Lights } from './scene/Lights'
+import { Player } from './scene/Player'
+import { FLOOR_Y, HEAD_HEIGHT, SPAWN } from './scene/playerMovement'
 import { Hud } from './ui/Hud'
+import { Joystick } from './ui/Joystick'
 import { LexiconDialog } from './ui/LexiconDialog'
+import { MoveHint } from './ui/MoveHint'
 import { Onboarding } from './ui/Onboarding'
 import { QuestsDialog } from './ui/QuestsDialog'
 import { ConflictDialog, SettingsDialog } from './ui/SettingsDialog'
@@ -13,17 +17,21 @@ import { ShopDialog } from './ui/ShopDialog'
 export default function App() {
   return (
     <div className="app">
-      <Canvas camera={{ position: [2.4, 1.7, 3.4], fov: 42 }} dpr={[1, 2]}>
+      <Canvas camera={{ position: [SPAWN.x, 1.05, SPAWN.z + 2.45], fov: 42 }} dpr={[1, 2]}>
         <color attach="background" args={['#ead9c2']} />
         <Lights />
         <Suspense fallback={null}>
           <Diorama />
         </Suspense>
+        <Player />
         <OrbitControls
-          target={[0, 0.7, 0]}
+          makeDefault
+          target={[SPAWN.x, FLOOR_Y + HEAD_HEIGHT, SPAWN.z]}
           enablePan={false}
-          minDistance={1.8}
-          maxDistance={7}
+          enableDamping
+          dampingFactor={0.16}
+          minDistance={1.4}
+          maxDistance={6}
           minPolarAngle={0.7}
           maxPolarAngle={1.5}
           minAzimuthAngle={-1.45}
@@ -31,6 +39,8 @@ export default function App() {
         />
       </Canvas>
       <Hud />
+      <Joystick />
+      <MoveHint />
       <Onboarding />
       <ShopDialog />
       <QuestsDialog />

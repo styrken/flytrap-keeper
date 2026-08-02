@@ -197,7 +197,8 @@
     "good": "Nice and steady"
   },
   "scene": {
-    "hintDrag": "Drag to look around",
+    "hintMoveKeys": "Walk around with WASD or the arrow keys — drag to look around",
+    "hintMoveTouch": "Walk around with the joystick — drag to look around",
     "hintSnap": "Tap a trap when an insect is close — snap!",
     "hintCare": "Keep it watered and happy — tap a pot to switch plants"
   },

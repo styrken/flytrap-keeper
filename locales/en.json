@@ -195,7 +195,15 @@
       },
       "pot-blue": { "name": "Blue pot", "desc": "Repot the selected plant in calm blue." },
       "pot-mint": { "name": "Mint pot", "desc": "Repot the selected plant in fresh mint." },
-      "pot-plum": { "name": "Plum pot", "desc": "Repot the selected plant in royal plum." }
+      "pot-plum": { "name": "Plum pot", "desc": "Repot the selected plant in royal plum." },
+      "googly-eyes": {
+        "name": "Googly eyes",
+        "desc": "For the selected plant. On a flytrap they ride the snapping jaw. No regrets."
+      },
+      "bow": {
+        "name": "Little bow",
+        "desc": "A neat bow for the selected plant. Dapper — even mid-snap."
+      }
     }
   },
   "lexicon": {
@@ -260,6 +268,13 @@
     "onTheHouse": "on the house",
     "plant": "Plant the seed 🌱",
     "start": "Let's grow!"
+  },
+  "photo": {
+    "take": "Take a postcard photo",
+    "title": "Postcard",
+    "alt": "A postcard photo of your plant room",
+    "save": "Save picture",
+    "share": "Share"
   },
   "pour": {
     "title": "Steady hands…",

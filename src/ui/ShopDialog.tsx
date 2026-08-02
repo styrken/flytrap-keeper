@@ -17,6 +17,7 @@ export function ShopDialog() {
     if ((item.kind === 'unlock' || item.kind === 'deco') && state.inventory.items.includes(item.id))
       return 'owned'
     if (item.kind === 'pot' && plant?.potColor === item.potColor) return 'owned'
+    if (item.kind === 'accessory' && plant?.accessory === item.accessoryId) return 'owned'
     if (state.inventory.dewdrops < item.cost) return 'poor'
     return 'buy'
   }

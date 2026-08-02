@@ -198,6 +198,14 @@
       "pot-plum": {
         "name": "Blommefarvet potte",
         "desc": "Ompot den valgte plante i kongelig blomme."
+      },
+      "googly-eyes": {
+        "name": "Rulleøjne",
+        "desc": "Til den valgte plante. På en fluefanger sidder de på selve kæben. Ingen fortrydelse."
+      },
+      "bow": {
+        "name": "Lille sløjfe",
+        "desc": "En fin sløjfe til den valgte plante. Elegant — selv midt i et snap."
       }
     }
   },
@@ -263,6 +271,13 @@
     "onTheHouse": "på husets regning",
     "plant": "Plant frøet 🌱",
     "start": "Lad os gro!"
+  },
+  "photo": {
+    "take": "Tag et postkort-foto",
+    "title": "Postkort",
+    "alt": "Et postkort-foto af dit planteværelse",
+    "save": "Gem billede",
+    "share": "Del"
   },
   "pour": {
     "title": "Rolige hænder…",

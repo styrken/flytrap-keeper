@@ -244,7 +244,58 @@ function Trap({
             <meshStandardMaterial color={TOOTH_COLOR} />
           </mesh>
         ))}
+        {/* googly eyes ride the top jaw — they snap along with it */}
+        {index === 0 && plant.accessory === 'googly-eyes' && (
+          <group position={[0, 0.065, 0.1]} rotation-x={-Math.PI / 2 + 0.25}>
+            <GooglyEyes spread={0.062} />
+          </group>
+        )}
       </group>
+      {index === 0 && plant.accessory === 'bow' && (
+        <group position={[0, 0.045, 0.215]} rotation-x={0.35}>
+          <BowKnot size={0.9} />
+        </group>
+      )}
+    </group>
+  )
+}
+
+/* --------------------------------- accessories --------------------------------- */
+
+function GooglyEyes({ spread = 0.06, size = 1 }: { spread?: number; size?: number }) {
+  return (
+    <group scale={size}>
+      {[-spread, spread].map((x) => (
+        <group key={x} position={[x, 0, 0]}>
+          <mesh>
+            <boxGeometry args={[0.055, 0.055, 0.028]} />
+            <meshStandardMaterial color="#fdfdf6" />
+          </mesh>
+          <mesh position={[0, -0.009, 0.017]}>
+            <boxGeometry args={[0.024, 0.024, 0.012]} />
+            <meshStandardMaterial color="#26221c" />
+          </mesh>
+        </group>
+      ))}
+    </group>
+  )
+}
+
+function BowKnot({ size = 1 }: { size?: number }) {
+  return (
+    <group scale={size}>
+      <mesh position={[-0.036, 0, 0]} rotation-z={0.35}>
+        <boxGeometry args={[0.055, 0.036, 0.02]} />
+        <meshStandardMaterial color="#e0607a" />
+      </mesh>
+      <mesh position={[0.036, 0, 0]} rotation-z={-0.35}>
+        <boxGeometry args={[0.055, 0.036, 0.02]} />
+        <meshStandardMaterial color="#c94f68" />
+      </mesh>
+      <mesh position={[0, 0, 0.004]}>
+        <boxGeometry args={[0.028, 0.028, 0.024]} />
+        <meshStandardMaterial color="#b03e56" />
+      </mesh>
     </group>
   )
 }
@@ -260,6 +311,16 @@ function DroseraKit({ plant }: { plant: PlantState }) {
         <boxGeometry args={[0.1, 0.06, 0.1]} />
         <meshStandardMaterial color={colors.stem} />
       </mesh>
+      {plant.accessory === 'googly-eyes' && (
+        <group position={[0, 0.062, 0.052]}>
+          <GooglyEyes spread={0.032} size={0.7} />
+        </group>
+      )}
+      {plant.accessory === 'bow' && (
+        <group position={[0, 0.03, 0.054]}>
+          <BowKnot size={0.7} />
+        </group>
+      )}
       {plant.traps.map((trap, i) => (
         <group key={trap.id} rotation-y={(i * Math.PI * 2) / count}>
           <group rotation-z={0.95} position={[0, 0.05, 0]}>
@@ -310,6 +371,17 @@ function NepenthesKit({ plant }: { plant: PlantState }) {
                   <boxGeometry args={[0.09, 0.015, 0.09]} />
                   <meshStandardMaterial color={colors.leaf} />
                 </mesh>
+                {/* the first pitcher gets the flair */}
+                {i === 0 && plant.accessory === 'googly-eyes' && (
+                  <group position={[0, -0.03, 0.122]}>
+                    <GooglyEyes spread={0.03} size={0.7} />
+                  </group>
+                )}
+                {i === 0 && plant.accessory === 'bow' && (
+                  <group position={[0, -0.12, 0.122]}>
+                    <BowKnot size={0.7} />
+                  </group>
+                )}
               </group>
             </group>
           </group>
@@ -344,6 +416,17 @@ function SarraceniaKit({ plant }: { plant: PlantState }) {
                 <boxGeometry args={[0.1, 0.015, 0.1]} />
                 <meshStandardMaterial color={colors.leaf} />
               </mesh>
+              {/* the tallest trumpet wears the flair */}
+              {i === Math.min(2, plant.traps.length - 1) && plant.accessory === 'googly-eyes' && (
+                <group position={[0, height - 0.045, 0.052]}>
+                  <GooglyEyes spread={0.028} size={0.65} />
+                </group>
+              )}
+              {i === Math.min(2, plant.traps.length - 1) && plant.accessory === 'bow' && (
+                <group position={[0, height - 0.12, 0.05]}>
+                  <BowKnot size={0.65} />
+                </group>
+              )}
             </group>
           </group>
         )

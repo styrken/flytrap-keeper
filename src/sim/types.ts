@@ -1,6 +1,8 @@
 export type SpeciesId = 'dionaea' | 'drosera' | 'nepenthes' | 'sarracenia'
 /** Real Dionaea cultivars — visual rarities of the same species, same care. */
 export type CultivarId = 'b52' | 'red-dragon' | 'justina'
+/** Pure-silliness plant cosmetics. The googly eyes ride the snapping jaw. */
+export type AccessoryId = 'googly-eyes' | 'bow'
 export type PlacementId = 'north-window' | 'south-window' | 'growlight' | 'greenhouse'
 export type WeatherKind = 'sun' | 'clouds' | 'rain'
 export type InsectKind = 'fly' | 'mosquito' | 'spider' | 'beetle' | 'moth'
@@ -32,6 +34,8 @@ export type ShopItemId =
   | 'pot-blue'
   | 'pot-mint'
   | 'pot-plum'
+  | 'googly-eyes'
+  | 'bow'
 
 export interface TrapState {
   id: string
@@ -72,6 +76,8 @@ export interface PlantState {
   /** A weed is present in the pot once now >= nextWeedAt; pulling it resets the clock. */
   nextWeedAt: number
   potColor: string | null
+  /** One cosmetic at a time — buying another swaps it (like repotting). */
+  accessory: AccessoryId | null
   flowering: FloweringState | null
   wilted: boolean
   dormant: boolean

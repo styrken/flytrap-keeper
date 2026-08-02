@@ -1,13 +1,15 @@
-import type { CultivarId, GameState, PlantState, ShopItemId, SpeciesId } from './types'
+import type { AccessoryId, CultivarId, GameState, PlantState, ShopItemId, SpeciesId } from './types'
 
 export interface ShopItem {
   id: ShopItemId
   cost: number
-  kind: 'seed' | 'unlock' | 'deco' | 'pot'
+  kind: 'seed' | 'unlock' | 'deco' | 'pot' | 'accessory'
   speciesId?: SpeciesId
   /** Seed of a named rarity — same species, its own look. */
   cultivarId?: CultivarId
   potColor?: string
+  /** Cosmetic for the selected plant — repeatable per plant, like pots. */
+  accessoryId?: AccessoryId
 }
 
 /** Pots on the windowsill. */
@@ -52,6 +54,8 @@ export const SHOP_ITEMS: ShopItem[] = [
   { id: 'pot-blue', cost: 20, kind: 'pot', potColor: '#5d84ae' },
   { id: 'pot-mint', cost: 20, kind: 'pot', potColor: '#7fb6a4' },
   { id: 'pot-plum', cost: 20, kind: 'pot', potColor: '#96608f' },
+  { id: 'googly-eyes', cost: 25, kind: 'accessory', accessoryId: 'googly-eyes' },
+  { id: 'bow', cost: 20, kind: 'accessory', accessoryId: 'bow' },
 ]
 
 export const shopItem = (id: ShopItemId) => SHOP_ITEMS.find((item) => item.id === id)

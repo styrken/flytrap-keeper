@@ -215,6 +215,15 @@ function applyAction(s: GameState, action: Action, now: number, realNow: number)
           },
         }
       }
+      if (item.kind === 'accessory') {
+        // Dressing up the active plant — repeatable per plant, swaps the old one.
+        if (!item.accessoryId || plant.accessory === item.accessoryId || plant.dead) return s
+        const dressed = withPlant(s, { ...plant, accessory: item.accessoryId })
+        return {
+          ...dressed,
+          inventory: { ...dressed.inventory, dewdrops: dressed.inventory.dewdrops - item.cost },
+        }
+      }
       // pot: a physical repot of the active plant — repeatable per plant
       if (!item.potColor || plant.potColor === item.potColor) return s
       const repotted = withPlant(s, { ...plant, potColor: item.potColor })

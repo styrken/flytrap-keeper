@@ -36,6 +36,7 @@ export function createPlant(
     lastPetAt: null,
     nextWeedAt: now + SIM.WEED_FIRST_HOURS * 3_600_000,
     potColor: null,
+    accessory: null,
     flowering: null,
     wilted: false,
     dormant: false,

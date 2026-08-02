@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { playSplash, playToast } from '../audio'
+import { photoBus } from '../scene/photoBus'
 import { roomOfPlant } from '../scene/plantLayout'
 import {
   HOUR_MS,
@@ -26,6 +27,7 @@ import { gameNow, useGame } from '../store'
 import { FlytrapIcon } from './FlytrapIcon'
 import { Meter } from './Meter'
 import { PourGame } from './PourGame'
+import { composePostcard } from './postcard'
 
 const MOOD_ICON = {
   happy: '😊',
@@ -47,7 +49,7 @@ const SPECIES_ICON = {
 } as const
 
 export function Hud() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const state = useGame((s) => s.state)
   const dispatch = useGame((s) => s.dispatch)
   const setShowSettings = useGame((s) => s.setShowSettings)
@@ -55,6 +57,7 @@ export function Hud() {
   const setShowLexicon = useGame((s) => s.setShowLexicon)
   const setShowQuests = useGame((s) => s.setShowQuests)
   const setStatInfo = useGame((s) => s.setStatInfo)
+  const setPhoto = useGame((s) => s.setPhoto)
   const roomView = useGame((s) => s.roomView)
   const setRoomView = useGame((s) => s.setRoomView)
   const setShowFriends = useSocial((s) => s.setShowFriends)
@@ -295,6 +298,24 @@ export function Hud() {
                 onClick={() => setShowLexicon(true)}
               >
                 📖
+              </button>
+              <button
+                type="button"
+                className="icon-btn"
+                aria-label={t('photo.take')}
+                title={t('photo.take')}
+                onClick={() => {
+                  const raw = photoBus.capture?.()
+                  if (!raw) return
+                  const stamp = new Intl.DateTimeFormat(i18n.language, {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric',
+                  }).format(gameNow())
+                  void composePostcard(raw, plant.nickname, stamp).then(setPhoto)
+                }}
+              >
+                📷
               </button>
               <button
                 type="button"

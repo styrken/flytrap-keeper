@@ -53,7 +53,11 @@ describe('weather', () => {
 
 describe('catching insects', () => {
   it('a fly feeds the trap and pays dewdrops', () => {
-    const next = apply(init(), { type: 'catchInsect', trapId: 't1', insect: 'fly' }, T0)
+    const next = apply(
+      init(),
+      { type: 'catchInsect', plantId: 'p1', trapId: 't1', insect: 'fly' },
+      T0,
+    )
     const p = activePlant(next)!
     expect(p.nutrition).toBe(90)
     expect(p.traps[0].usesLeft).toBe(SIM.TRAP_USES - 1)
@@ -62,14 +66,22 @@ describe('catching insects', () => {
   })
 
   it('a spider is a big bonus and unlocks its achievement', () => {
-    const next = apply(init(), { type: 'catchInsect', trapId: 't1', insect: 'spider' }, T0)
+    const next = apply(
+      init(),
+      { type: 'catchInsect', plantId: 'p1', trapId: 't1', insect: 'spider' },
+      T0,
+    )
     expect(activePlant(next)!.nutrition).toBe(100)
     expect(next.achievements).toContain('spider-snack')
     expect(next.achievements).toContain('first-catch')
   })
 
   it('snapping at a beetle gives nothing, doubles digestion, and teaches a lesson', () => {
-    const next = apply(init(), { type: 'catchInsect', trapId: 't1', insect: 'beetle' }, T0)
+    const next = apply(
+      init(),
+      { type: 'catchInsect', plantId: 'p1', trapId: 't1', insect: 'beetle' },
+      T0,
+    )
     const trap = activePlant(next)!.traps[0]
     expect(activePlant(next)!.nutrition).toBe(60)
     expect(trap.usesLeft).toBe(SIM.TRAP_USES - 1)
@@ -79,8 +91,16 @@ describe('catching insects', () => {
   })
 
   it('cannot catch with a digesting trap', () => {
-    const fed = apply(init(), { type: 'catchInsect', trapId: 't1', insect: 'fly' }, T0)
-    const again = apply(fed, { type: 'catchInsect', trapId: 't1', insect: 'fly' }, T0 + h(1))
+    const fed = apply(
+      init(),
+      { type: 'catchInsect', plantId: 'p1', trapId: 't1', insect: 'fly' },
+      T0,
+    )
+    const again = apply(
+      fed,
+      { type: 'catchInsect', plantId: 'p1', trapId: 't1', insect: 'fly' },
+      T0 + h(1),
+    )
     expect(activePlant(again)!.traps[0].usesLeft).toBe(SIM.TRAP_USES - 1)
   })
 })
@@ -98,7 +118,7 @@ describe('achievements', () => {
   it('several care actions on the same day count once', () => {
     let state = init()
     state = apply(state, { type: 'tapWater' }, T0)
-    state = apply(state, { type: 'feedTrap', trapId: 't1' }, T0 + h(1))
+    state = apply(state, { type: 'feedTrap', plantId: 'p1', trapId: 't1' }, T0 + h(1))
     expect(state.careStreak.days).toBe(1)
   })
 
@@ -125,10 +145,18 @@ describe('achievements', () => {
   })
 
   it('achievements pay dewdrops exactly once', () => {
-    let state = apply(init(), { type: 'catchInsect', trapId: 't1', insect: 'fly' }, T0)
+    let state = apply(
+      init(),
+      { type: 'catchInsect', plantId: 'p1', trapId: 't1', insect: 'fly' },
+      T0,
+    )
     const dewdrops = state.inventory.dewdrops
     state = tick(state, T0 + h(SIM.DIGEST_HOURS + 1))
-    state = apply(state, { type: 'catchInsect', trapId: 't1', insect: 'fly' }, T0 + h(6))
+    state = apply(
+      state,
+      { type: 'catchInsect', plantId: 'p1', trapId: 't1', insect: 'fly' },
+      T0 + h(6),
+    )
     expect(state.achievements.filter((a) => a === 'first-catch')).toHaveLength(1)
     expect(state.inventory.dewdrops).toBe(dewdrops + 2)
   })
@@ -145,7 +173,7 @@ describe('save migration v1 -> v2', () => {
 
     const loaded = loadFromString(JSON.stringify(v1))
     expect(loaded).not.toBeNull()
-    expect(loaded!.saveVersion).toBe(2)
+    expect(loaded!.saveVersion).toBe(3)
     expect(loaded!.weather.rainBarrel).toBe(60)
     expect(loaded!.settings.sound).toBe(true)
     expect(loaded!.careStreak).toEqual({ days: 0, lastDay: null })

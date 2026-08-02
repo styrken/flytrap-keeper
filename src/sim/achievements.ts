@@ -10,6 +10,7 @@ export const ACHIEVEMENTS = [
   'green-thumb',
   'rain-collector',
   'survivor',
+  'in-bloom',
 ] as const
 
 export type AchievementId = (typeof ACHIEVEMENTS)[number]

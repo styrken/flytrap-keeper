@@ -1,0 +1,200 @@
+{
+  "app": {
+    "title": "Flytrap Keeper",
+    "tagline": "en fortælling om en venusfluefanger",
+    "stage": "pre-alpha"
+  },
+  "stats": {
+    "water": "Vand",
+    "nutrition": "Næring",
+    "health": "Sundhed",
+    "humidity": "Luftfugtighed",
+    "rainBarrel": "Regnvandstønde",
+    "dewdrops": "Dugdråber"
+  },
+  "stage": {
+    "0": "Spire",
+    "1": "Ung plante",
+    "2": "Voksen",
+    "3": "Udvokset",
+    "next": "Vækst mod næste stadie"
+  },
+  "weather": {
+    "sun": "Solskin",
+    "clouds": "Overskyet",
+    "rain": "Regn"
+  },
+  "season": {
+    "spring": "Forår",
+    "summer": "Sommer",
+    "autumn": "Efterår",
+    "winter": "Vinter"
+  },
+  "species": {
+    "dionaea": {
+      "name": "Venusfluefanger",
+      "latin": "Dionaea muscipula",
+      "facts": "Hver fælde kan kun klappe i nogle få gange, før den visner — planten skyder bare nye. Den laver fotosyntese som alle andre planter; insekter er en bonus, ikke aftensmad. Vokser vildt i et lillebitte område i Carolina og har brug for en kold vinterdvale."
+    },
+    "drosera": {
+      "name": "Soldug",
+      "latin": "Drosera capensis",
+      "facts": "Bladene glimter af klæbrige dråber, der selv fanger småinsekter — bladet ruller sig langsomt om fangsten. En af de mest tilgivende kødædende planter, og den blomstrer gerne i en solrig vindueskarm."
+    },
+    "nepenthes": {
+      "name": "Kandebærer",
+      "latin": "Nepenthes",
+      "facts": "Danner hængende kander fyldt med fordøjelsesvæske, som insekter tumler ned i. En ægte trope: den holder aldrig vinterdvale, men elsker fugtig luft — dis den tit, og hold den varm."
+    },
+    "sarracenia": {
+      "name": "Trompetkande",
+      "latin": "Sarracenia",
+      "facts": "Høje trompetformede blade lokker insekter med nektar langs randen; indenfor spærrer nedadvendte hår vejen tilbage. Vil have knaldsol hele sommeren og en rigtig kold dvale hele vinteren."
+    }
+  },
+  "actions": {
+    "water": "Vand",
+    "tapWater": "Postevand",
+    "mist": "Dis",
+    "feed": "Fodr",
+    "spot": "Vinduesplads",
+    "rename": "Navngiv din plante",
+    "sound": "Lyd til/fra",
+    "dormancy": "Put til vinterdvale",
+    "wake": "Væk den",
+    "cutFlower": "Klip stilken",
+    "letBloom": "Lad den blomstre",
+    "removePlant": "Ryd potten"
+  },
+  "placement": {
+    "south-window": "Sydvindue",
+    "north-window": "Nordvindue",
+    "growlight": "Growlampe"
+  },
+  "status": {
+    "wilted": "Åh nej — {{name}} er visnet. Hold den vandet, så kommer den til hægterne igen.",
+    "tapWaterWarning": "Postevand virker i en snæver vending, men kalken koster lidt sundhed.",
+    "dormant": "{{name}} sover vintersøvn. 💤 Sov godt — vi ses til foråret.",
+    "winterHint": "Det er vinter — {{name}} trænger til en lang lur. Springes den over, slides planten.",
+    "flowerChoice": "{{name}} skyder en blomsterstilk! At klippe den er det sikre valg — blomstring koster kræfter, men giver frø.",
+    "blooming": "{{name}} blomstrer 🌼 — smukt, men lidt udmattende.",
+    "dead": "💀 {{name}} klarede den ikke. Hard mode er nådesløs."
+  },
+  "shop": {
+    "title": "Butik",
+    "pitch": "Optjente dugdråber køber nye frø, udstyr og lidt pynt.",
+    "owned": "Ejet",
+    "sillFull": "Karmen er fuld",
+    "items": {
+      "seed-drosera": {
+        "name": "Soldug-frø",
+        "desc": "En tilgivende skønhed, der selv fanger småkravl."
+      },
+      "seed-nepenthes": {
+        "name": "Kandebærer-stikling",
+        "desc": "Hængende kander! Kræver jævnlig dis og springer vinterdvalen over."
+      },
+      "seed-sarracenia": {
+        "name": "Trompetkande-rodstok",
+        "desc": "Solhungrende trompeter med behov for ægte vinterdvale."
+      },
+      "growlight": {
+        "name": "Growlampe",
+        "desc": "Perfekt lys i al slags vejr — en ny plads til enhver plante."
+      },
+      "gnome": {
+        "name": "Vindueskarm-nisse",
+        "desc": "Ren pynt. Dømmer lydløst din vandingsrytme."
+      },
+      "pot-blue": { "name": "Blå potte", "desc": "Ompot den valgte plante i roligt blåt." },
+      "pot-mint": { "name": "Mintgrøn potte", "desc": "Ompot den valgte plante i frisk mint." },
+      "pot-plum": {
+        "name": "Blommefarvet potte",
+        "desc": "Ompot den valgte plante i kongelig blomme."
+      }
+    }
+  },
+  "lexicon": {
+    "title": "Artsleksikon",
+    "locked": "??? — dyrk arten for at låse dens historie op."
+  },
+  "achievements": {
+    "toast": "Bedrift låst op",
+    "first-catch": "Første fangst!",
+    "spider-snack": "Edderkoppesnack",
+    "beetle-lesson": "Det dér var en bille…",
+    "stage-adult": "Helt voksen",
+    "stage-mature": "I fuldt flor",
+    "green-thumb": "Grønne fingre",
+    "rain-collector": "Regnsamler",
+    "survivor": "Tilbage fra randen",
+    "in-bloom": "I blomst"
+  },
+  "onboarding": {
+    "welcome": "En lille venusfluefanger er flyttet ind i din vindueskarm. Den har brug for lys, regnvand — og en flue i ny og næ.",
+    "namePrompt": "Hvad skal den hedde?",
+    "tip1": "Vand den fra regnvandstønden. Postevand virker, men kalken gør ondt.",
+    "tip2": "Hver fælde kan kun klappe i nogle få gange, før den visner — en ny vokser frem.",
+    "tip3": "Insektfangst er en lækker bonus. Lys og vand er det, der holder den i live.",
+    "start": "Lad os gro!"
+  },
+  "scene": {
+    "hintDrag": "Træk for at se dig omkring",
+    "hintSnap": "Tap en fælde, når et insekt er tæt på — snap!",
+    "hintCare": "Hold den vandet og glad — tap en potte for at skifte plante"
+  },
+  "settings": {
+    "title": "Indstillinger",
+    "close": "Luk",
+    "general": "Generelt",
+    "sound": "Lyd",
+    "on": "Til",
+    "off": "Fra",
+    "hardMode": "Hard mode",
+    "hardModeHint": "Tilvalg for de modige: en plante, der ligger i bunden i dagevis, dør for altid."
+  },
+  "account": {
+    "title": "Konto & sky-synk",
+    "pitch": "Valgfrit: en letvægtskonto (ingen mail nødvendig) holder din have i sikkerhed på tværs af enheder.",
+    "unavailable": "Sky-synk er ikke sat op på denne udgivelse endnu — din have gemmes på denne enhed.",
+    "username": "Brugernavn",
+    "password": "Kodeord",
+    "newPassword": "Nyt kodeord",
+    "recoveryCode": "Gendannelseskode",
+    "signIn": "Log ind",
+    "create": "Opret konto",
+    "forgot": "Glemt dit kodeord?",
+    "resetAction": "Nulstil kodeord",
+    "back": "Tilbage",
+    "signedInAs": "Logget ind som",
+    "signOut": "Log ud",
+    "delete": "Slet konto",
+    "deleteConfirm": "Helt sikker på at slette alt?",
+    "recoveryIntro": "Din gendannelseskode — den eneste vej tilbage, hvis du glemmer dit kodeord:",
+    "recoveryWarning": "Der er ingen mail på din konto, så koden vises præcis én gang. Skriv den ned et sikkert sted.",
+    "recoverySaved": "Jeg har skrevet den ned",
+    "errors": {
+      "invalid-username": "Brugernavne er 3-24 bogstaver, tal, punktummer eller bindestreger.",
+      "weak-password": "Kodeordet skal være mindst 8 tegn.",
+      "username-taken": "Brugernavnet er optaget.",
+      "invalid-credentials": "Forkert brugernavn eller kodeord.",
+      "invalid-recovery": "Forkert brugernavn eller gendannelseskode.",
+      "network": "Kunne ikke nå serveren.",
+      "rate-limited": "For mange forsøg — prøv igen om lidt.",
+      "sync-not-configured": "Sky-synk er ikke sat op endnu.",
+      "unknown": "Noget gik galt."
+    }
+  },
+  "data": {
+    "title": "Din save",
+    "export": "Eksportér save-fil",
+    "import": "Importér save-fil",
+    "importError": "Den fil ligner ikke en Flytrap Keeper-save."
+  },
+  "conflict": {
+    "title": "Sky-save fundet",
+    "body": "Der findes en sky-save fra {{date}}. Hvilken vil du beholde?",
+    "useCloud": "Brug sky-saven",
+    "keepLocal": "Behold denne enheds"
+  }
+}

@@ -4,7 +4,10 @@ import { Suspense } from 'react'
 import { Diorama } from './scene/Diorama'
 import { Lights } from './scene/Lights'
 import { Hud } from './ui/Hud'
+import { LexiconDialog } from './ui/LexiconDialog'
 import { Onboarding } from './ui/Onboarding'
+import { ConflictDialog, SettingsDialog } from './ui/SettingsDialog'
+import { ShopDialog } from './ui/ShopDialog'
 
 export default function App() {
   return (
@@ -28,6 +31,10 @@ export default function App() {
       </Canvas>
       <Hud />
       <Onboarding />
+      <ShopDialog />
+      <LexiconDialog />
+      <SettingsDialog />
+      <ConflictDialog />
     </div>
   )
 }

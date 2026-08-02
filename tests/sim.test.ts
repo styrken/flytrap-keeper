@@ -84,7 +84,7 @@ describe('watering', () => {
 
 describe('feeding and trap wear', () => {
   it('feeds a ready trap: nutrition up, one use spent, digestion started', () => {
-    const next = apply(init(), { type: 'feedTrap', trapId: 't1' }, T0)
+    const next = apply(init(), { type: 'feedTrap', plantId: 'p1', trapId: 't1' }, T0)
     const p = activePlant(next)!
     expect(p.nutrition).toBe(60 + SIM.HAND_FEED_NUTRITION)
     expect(p.traps[0].usesLeft).toBe(SIM.TRAP_USES - 1)
@@ -92,14 +92,14 @@ describe('feeding and trap wear', () => {
   })
 
   it('rejects feeding a digesting trap', () => {
-    const fed = apply(init(), { type: 'feedTrap', trapId: 't1' }, T0)
-    const again = apply(fed, { type: 'feedTrap', trapId: 't1' }, T0 + h(1))
+    const fed = apply(init(), { type: 'feedTrap', plantId: 'p1', trapId: 't1' }, T0)
+    const again = apply(fed, { type: 'feedTrap', plantId: 'p1', trapId: 't1' }, T0 + h(1))
     const p = activePlant(again)!
     expect(p.traps[0].usesLeft).toBe(SIM.TRAP_USES - 1)
   })
 
   it('reopens after digestion', () => {
-    const fed = apply(init(), { type: 'feedTrap', trapId: 't1' }, T0)
+    const fed = apply(init(), { type: 'feedTrap', plantId: 'p1', trapId: 't1' }, T0)
     const later = tick(fed, T0 + h(SIM.DIGEST_HOURS + 1))
     const trap = activePlant(later)!.traps[0]
     expect(trap.digestingUntil).toBeNull()
@@ -112,7 +112,7 @@ describe('feeding and trap wear', () => {
     let at = T0
     for (let use = 0; use < SIM.TRAP_USES; use++) {
       const trapId = activePlant(state)!.traps[0].id
-      state = apply(state, { type: 'feedTrap', trapId }, at)
+      state = apply(state, { type: 'feedTrap', plantId: 'p1', trapId }, at)
       at += h(SIM.DIGEST_HOURS + 1)
       state = apply(state, { type: 'water' }, at)
     }

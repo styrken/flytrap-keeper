@@ -3,25 +3,27 @@ import { playSplash } from '../audio'
 import { canRainWater } from '../sim'
 import { useGame } from '../store'
 import { RainBarrel } from './Barrel'
-import { FlytrapPlant } from './FlytrapPlant'
 import { Insects } from './Insects'
 import { palette } from './palette'
+import { PlantPot } from './PlantPot'
 import { WeatherSky } from './WeatherSky'
 
 const MODEL_WATERING_CAN = '/models/watering-can.glb'
 
 export function Diorama() {
+  const plants = useGame((s) => s.state.plants)
+  const hasGnome = useGame((s) => s.state.inventory.items.includes('gnome'))
   return (
     <group>
       <Windowsill />
       <WindowFrame />
       <WeatherSky />
-      <group position={[0, 0.06, 0.05]}>
-        <Pot />
-        <FlytrapPlant position={[0, 0.32, 0]} />
-      </group>
-      <WateringCan position={[0.72, 0.06, 0.3]} yaw={-0.7} />
-      <RainBarrel position={[-0.62, 0.06, 0.28]} />
+      {plants.map((plant, slot) => (
+        <PlantPot key={plant.id} plant={plant} slot={slot} />
+      ))}
+      <WateringCan position={[1.3, 0.06, 0.32]} yaw={-0.7} />
+      <RainBarrel position={[-1.3, 0.06, 0.16]} />
+      {hasGnome && <Gnome position={[1.34, 0.06, -0.12]} />}
       <Insects />
     </group>
   )
@@ -57,25 +59,6 @@ function WindowFrame() {
   )
 }
 
-function Pot() {
-  return (
-    <group>
-      <mesh position={[0, 0.13, 0]}>
-        <cylinderGeometry args={[0.28, 0.22, 0.26, 8]} />
-        <meshStandardMaterial color={palette.pot} flatShading />
-      </mesh>
-      <mesh position={[0, 0.27, 0]}>
-        <cylinderGeometry args={[0.3, 0.3, 0.06, 8]} />
-        <meshStandardMaterial color={palette.potRim} flatShading />
-      </mesh>
-      <mesh position={[0, 0.29, 0]}>
-        <cylinderGeometry args={[0.24, 0.24, 0.05, 8]} />
-        <meshStandardMaterial color={palette.soil} flatShading />
-      </mesh>
-    </group>
-  )
-}
-
 function WateringCan({ position, yaw }: { position: [number, number, number]; yaw: number }) {
   const { scene } = useGLTF(MODEL_WATERING_CAN)
   const waterable = useGame((s) => canRainWater(s.state))
@@ -98,6 +81,29 @@ function WateringCan({ position, yaw }: { position: [number, number, number]; ya
       }}
     >
       <primitive object={scene} />
+    </group>
+  )
+}
+
+function Gnome({ position }: { position: [number, number, number] }) {
+  return (
+    <group position={position}>
+      <mesh position={[0, 0.07, 0]}>
+        <boxGeometry args={[0.11, 0.14, 0.09]} />
+        <meshStandardMaterial color="#5d84ae" />
+      </mesh>
+      <mesh position={[0, 0.16, 0]}>
+        <boxGeometry args={[0.09, 0.06, 0.08]} />
+        <meshStandardMaterial color="#e8c49a" />
+      </mesh>
+      <mesh position={[0, 0.16, 0.045]}>
+        <boxGeometry args={[0.05, 0.04, 0.02]} />
+        <meshStandardMaterial color="#f6f1e6" />
+      </mesh>
+      <mesh position={[0, 0.24, 0]}>
+        <cylinderGeometry args={[0.001, 0.06, 0.12, 4]} />
+        <meshStandardMaterial color="#cb4a4a" flatShading />
+      </mesh>
     </group>
   )
 }

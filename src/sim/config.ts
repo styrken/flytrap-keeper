@@ -42,5 +42,28 @@ export const SIM = {
   ACHIEVEMENT_DEWDROPS: 10,
   GREEN_THUMB_DAYS: 7,
 
+  /** Tropical species (misting). */
+  HUMIDITY_DECAY_PER_HOUR: 3,
+  HUMIDITY_LOW: 25,
+  HUMIDITY_OK: 40,
+  HUMIDITY_HEALTH_DECAY_PER_HOUR: 0.6,
+
+  /** Sticky species quietly feed themselves a little. */
+  PASSIVE_CATCH_PER_HOUR: 0.8,
+  PASSIVE_CATCH_CAP: 40,
+
+  /** Hand-feeding non-snapper species (tweezers and dried flies). */
+  FEED_PLANT_NUTRITION: 15,
+  FEED_PLANT_COOLDOWN_HOURS: 6,
+
+  /** Phase 5: seasons, dormancy, flowering, hard mode. */
+  WINTER_SKIP_HEALTH_DECAY_PER_HOUR: 0.4,
+  FLOWER_XP: 2600,
+  BLOOM_HOURS: 120,
+  BLOOM_HEALTH_COST_TOTAL: 15,
+  BLOOM_REWARD_DEWDROPS: 60,
+  CUT_REWARD_DEWDROPS: 8,
+  HARD_MODE_DEATH_HOURS: 72,
+
   NICKNAME_MAX_LENGTH: 20,
 } as const

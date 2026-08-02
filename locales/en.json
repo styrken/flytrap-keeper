@@ -8,6 +8,7 @@
     "water": "Water",
     "nutrition": "Nutrition",
     "health": "Health",
+    "humidity": "Humidity",
     "rainBarrel": "Rain barrel",
     "dewdrops": "Dewdrops"
   },
@@ -23,21 +24,96 @@
     "clouds": "Cloudy",
     "rain": "Raining"
   },
+  "season": {
+    "spring": "Spring",
+    "summer": "Summer",
+    "autumn": "Autumn",
+    "winter": "Winter"
+  },
+  "species": {
+    "dionaea": {
+      "name": "Venus flytrap",
+      "latin": "Dionaea muscipula",
+      "facts": "Each trap can only snap shut a few times before it withers — the plant grows new ones. It photosynthesizes like any plant; insects are a bonus meal, not dinner. Native to a tiny patch of the Carolinas, and it truly needs a cold winter rest."
+    },
+    "drosera": {
+      "name": "Sundew",
+      "latin": "Drosera capensis",
+      "facts": "Its leaves glisten with sticky droplets that catch tiny insects all by themselves — the leaf slowly curls around the catch. One of the most forgiving carnivorous plants to keep, and it blooms readily on a sunny sill."
+    },
+    "nepenthes": {
+      "name": "Tropical pitcher plant",
+      "latin": "Nepenthes",
+      "facts": "Grows hanging pitchers of digestive fluid that insects tumble into. A true tropical: it never sleeps in winter but craves humid air — mist it often and keep it warm."
+    },
+    "sarracenia": {
+      "name": "Trumpet pitcher",
+      "latin": "Sarracenia",
+      "facts": "Tall trumpet-shaped leaves lure insects with nectar along the rim; once inside, downward hairs stop the way back. Wants blazing sun all summer and a proper cold dormancy all winter."
+    }
+  },
   "actions": {
     "water": "Water",
     "tapWater": "Tap water",
+    "mist": "Mist",
     "feed": "Feed",
     "spot": "Window spot",
     "rename": "Name your plant",
-    "sound": "Toggle sound"
+    "sound": "Toggle sound",
+    "dormancy": "Tuck in for winter",
+    "wake": "Wake up",
+    "cutFlower": "Cut the stalk",
+    "letBloom": "Let it bloom",
+    "removePlant": "Clear the pot"
   },
   "placement": {
     "south-window": "South window",
-    "north-window": "North window"
+    "north-window": "North window",
+    "growlight": "Grow light"
   },
   "status": {
     "wilted": "Oh no — {{name}} has wilted. Keep it watered and it will bounce back.",
-    "tapWaterWarning": "Tap water works in a pinch, but the limescale costs a little health."
+    "tapWaterWarning": "Tap water works in a pinch, but the limescale costs a little health.",
+    "dormant": "{{name}} is sleeping through winter. 💤 Sweet dreams until spring.",
+    "winterHint": "It's winter — {{name}} would love a long nap. Skipping it wears the plant down.",
+    "flowerChoice": "{{name}} is sending up a flower stalk! Cutting it is the safe choice — blooming costs strength but rewards seeds.",
+    "blooming": "{{name}} is in bloom 🌼 — beautiful, and a little exhausting.",
+    "dead": "💀 {{name}} didn't make it. Hard mode is unforgiving."
+  },
+  "shop": {
+    "title": "Shop",
+    "pitch": "Earned dewdrops buy new seeds, gear and a little flair.",
+    "owned": "Owned",
+    "sillFull": "Sill is full",
+    "items": {
+      "seed-drosera": {
+        "name": "Sundew seeds",
+        "desc": "A forgiving beauty that catches tiny prey by itself."
+      },
+      "seed-nepenthes": {
+        "name": "Tropical pitcher cutting",
+        "desc": "Hanging pitchers! Needs regular misting, skips winter sleep."
+      },
+      "seed-sarracenia": {
+        "name": "Trumpet pitcher rhizome",
+        "desc": "Sun-hungry trumpets that need a real winter rest."
+      },
+      "growlight": {
+        "name": "Grow light",
+        "desc": "Perfect light in any weather — a new spot for any plant."
+      },
+      "gnome": {
+        "name": "Windowsill gnome",
+        "desc": "Purely decorative. Judges your watering schedule silently."
+      },
+      "pot-blue": { "name": "Blue pot", "desc": "Repot the selected plant in calm blue." },
+      "pot-mint": { "name": "Mint pot", "desc": "Repot the selected plant in fresh mint." },
+      "pot-plum": { "name": "Plum pot", "desc": "Repot the selected plant in royal plum." }
+    }
+  },
+  "lexicon": {
+    "title": "Species lexicon",
+    "locked": "??? — grow this species to unlock its story."
   },
   "achievements": {
     "toast": "Achievement unlocked",
@@ -48,7 +124,8 @@
     "stage-mature": "In full glory",
     "green-thumb": "Green thumb",
     "rain-collector": "Rain collector",
-    "survivor": "Back from the brink"
+    "survivor": "Back from the brink",
+    "in-bloom": "In bloom"
   },
   "onboarding": {
     "welcome": "A tiny Venus flytrap has moved in on your windowsill. It needs light, rainwater — and the occasional fly.",
@@ -60,6 +137,61 @@
   },
   "scene": {
     "hintDrag": "Drag to look around",
-    "hintSnap": "Tap a trap when an insect is close — snap!"
+    "hintSnap": "Tap a trap when an insect is close — snap!",
+    "hintCare": "Keep it watered and happy — tap a pot to switch plants"
+  },
+  "settings": {
+    "title": "Settings",
+    "close": "Close",
+    "general": "General",
+    "sound": "Sound",
+    "on": "On",
+    "off": "Off",
+    "hardMode": "Hard mode",
+    "hardModeHint": "Opt-in for the brave: a plant left at rock bottom for days dies for good."
+  },
+  "account": {
+    "title": "Account & cloud sync",
+    "pitch": "Optional: a light account (no email needed) keeps your garden safe across devices.",
+    "unavailable": "Cloud sync isn't set up on this deployment yet — your garden is saved on this device.",
+    "username": "Username",
+    "password": "Password",
+    "newPassword": "New password",
+    "recoveryCode": "Recovery code",
+    "signIn": "Sign in",
+    "create": "Create account",
+    "forgot": "Forgot your password?",
+    "resetAction": "Reset password",
+    "back": "Back",
+    "signedInAs": "Signed in as",
+    "signOut": "Sign out",
+    "delete": "Delete account",
+    "deleteConfirm": "Really delete everything?",
+    "recoveryIntro": "Your recovery code — the only way back if you forget your password:",
+    "recoveryWarning": "No email is attached to your account, so this code is shown exactly once. Write it down somewhere safe.",
+    "recoverySaved": "I wrote it down",
+    "errors": {
+      "invalid-username": "Usernames are 3-24 letters, digits, dots or dashes.",
+      "weak-password": "The password must be at least 8 characters.",
+      "username-taken": "That username is taken.",
+      "invalid-credentials": "Wrong username or password.",
+      "invalid-recovery": "Wrong username or recovery code.",
+      "network": "Could not reach the server.",
+      "rate-limited": "Too many attempts — try again in a bit.",
+      "sync-not-configured": "Cloud sync isn't set up yet.",
+      "unknown": "Something went wrong."
+    }
+  },
+  "data": {
+    "title": "Your save",
+    "export": "Export save file",
+    "import": "Import save file",
+    "importError": "That file doesn't look like a Flytrap Keeper save."
+  },
+  "conflict": {
+    "title": "Cloud save found",
+    "body": "There's a cloud save from {{date}}. Which one do you want to keep?",
+    "useCloud": "Use the cloud save",
+    "keepLocal": "Keep this device's"
   }
 }

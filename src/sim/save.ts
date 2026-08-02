@@ -1,7 +1,7 @@
 import type { GameState } from './types'
 
 export const SAVE_KEY = 'flytrap-keeper:save'
-export const SAVE_VERSION = 2
+export const SAVE_VERSION = 3
 
 type RawSave = Record<string, unknown>
 type Migration = (data: RawSave) => RawSave
@@ -15,6 +15,25 @@ const MIGRATIONS: Record<number, Migration> = {
     settings: { sound: true },
     careStreak: { days: 0, lastDay: null },
   }),
+  // v2 -> v3: phases 4-5 added collection, humidity, locale/hard mode, flowering.
+  2: (data) => {
+    const plants = (Array.isArray(data.plants) ? data.plants : []) as RawSave[]
+    const settings = (data.settings ?? {}) as RawSave
+    return {
+      ...data,
+      activePlantId: (plants[0]?.id as string | undefined) ?? 'p1',
+      settings: { sound: settings.sound !== false, locale: 'en', hardMode: false },
+      plants: plants.map((plant) => ({
+        ...plant,
+        humidity: 80,
+        lastFedAt: null,
+        potColor: null,
+        flowering: null,
+        dead: false,
+        criticalSince: null,
+      })),
+    }
+  },
 }
 
 export function saveToString(state: GameState): string {

@@ -2,8 +2,10 @@ import type { InsectKind } from '../sim'
 
 export interface InsectPresence {
   kind: InsectKind
-  /** Trap index the insect is currently tempting, or null while roaming. */
-  nearTrapIndex: number | null
+  /** Plant and trap the insect is currently tempting, or nulls while roaming. */
+  plantId: string | null
+  trapIndex: number | null
+  slot: number | null
 }
 
 /**
@@ -13,7 +15,7 @@ export interface InsectPresence {
  */
 export const insectBus: {
   presence: InsectPresence | null
-  onCaught: ((trapIndex: number) => void) | null
+  onCaught: (() => void) | null
 } = {
   presence: null,
   onCaught: null,

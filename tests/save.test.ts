@@ -14,7 +14,7 @@ const h = (n: number) => n * 3_600_000
 describe('save/load', () => {
   it('round-trips a lived-in game state exactly', () => {
     let state = createInitialState(T0, 42)
-    state = apply(state, { type: 'feedTrap', trapId: 't1' }, T0)
+    state = apply(state, { type: 'feedTrap', plantId: 'p1', trapId: 't1' }, T0)
     state = apply(state, { type: 'move', placement: 'north-window' }, T0 + h(2))
     state = tick(state, T0 + h(30))
 

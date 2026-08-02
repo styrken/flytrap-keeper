@@ -1,6 +1,15 @@
 import { describe, expect, it } from 'vitest'
+import da from '../locales/da.json'
 import en from '../locales/en.json'
 import { initI18n } from '../src/i18n'
+
+const keyPaths = (node: unknown, prefix = ''): string[] => {
+  if (typeof node === 'string') return [prefix]
+  if (typeof node !== 'object' || node === null) return []
+  return Object.entries(node as Record<string, unknown>).flatMap(([key, value]) =>
+    keyPaths(value, prefix ? `${prefix}.${key}` : key),
+  )
+}
 
 describe('i18n', () => {
   it('serves the English source strings through t()', async () => {
@@ -9,7 +18,15 @@ describe('i18n', () => {
     expect(i18n.t('scene.hintSnap')).toMatch(/trap/i)
   })
 
-  it('has no empty strings in the source locale', () => {
+  it('switches to Danish', async () => {
+    const i18n = await initI18n()
+    await i18n.changeLanguage('da')
+    expect(i18n.t('actions.water')).toBe('Vand')
+    expect(i18n.t('species.dionaea.name')).toBe('Venusfluefanger')
+    await i18n.changeLanguage('en')
+  })
+
+  it('has no empty strings in any locale', () => {
     const walk = (node: unknown, path: string[]): void => {
       if (typeof node === 'string') {
         expect(node.trim(), path.join('.')).not.toBe('')
@@ -20,6 +37,11 @@ describe('i18n', () => {
         walk(value, [...path, key])
       }
     }
-    walk(en, [])
+    walk(en, ['en'])
+    walk(da, ['da'])
+  })
+
+  it('the Danish translation covers exactly the English keys', () => {
+    expect(keyPaths(da).sort()).toEqual(keyPaths(en).sort())
   })
 })

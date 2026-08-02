@@ -2,7 +2,14 @@ import { Vector3 } from 'three'
 
 export const STAGE_SCALE = [0.55, 0.75, 1, 1.15]
 
-/** Rosette slots for up to 5 traps: azimuth around the pot, outward tilt, stem length. */
+/** Windowsill pot slots — plant i sits at POT_SLOTS[i]. */
+export const POT_SLOTS: [number, number, number][] = [
+  [0, 0.06, 0.05],
+  [-0.82, 0.06, 0.1],
+  [0.82, 0.06, 0.1],
+]
+
+/** Rosette slots for up to 5 flytrap traps: azimuth, outward tilt, stem length. */
 export const STEM_LAYOUT = [
   { azimuth: 0.4, tilt: 0.12, len: 1 },
   { azimuth: 2.5, tilt: 0.5, len: 0.85 },
@@ -11,18 +18,21 @@ export const STEM_LAYOUT = [
   { azimuth: 5.6, tilt: 0.6, len: 0.8 },
 ]
 
-/** World position of the plant group inside the diorama (pot group + plant offset). */
-export const PLANT_WORLD_BASE = new Vector3(0, 0.38, 0.05)
-
-/** Where an insect hovers to tempt trap `index` — diorama-world coordinates. */
-export function trapApproachPoint(index: number, stage: number, out = new Vector3()): Vector3 {
-  const slot = STEM_LAYOUT[index % STEM_LAYOUT.length]
+/** Where an insect hovers to tempt trap `trapIndex` of the plant in `slot`. */
+export function trapApproachPoint(
+  slot: number,
+  trapIndex: number,
+  stage: number,
+  out = new Vector3(),
+): Vector3 {
+  const stem = STEM_LAYOUT[trapIndex % STEM_LAYOUT.length]
   const scale = STAGE_SCALE[Math.min(stage, STAGE_SCALE.length - 1)]
-  const reach = 0.34 * slot.len + 0.1
-  const bentX = -Math.sin(slot.tilt) * reach
-  const bentY = Math.cos(slot.tilt) * reach
-  const x = bentX * Math.cos(slot.azimuth)
-  const z = -bentX * Math.sin(slot.azimuth)
-  out.set(x * scale, bentY * scale + 0.08, z * scale + 0.14)
-  return out.add(PLANT_WORLD_BASE)
+  const reach = 0.34 * stem.len + 0.1
+  const bentX = -Math.sin(stem.tilt) * reach
+  const bentY = Math.cos(stem.tilt) * reach
+  const x = bentX * Math.cos(stem.azimuth)
+  const z = -bentX * Math.sin(stem.azimuth)
+  const base = POT_SLOTS[slot] ?? POT_SLOTS[0]
+  out.set(x * scale + base[0], bentY * scale + 0.08 + base[1] + 0.32, z * scale + 0.14 + base[2])
+  return out
 }

@@ -1,10 +1,15 @@
 import { award } from './achievements'
 import { SIM } from './config'
+import { seasonAt } from './season'
 import { SPECIES } from './species'
 import { freshTrap } from './state'
 import type { GameState, PlantState } from './types'
 import { clamp, HOUR_MS } from './util'
 import { weatherAt } from './weather'
+
+interface StepEvents {
+  bloomed: boolean
+}
 
 /**
  * Advance the world to `now`. Pure and deterministic — the same function handles
@@ -28,6 +33,9 @@ export function tick(state: GameState, now: number): GameState {
   let plants = state.plants
   let rainBarrel = state.weather.rainBarrel
   let barrelHitCap = false
+  const events: StepEvents = { bloomed: false }
+  const hardMode = state.settings.hardMode
+
   while (t < now) {
     const dt = Math.min(stepMs, now - t)
     t += dt
@@ -36,7 +44,7 @@ export function tick(state: GameState, now: number): GameState {
       rainBarrel = clamp(rainBarrel + SIM.RAIN_FILL_PER_HOUR * hours, 0, SIM.BARREL_CAP)
       if (rainBarrel >= SIM.BARREL_CAP) barrelHitCap = true
     }
-    plants = plants.map((plant) => stepPlant(plant, hours, t))
+    plants = plants.map((plant) => stepPlant(plant, hours, t, hardMode, events))
   }
 
   let next: GameState = {
@@ -45,6 +53,17 @@ export function tick(state: GameState, now: number): GameState {
     weather: { ...state.weather, rainBarrel },
     lastTickAt: now,
     updatedAt: now,
+  }
+
+  if (events.bloomed) {
+    next = {
+      ...next,
+      inventory: {
+        ...next.inventory,
+        dewdrops: next.inventory.dewdrops + SIM.BLOOM_REWARD_DEWDROPS,
+      },
+    }
+    next = award(next, 'in-bloom')
   }
 
   const before = state.plants[0]
@@ -59,18 +78,54 @@ export function tick(state: GameState, now: number): GameState {
   return next
 }
 
-function stepPlant(plant: PlantState, hours: number, t: number): PlantState {
-  if (plant.dormant) return plant
+function stepPlant(
+  plant: PlantState,
+  hours: number,
+  t: number,
+  hardMode: boolean,
+  events: StepEvents,
+): PlantState {
+  if (plant.dead) return plant
+  const season = seasonAt(t)
+  if (plant.dormant) {
+    // Dormancy is a full pause (built-in vacation mode); wake with the spring.
+    return season === 'winter' ? plant : { ...plant, dormant: false }
+  }
   const species = SPECIES[plant.speciesId]
 
   const water = clamp(plant.water - SIM.WATER_DECAY_PER_HOUR * hours, 0, 100)
-  const nutrition = clamp(plant.nutrition - SIM.NUTRITION_DECAY_PER_HOUR * hours, 0, 100)
+  let nutrition = clamp(plant.nutrition - SIM.NUTRITION_DECAY_PER_HOUR * hours, 0, 100)
+  if (species.passiveCatch && nutrition < SIM.PASSIVE_CATCH_CAP) {
+    nutrition = Math.min(SIM.PASSIVE_CATCH_CAP, nutrition + SIM.PASSIVE_CATCH_PER_HOUR * hours)
+  }
+  const humidity = species.needsMisting
+    ? clamp(plant.humidity - SIM.HUMIDITY_DECAY_PER_HOUR * hours, 0, 100)
+    : plant.humidity
 
+  // A temperate plant kept awake through winter is exhausted: it never
+  // recovers health and slowly wears down — dormancy is the answer.
+  const winterSkip = species.needsDormancy && season === 'winter'
   let health = plant.health
   if (water <= 0) health -= SIM.HEALTH_DECAY_DRY_PER_HOUR * hours
   else if (water < SIM.WATER_LOW) health -= SIM.HEALTH_DECAY_THIRSTY_PER_HOUR * hours
-  else if (water >= SIM.WATER_REGEN_THRESHOLD) health += SIM.HEALTH_REGEN_PER_HOUR * hours
+  else if (water >= SIM.WATER_REGEN_THRESHOLD && !winterSkip) {
+    health += SIM.HEALTH_REGEN_PER_HOUR * hours
+  }
+  if (species.needsMisting && humidity < SIM.HUMIDITY_LOW) {
+    health -= SIM.HUMIDITY_HEALTH_DECAY_PER_HOUR * hours
+  }
+  if (winterSkip) health -= SIM.WINTER_SKIP_HEALTH_DECAY_PER_HOUR * hours
   health = clamp(health, SIM.HEALTH_MIN, 100)
+
+  // Hard mode: too long on the floor is fatal (opt-in).
+  let criticalSince = plant.criticalSince
+  let dead: boolean = plant.dead
+  if (hardMode && health <= SIM.HEALTH_MIN) {
+    criticalSince ??= t
+    if (t - criticalSince >= SIM.HARD_MODE_DEATH_HOURS * HOUR_MS) dead = true
+  } else {
+    criticalSince = null
+  }
 
   let wilted = plant.wilted
   if (!wilted && health <= SIM.WILT_BELOW) wilted = true
@@ -80,13 +135,41 @@ function stepPlant(plant: PlantState, hours: number, t: number): PlantState {
   if (!wilted && water > 0) {
     const light = species.lightLevels[plant.placement]
     const waterFactor = water >= SIM.WATER_OK_THRESHOLD ? 1 : water / SIM.WATER_OK_THRESHOLD
+    const humidityFactor =
+      species.needsMisting && humidity < SIM.HUMIDITY_OK
+        ? Math.max(0.4, humidity / SIM.HUMIDITY_OK)
+        : 1
     const nutritionBonus = 1 + SIM.NUTRITION_XP_BONUS_MAX * (nutrition / 100)
-    xp += SIM.BASE_XP_PER_HOUR * light * waterFactor * nutritionBonus * hours
+    xp += SIM.BASE_XP_PER_HOUR * light * waterFactor * humidityFactor * nutritionBonus * hours
   }
 
   let stage = plant.stage
   while (stage + 1 < species.stages.length && xp >= species.stages[stage + 1].xpThreshold) {
     stage += 1
+  }
+
+  // Flowering (flytrap only, phase 5): the stalk appears at peak condition.
+  let flowering = plant.flowering
+  if (
+    species.id === 'dionaea' &&
+    flowering === null &&
+    stage >= 3 &&
+    xp >= SIM.FLOWER_XP &&
+    !wilted &&
+    health > 85
+  ) {
+    flowering = { startedAt: t, blooming: false }
+  }
+  if (flowering?.blooming) {
+    health = clamp(
+      health - (SIM.BLOOM_HEALTH_COST_TOTAL / SIM.BLOOM_HOURS) * hours,
+      SIM.HEALTH_MIN,
+      100,
+    )
+    if (t - flowering.startedAt >= SIM.BLOOM_HOURS * HOUR_MS) {
+      flowering = null
+      events.bloomed = true
+    }
   }
 
   let trapSeq = plant.trapSeq
@@ -114,5 +197,19 @@ function stepPlant(plant: PlantState, hours: number, t: number): PlantState {
     traps = [...traps, freshTrap(`t${trapSeq}`)]
   }
 
-  return { ...plant, water, nutrition, health, wilted, xp, stage, traps, trapSeq }
+  return {
+    ...plant,
+    water,
+    nutrition,
+    humidity,
+    health,
+    wilted,
+    xp,
+    stage,
+    traps,
+    trapSeq,
+    flowering,
+    criticalSince,
+    dead,
+  }
 }

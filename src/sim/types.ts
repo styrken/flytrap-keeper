@@ -1,7 +1,18 @@
-export type SpeciesId = 'dionaea'
-export type PlacementId = 'north-window' | 'south-window'
+export type SpeciesId = 'dionaea' | 'drosera' | 'nepenthes' | 'sarracenia'
+export type PlacementId = 'north-window' | 'south-window' | 'growlight'
 export type WeatherKind = 'sun' | 'clouds' | 'rain'
 export type InsectKind = 'fly' | 'mosquito' | 'spider' | 'beetle'
+export type Season = 'spring' | 'summer' | 'autumn' | 'winter'
+
+export type ShopItemId =
+  | 'seed-drosera'
+  | 'seed-nepenthes'
+  | 'seed-sarracenia'
+  | 'growlight'
+  | 'gnome'
+  | 'pot-blue'
+  | 'pot-mint'
+  | 'pot-plum'
 
 export interface TrapState {
   id: string
@@ -12,6 +23,13 @@ export interface TrapState {
   witheredAt: number | null
 }
 
+export interface FloweringState {
+  /** When the stalk appeared — or, once blooming, when blooming began. */
+  startedAt: number
+  /** false: stalk is up, the player must choose. true: blooming until done. */
+  blooming: boolean
+}
+
 export interface PlantState {
   id: string
   speciesId: SpeciesId
@@ -19,13 +37,23 @@ export interface PlantState {
   water: number
   nutrition: number
   health: number
+  /** 0-100; only species with needsMisting care about it. */
+  humidity: number
   xp: number
   stage: number
   placement: PlacementId
   traps: TrapState[]
   trapSeq: number
+  /** Hand-feeding cooldown for non-snapper species. */
+  lastFedAt: number | null
+  potColor: string | null
+  flowering: FloweringState | null
   wilted: boolean
   dormant: boolean
+  /** Hard mode only — permanently gone, slot can be cleared. */
+  dead: boolean
+  /** Hard mode: when health first hit the floor; death after enough hours. */
+  criticalSince: number | null
 }
 
 export interface GameState {
@@ -34,9 +62,10 @@ export interface GameState {
   lastTickAt: number
   rngSeed: number
   plants: PlantState[]
+  activePlantId: string
   inventory: { dewdrops: number; items: string[] }
   weather: { rainBarrel: number }
-  settings: { sound: boolean }
+  settings: { sound: boolean; locale: string; hardMode: boolean }
   /** Distinct real-world days with at least one care action. */
   careStreak: { days: number; lastDay: string | null }
   achievements: string[]
@@ -45,8 +74,18 @@ export interface GameState {
 export type Action =
   | { type: 'water' }
   | { type: 'tapWater' }
-  | { type: 'feedTrap'; trapId: string }
-  | { type: 'catchInsect'; trapId: string; insect: InsectKind }
+  | { type: 'mist' }
+  | { type: 'feedTrap'; plantId: string; trapId: string }
+  | { type: 'feedPlant' }
+  | { type: 'catchInsect'; plantId: string; trapId: string; insect: InsectKind }
   | { type: 'move'; placement: PlacementId }
   | { type: 'rename'; nickname: string }
+  | { type: 'selectPlant'; plantId: string }
+  | { type: 'buy'; item: ShopItemId }
+  | { type: 'setDormant'; on: boolean }
+  | { type: 'cutFlower' }
+  | { type: 'letBloom' }
+  | { type: 'removePlant'; plantId: string }
   | { type: 'setSound'; on: boolean }
+  | { type: 'setLocale'; locale: string }
+  | { type: 'setHardMode'; on: boolean }

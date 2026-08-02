@@ -297,28 +297,28 @@ _Mål: En Venus flytrap i 3D man reelt kan passe over flere dage — og som gemm
 
 ### Fase 3 — Konto og sky-synk (~1 uge)
 
-- [ ] `api/`: Vercel functions + Postgres (Neon) — register/login/save/delete, scrypt, rate limiting
-- [ ] Konto-UI: opret (brugernavn + kodeord, gendannelseskode vises én gang), login, log ud, slet konto
-- [ ] Synk-lag i klienten: last-write-wins på `updatedAt`, konflikt-dialog ved stor divergens
-- [ ] Guest → konto: lokal save uploades ved oprettelse
-- [ ] Eksport/import af save som fil (kontofri backup)
+- [x] `api/`: Vercel functions + Postgres (Neon) — register/login/reset/save/delete, scrypt, signerede session-cookies, rate limiting; in-memory DB-adapter til tests. _Går først live når repoet er importeret på Vercel og `DATABASE_URL` + `SESSION_SECRET` er sat — se README. Uden backend viser spillet pænt "sky-synk ikke sat op"._
+- [x] Konto-UI: opret (brugernavn + kodeord, gendannelseskode vises én gang), login, glemt-kodeord via gendannelseskode, log ud, slet konto
+- [x] Synk-lag i klienten: last-write-wins på `updatedAt`, konflikt-dialog ved stor divergens, debounced push
+- [x] Guest → konto: lokal save pushes ved oprettelse; ved login vælges mellem sky og enhed
+- [x] Eksport/import af save som fil (kontofri backup)
 
 ### Fase 4 — Samling og progression (2-3 uger)
 
-- [ ] Dugdråber som valuta (pasning, fangster, milepæle)
-- [ ] Butik: frø, potter, growlampe, dekorationer
-- [ ] Sundew, tropical pitcher (dis-handling) og trumpet pitcher med egne profiler og kits
-- [ ] Drivhus-scene med flere planter (kamera trækker ud)
-- [ ] Artsleksikon med fakta der låses op
+- [x] Dugdråber som valuta (fangster, achievements, blomstring)
+- [x] Butik: frø (3 arter), potter i 3 farver (= ompotning), growlampe (3. lysplacering), nisse-dekoration
+- [x] Sundew (passiv fangst), tropical pitcher (dis-handling + fugtigheds-stat) og trumpet pitcher med egne profiler og klods-kits
+- [x] Flere planter: op til 3 potter på vindueskarmen med tap-til-valg og plantevælger-chips. _Scope-justering: den separate drivhus-scene med kamera-zoom er rykket til backloggen — karmen bærer samlingen fint indtil videre._
+- [x] Artsleksikon med ægte fakta, der låses op ved at eje arten
 
 ### Fase 5 — Sæsoner og dybde (2-3 uger)
 
-- [ ] Årstider + vinterdvale (dvale = feriemode; skippes den, svækkes planten)
-- [ ] Blomstrings-dilemmaet: klip stilken eller høst frø
-- [ ] Frø → nye planter eller dugdråber
-- [ ] Ompotning + hard mode (permanent død som tilvalg)
-- [ ] **Dansk oversættelse** (`da.json`) nu hvor teksterne er stabile
-- [ ] Polering: overgange, tilgængelighed, ydelsesgennemgang
+- [x] Årstider (fra kalenderen) + vinterdvale: dvale = feriemode; en vågen dvale-art slides om vinteren (ingen regeneration + løbende svækkelse) og vækkes automatisk af foråret
+- [x] Blomstrings-dilemmaet: klip stilken (sikkert, +8 🫧) eller lad den blomstre (5 dage, koster sundhed, +60 🫧 i frø-udbytte)
+- [x] Frø → dugdråber (frø-udbyttet sælges til andre samlere; egne nye planter købes som frø i butikken)
+- [x] Ompotning via pottefarver i butikken + hard mode som tilvalg (permanent død efter 72 timer i bund; potten kan ryddes)
+- [x] **Dansk oversættelse** (`da.json`) med sprogskifter i indstillinger — testen håndhæver 1:1-nøgledækning med engelsk
+- [x] Polering: humør/positurer for dvale og død, gravsten, valg-ring, tilgængelige dialoger
 
 ### Backlog (senere, efter lyst)
 

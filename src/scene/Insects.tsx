@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import type { Group } from 'three'
 import { Vector3 } from 'three'
 import { playCatch, playOuch } from '../audio'
-import { type InsectKind, INSECTS, activePlant, insectKindFromRoll, isTrapReady } from '../sim'
+import { type InsectKind, INSECTS, SPECIES, insectKindFromRoll, isTrapReady } from '../sim'
 import { useGame } from '../store'
 import { insectBus } from './insectBus'
 import { trapApproachPoint } from './plantLayout'
@@ -20,6 +20,23 @@ interface FloatLabel {
   id: number
   text: string
   position: [number, number, number]
+}
+
+/** Any open trap on any healthy flytrap, with its slot for positioning. */
+function snapperTargets() {
+  const state = useGame.getState().state
+  const now = Date.now()
+  const targets: { plantId: string; trapIndex: number; slot: number; stage: number }[] = []
+  state.plants.forEach((plant, slot) => {
+    if (!SPECIES[plant.speciesId].isSnapper) return
+    if (plant.wilted || plant.dormant || plant.dead) return
+    plant.traps.forEach((trap, trapIndex) => {
+      if (isTrapReady(trap, now)) {
+        targets.push({ plantId: plant.id, trapIndex, slot, stage: plant.stage })
+      }
+    })
+  })
+  return targets
 }
 
 export function Insects() {
@@ -45,8 +62,7 @@ export function Insects() {
     const delay = firstSpawn.current ? 8_000 : 22_000 + Math.random() * 48_000
     firstSpawn.current = false
     const trySpawn = () => {
-      const plant = activePlant(useGame.getState().state)
-      if (document.visibilityState !== 'visible' || !plant || plant.wilted) {
+      if (document.visibilityState !== 'visible' || snapperTargets().length === 0) {
         timers.current.push(window.setTimeout(trySpawn, 20_000))
         return
       }
@@ -61,11 +77,12 @@ export function Insects() {
 
   // The traps report a successful snap through the bus.
   useEffect(() => {
-    insectBus.onCaught = (trapIndex) => {
+    insectBus.onCaught = () => {
       const presence = insectBus.presence
-      if (!presence) return
-      const stage = activePlant(useGame.getState().state)?.stage ?? 0
-      const point = trapApproachPoint(trapIndex, stage)
+      if (!presence || presence.slot === null || presence.trapIndex === null) return
+      const state = useGame.getState().state
+      const stage = state.plants.find((p) => p.id === presence.plantId)?.stage ?? 0
+      const point = trapApproachPoint(presence.slot, presence.trapIndex, stage)
       if (presence.kind === 'beetle') {
         playOuch()
         addLabel('💥', point)
@@ -102,14 +119,19 @@ function InsectVisit({ kind, onDone }: { kind: InsectKind; onDone: () => void })
   const group = useRef<Group>(null)
   const wings = useRef<Group>(null)
   const age = useRef(0)
-  const approach = useRef<{ trapIndex: number; until: number } | null>(null)
+  const approach = useRef<{
+    plantId: string
+    trapIndex: number
+    slot: number
+    until: number
+  } | null>(null)
   const nextApproachAt = useRef(-1)
   const phase = useRef(-1)
   const target = useRef(new Vector3())
   const style = INSECT_STYLE[kind]
 
   useEffect(() => {
-    insectBus.presence = { kind, nearTrapIndex: null }
+    insectBus.presence = { kind, plantId: null, trapIndex: null, slot: null }
     return () => {
       insectBus.presence = null
     }
@@ -141,14 +163,24 @@ function InsectVisit({ kind, onDone }: { kind: InsectKind; onDone: () => void })
       }
     } else if (approach.current && t < approach.current.until) {
       // hover in front of a trap — the catch window
-      const stage = activePlant(useGame.getState().state)?.stage ?? 0
-      trapApproachPoint(approach.current.trapIndex, stage, target.current)
+      const { slot, trapIndex, plantId } = approach.current
+      const stage =
+        useGame.getState().state.plants.find((plant) => plant.id === plantId)?.stage ?? 0
+      trapApproachPoint(slot, trapIndex, stage, target.current)
       target.current.x += Math.sin(t * 9 + p) * 0.03
       target.current.y += Math.cos(t * 7 + p) * 0.03
-      if (insectBus.presence) insectBus.presence.nearTrapIndex = approach.current.trapIndex
+      if (insectBus.presence) {
+        insectBus.presence.plantId = plantId
+        insectBus.presence.trapIndex = trapIndex
+        insectBus.presence.slot = slot
+      }
     } else {
-      // roam in loose loops around the plant
-      if (insectBus.presence) insectBus.presence.nearTrapIndex = null
+      // roam in loose loops around the sill
+      if (insectBus.presence) {
+        insectBus.presence.plantId = null
+        insectBus.presence.trapIndex = null
+        insectBus.presence.slot = null
+      }
       if (approach.current && t >= approach.current.until) approach.current = null
       target.current.set(
         ROAM_CENTER.x + Math.sin(t * 0.9 + p) * 0.85,
@@ -156,17 +188,10 @@ function InsectVisit({ kind, onDone }: { kind: InsectKind; onDone: () => void })
         ROAM_CENTER.z + Math.cos(t * 1.1 + p) * 0.25,
       )
       if (t >= nextApproachAt.current) {
-        const plant = activePlant(useGame.getState().state)
-        if (plant) {
-          const now = Date.now()
-          const readyIndexes = plant.traps
-            .map((trap, index) => ({ trap, index }))
-            .filter(({ trap }) => isTrapReady(trap, now))
-            .map(({ index }) => index)
-          if (readyIndexes.length > 0) {
-            const trapIndex = readyIndexes[Math.floor(Math.random() * readyIndexes.length)]
-            approach.current = { trapIndex, until: t + 1.6 }
-          }
+        const targets = snapperTargets()
+        if (targets.length > 0) {
+          const pick = targets[Math.floor(Math.random() * targets.length)]
+          approach.current = { ...pick, until: t + 1.6 }
         }
         nextApproachAt.current = t + 3.5 + Math.random() * 2.5
       }

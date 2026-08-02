@@ -30,7 +30,7 @@ describe('seven days of care', () => {
         const plant = activePlant(state)!
         const trap = firstReadyTrap(plant, at)
         if (!trap || plant.nutrition > 95) break
-        const next = apply(state, { type: 'feedTrap', trapId: trap.id }, at)
+        const next = apply(state, { type: 'feedTrap', plantId: 'p1', trapId: trap.id }, at)
         if (next === state) break
         state = next
       }

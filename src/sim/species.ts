@@ -2,12 +2,21 @@ import type { PlacementId, SpeciesId } from './types'
 
 export interface StageDef {
   xpThreshold: number
+  /** Traps for the flytrap; leaves/pitchers for the other species (visual + wear). */
   trapCount: number
 }
 
 export interface SpeciesDef {
   id: SpeciesId
-  /** Light quality per placement, 0..1 — multiplies growth. */
+  /** Only the flytrap plays the snap minigame. */
+  isSnapper: boolean
+  /** Tropical: needs regular misting (humidity stat). */
+  needsMisting: boolean
+  /** Sticky leaves quietly catch tiny prey on their own. */
+  passiveCatch: boolean
+  /** Temperate species that must sleep through winter (phase 5). */
+  needsDormancy: boolean
+  /** Light quality per placement, 0..1+ — multiplies growth. */
   lightLevels: Record<PlacementId, number>
   stages: StageDef[]
 }
@@ -15,7 +24,11 @@ export interface SpeciesDef {
 export const SPECIES: Record<SpeciesId, SpeciesDef> = {
   dionaea: {
     id: 'dionaea',
-    lightLevels: { 'south-window': 1, 'north-window': 0.55 },
+    isSnapper: true,
+    needsMisting: false,
+    passiveCatch: false,
+    needsDormancy: true,
+    lightLevels: { 'south-window': 1, 'north-window': 0.55, growlight: 1.05 },
     stages: [
       { xpThreshold: 0, trapCount: 1 },
       { xpThreshold: 300, trapCount: 2 },
@@ -23,4 +36,54 @@ export const SPECIES: Record<SpeciesId, SpeciesDef> = {
       { xpThreshold: 2000, trapCount: 5 },
     ],
   },
+  drosera: {
+    id: 'drosera',
+    isSnapper: false,
+    needsMisting: false,
+    passiveCatch: true,
+    needsDormancy: false,
+    lightLevels: { 'south-window': 1, 'north-window': 0.7, growlight: 1.05 },
+    stages: [
+      { xpThreshold: 0, trapCount: 3 },
+      { xpThreshold: 300, trapCount: 4 },
+      { xpThreshold: 900, trapCount: 6 },
+      { xpThreshold: 2000, trapCount: 8 },
+    ],
+  },
+  nepenthes: {
+    id: 'nepenthes',
+    isSnapper: false,
+    needsMisting: true,
+    passiveCatch: false,
+    needsDormancy: false,
+    lightLevels: { 'south-window': 0.85, 'north-window': 0.6, growlight: 1.05 },
+    stages: [
+      { xpThreshold: 0, trapCount: 1 },
+      { xpThreshold: 300, trapCount: 2 },
+      { xpThreshold: 900, trapCount: 3 },
+      { xpThreshold: 2000, trapCount: 4 },
+    ],
+  },
+  sarracenia: {
+    id: 'sarracenia',
+    isSnapper: false,
+    needsMisting: false,
+    passiveCatch: false,
+    needsDormancy: true,
+    lightLevels: { 'south-window': 1, 'north-window': 0.45, growlight: 1 },
+    stages: [
+      { xpThreshold: 0, trapCount: 2 },
+      { xpThreshold: 300, trapCount: 3 },
+      { xpThreshold: 900, trapCount: 4 },
+      { xpThreshold: 2000, trapCount: 6 },
+    ],
+  },
+}
+
+/** Default nickname per species for newly sprouted plants. */
+export const DEFAULT_NICKNAMES: Record<SpeciesId, string> = {
+  dionaea: 'Venus',
+  drosera: 'Dewy',
+  nepenthes: 'Pia',
+  sarracenia: 'Sara',
 }

@@ -5,8 +5,8 @@ export function Room() {
   return (
     <group>
       {/* floor and skirting board */}
-      <mesh position={[0, -0.94, 0.9]}>
-        <boxGeometry args={[7.5, 0.1, 3.6]} />
+      <mesh position={[0, -0.94, 1.4]}>
+        <boxGeometry args={[8.5, 0.1, 5.2]} />
         <meshStandardMaterial color="#a8804f" />
       </mesh>
       <mesh position={[0, -0.78, -0.52]}>

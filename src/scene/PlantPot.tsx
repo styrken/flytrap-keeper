@@ -2,8 +2,8 @@ import { Html } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
 import { useRef, useState } from 'react'
 import type { Group } from 'three'
-import { playPet } from '../audio'
-import type { PlantState } from '../sim'
+import { playCatch, playPet } from '../audio'
+import { type PlantState, SIM, hasWeed } from '../sim'
 import { useGame } from '../store'
 import { PlantKit } from './kits'
 import { palette } from './palette'
@@ -15,10 +15,19 @@ export function PlantPot({ plant, slot }: { plant: PlantState; slot: number }) {
   const position = POT_SLOTS[slot] ?? POT_SLOTS[0]
   const potColor = plant.potColor ?? palette.pot
   const rimColor = plant.potColor ?? palette.potRim
+  const now = useGame((s) => s.state.lastTickAt)
   const kitWrap = useRef<Group>(null)
   const pulseRequest = useRef(false)
   const pulseStart = useRef(-1)
-  const [heart, setHeart] = useState(false)
+  const [label, setLabel] = useState<string | null>(null)
+  const labelTimer = useRef(0)
+  const weed = hasWeed(plant, now)
+
+  const popLabel = (text: string) => {
+    setLabel(text)
+    window.clearTimeout(labelTimer.current)
+    labelTimer.current = window.setTimeout(() => setLabel(null), 1100)
+  }
 
   useFrame((frame) => {
     const g = kitWrap.current
@@ -47,8 +56,7 @@ export function PlantPot({ plant, slot }: { plant: PlantState; slot: number }) {
         dispatch({ type: 'pet' })
         pulseRequest.current = true
         playPet()
-        setHeart(true)
-        window.setTimeout(() => setHeart(false), 1100)
+        popLabel('💚')
       }}
       onPointerOver={() => {
         if (!plant.dead) document.body.style.cursor = 'pointer'
@@ -84,9 +92,39 @@ export function PlantPot({ plant, slot }: { plant: PlantState; slot: number }) {
       <group ref={kitWrap} position={[0, 0.32, 0]}>
         <PlantKit plant={plant} />
       </group>
-      {heart && (
+      {weed && (
+        <group
+          position={[0.16, 0.31, 0.13]}
+          onPointerDown={(e) => {
+            e.stopPropagation()
+            dispatch({ type: 'pullWeed', plantId: plant.id })
+            playCatch()
+            popLabel(`+${SIM.WEED_DEWDROPS} 🫧`)
+          }}
+          onPointerOver={() => {
+            document.body.style.cursor = 'pointer'
+          }}
+          onPointerOut={() => {
+            document.body.style.cursor = 'auto'
+          }}
+        >
+          <mesh position={[0, 0.05, 0]} rotation-z={0.35}>
+            <boxGeometry args={[0.02, 0.12, 0.02]} />
+            <meshStandardMaterial color="#9bb04f" />
+          </mesh>
+          <mesh position={[0.03, 0.06, 0.01]} rotation-z={-0.4}>
+            <boxGeometry args={[0.02, 0.1, 0.02]} />
+            <meshStandardMaterial color="#b3c25e" />
+          </mesh>
+          <mesh position={[-0.015, 0.11, 0]}>
+            <boxGeometry args={[0.035, 0.03, 0.035]} />
+            <meshStandardMaterial color="#c9d178" />
+          </mesh>
+        </group>
+      )}
+      {label && (
         <Html position={[0, 0.95, 0]} center zIndexRange={[10, 0]}>
-          <div className="float-label">💚</div>
+          <div className="float-label">{label}</div>
         </Html>
       )}
       {plant.placement === 'growlight' && <GrowLamp />}

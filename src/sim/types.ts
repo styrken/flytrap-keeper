@@ -48,6 +48,8 @@ export interface PlantState {
   lastFedAt: number | null
   /** Petting cooldown — affection pays a tiny dewdrop trickle. */
   lastPetAt: number | null
+  /** A weed is present in the pot once now >= nextWeedAt; pulling it resets the clock. */
+  nextWeedAt: number
   potColor: string | null
   flowering: FloweringState | null
   wilted: boolean
@@ -78,6 +80,7 @@ export type Action =
   | { type: 'tapWater' }
   | { type: 'mist' }
   | { type: 'pet' }
+  | { type: 'pullWeed'; plantId: string }
   | { type: 'feedTrap'; plantId: string; trapId: string }
   | { type: 'feedPlant' }
   | { type: 'catchInsect'; plantId: string; trapId: string; insect: InsectKind }

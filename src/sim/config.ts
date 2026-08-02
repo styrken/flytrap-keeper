@@ -69,5 +69,13 @@ export const SIM = {
   PET_COOLDOWN_HOURS: 1,
   PET_DEWDROPS: 1,
 
+  /** Weeds sprout in pots on a lazy cycle — pulling them pays. */
+  WEED_FIRST_HOURS: 2,
+  WEED_RESPAWN_HOURS: 6,
+  WEED_DEWDROPS: 2,
+
+  /** The first care action of each (UTC) day pays a check-in bonus. */
+  DAILY_CARE_DEWDROPS: 5,
+
   NICKNAME_MAX_LENGTH: 20,
 } as const

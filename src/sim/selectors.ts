@@ -29,6 +29,9 @@ export const canFeedPlant = (plant: PlantState, now: number): boolean =>
   !plant.wilted &&
   (plant.lastFedAt === null || now - plant.lastFedAt >= SIM.FEED_PLANT_COOLDOWN_HOURS * HOUR_MS)
 
+export const hasWeed = (plant: PlantState, now: number): boolean =>
+  !plant.dead && !plant.dormant && now >= plant.nextWeedAt
+
 export const canPet = (plant: PlantState, now: number): boolean =>
   !plant.dead &&
   !plant.dormant &&

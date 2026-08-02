@@ -62,7 +62,8 @@ describe('catching insects', () => {
     const p = activePlant(next)!
     expect(p.nutrition).toBe(90)
     expect(p.traps[0].usesLeft).toBe(SIM.TRAP_USES - 1)
-    expect(next.inventory.dewdrops).toBe(2 + SIM.ACHIEVEMENT_DEWDROPS) // + first-catch
+    // fly + first-catch achievement + first care of the day
+    expect(next.inventory.dewdrops).toBe(2 + SIM.ACHIEVEMENT_DEWDROPS + SIM.DAILY_CARE_DEWDROPS)
     expect(next.achievements).toContain('first-catch')
   })
 
@@ -159,7 +160,8 @@ describe('achievements', () => {
       T0 + h(6),
     )
     expect(state.achievements.filter((a) => a === 'first-catch')).toHaveLength(1)
-    expect(state.inventory.dewdrops).toBe(dewdrops + 2)
+    // second fly: +2, plus the daily bonus because T0+6h crosses UTC midnight
+    expect(state.inventory.dewdrops).toBe(dewdrops + 2 + SIM.DAILY_CARE_DEWDROPS)
   })
 })
 

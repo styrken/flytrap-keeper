@@ -8,6 +8,7 @@ import {
   canFeedPlant,
   currentWeather,
   firstReadyTrap,
+  hasWeed,
   mood,
   msToNextStage,
   nextTrapOpenAt,
@@ -45,19 +46,31 @@ export function Hud() {
   const renameCancelled = useRef(false)
   const [toast, setToast] = useState<string | null>(null)
   const prevAchievements = useRef<number | null>(null)
+  const prevCareDays = useRef<number | null>(null)
 
   const achievementCount = state.achievements.length
   useEffect(() => {
     if (prevAchievements.current !== null && achievementCount > prevAchievements.current) {
       const latest = state.achievements[state.achievements.length - 1]
-      setToast(latest)
+      setToast(`🏆 ${t('achievements.toast')}: ${t(`achievements.${latest}`)}`)
       playToast()
       const timer = window.setTimeout(() => setToast(null), 3500)
       prevAchievements.current = achievementCount
       return () => window.clearTimeout(timer)
     }
     prevAchievements.current = achievementCount
-  }, [achievementCount, state.achievements])
+  }, [achievementCount, state.achievements, t])
+
+  const careDays = state.careStreak.days
+  useEffect(() => {
+    if (prevCareDays.current !== null && careDays > prevCareDays.current) {
+      setToast((current) => current ?? `🫧 ${t('status.dailyBonus')}`)
+      const timer = window.setTimeout(() => setToast(null), 3500)
+      prevCareDays.current = careDays
+      return () => window.clearTimeout(timer)
+    }
+    prevCareDays.current = careDays
+  }, [careDays, t])
 
   if (!plant) return null
 
@@ -81,7 +94,9 @@ export function Hud() {
     if (hours > 0) return `${hours}${t('time.hour')} ${mins}${t('time.min')}`
     return `${mins}${t('time.min')}`
   }
+  const weedReady = hasWeed(plant, now)
   const statusLine = (() => {
+    if (weedReady) return `🌿 ${t('status.weed', { name: plant.nickname })}`
     if (species.isSnapper) {
       if (ready > 0 && !plant.wilted && !plant.dormant && !plant.dead) return t('scene.hintSnap')
       const opensAt = nextTrapOpenAt(plant)
@@ -203,11 +218,7 @@ export function Hud() {
       </header>
 
       <div className="hud-middle">
-        {toast && (
-          <p className="toast">
-            🏆 {t('achievements.toast')}: {t(`achievements.${toast}`)}
-          </p>
-        )}
+        {toast && <p className="toast">{toast}</p>}
         {plant.dead ? (
           <div className="banner">
             <span>{t('status.dead', { name: plant.nickname })}</span>
@@ -278,6 +289,11 @@ export function Hud() {
           >
             💧 {t('actions.water')}
           </button>
+          {weedReady && (
+            <button type="button" onClick={() => dispatch({ type: 'pullWeed', plantId: plant.id })}>
+              🌿 {t('actions.pullWeed')}
+            </button>
+          )}
           {barrelLow && needsWater && (
             <button
               type="button"

@@ -199,6 +199,39 @@ describe('renaming', () => {
   })
 })
 
+describe('weeds', () => {
+  it('sprouts after a while, pays when pulled, and respawns later', async () => {
+    const { hasWeed } = await import('../src/sim')
+    const state = init()
+    expect(hasWeed(activePlant(state)!, T0)).toBe(false)
+    const sprouted = T0 + h(SIM.WEED_FIRST_HOURS)
+    expect(hasWeed(activePlant(state)!, sprouted)).toBe(true)
+
+    const pulled = apply(state, { type: 'pullWeed', plantId: 'p1' }, sprouted)
+    expect(pulled.inventory.dewdrops).toBe(SIM.WEED_DEWDROPS + SIM.DAILY_CARE_DEWDROPS)
+    expect(hasWeed(activePlant(pulled)!, sprouted)).toBe(false)
+    expect(hasWeed(activePlant(pulled)!, sprouted + h(SIM.WEED_RESPAWN_HOURS))).toBe(true)
+
+    // pulling thin air does nothing
+    const early = apply(init(), { type: 'pullWeed', plantId: 'p1' }, T0)
+    expect(early.inventory.dewdrops).toBe(0)
+  })
+})
+
+describe('daily care bonus', () => {
+  it('pays once per distinct day of care', () => {
+    let state = apply(init(), { type: 'tapWater' }, T0)
+    expect(state.inventory.dewdrops).toBe(SIM.DAILY_CARE_DEWDROPS)
+    state = tick(state, T0 + h(20))
+    state = apply(state, { type: 'tapWater' }, T0 + h(20))
+    // T0 is late evening UTC, +20h is the next day: a second bonus. The 20 rainy
+    // hours also fill the barrel to the brim (seed 42), awarding rain-collector.
+    expect(state.achievements).toContain('rain-collector')
+    expect(state.careStreak.days).toBe(2)
+    expect(state.inventory.dewdrops).toBe(SIM.DAILY_CARE_DEWDROPS * 2 + SIM.ACHIEVEMENT_DEWDROPS)
+  })
+})
+
 describe('petting', () => {
   it('pays a dewdrop at most once per cooldown', () => {
     let state = apply(init(), { type: 'pet' }, T0)

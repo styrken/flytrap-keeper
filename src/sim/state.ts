@@ -10,7 +10,7 @@ export const freshTrap = (id: string): TrapState => ({
   witheredAt: null,
 })
 
-export function createPlant(id: string, speciesId: SpeciesId): PlantState {
+export function createPlant(id: string, speciesId: SpeciesId, now: number): PlantState {
   const trapCount = SPECIES[speciesId].stages[0].trapCount
   return {
     id,
@@ -27,6 +27,7 @@ export function createPlant(id: string, speciesId: SpeciesId): PlantState {
     trapSeq: trapCount,
     lastFedAt: null,
     lastPetAt: null,
+    nextWeedAt: now + SIM.WEED_FIRST_HOURS * 3_600_000,
     potColor: null,
     flowering: null,
     wilted: false,
@@ -37,7 +38,7 @@ export function createPlant(id: string, speciesId: SpeciesId): PlantState {
 }
 
 export function createInitialState(now: number, seed: number): GameState {
-  const plant = createPlant('p1', 'dionaea')
+  const plant = createPlant('p1', 'dionaea', now)
   return {
     saveVersion: SAVE_VERSION,
     updatedAt: now,

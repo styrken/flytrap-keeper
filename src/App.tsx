@@ -21,8 +21,8 @@ export default function App() {
         <OrbitControls
           target={[0, 0.7, 0]}
           enablePan={false}
-          minDistance={2.2}
-          maxDistance={5}
+          minDistance={1.8}
+          maxDistance={7}
           minPolarAngle={0.7}
           maxPolarAngle={1.5}
           minAzimuthAngle={-0.85}

@@ -1,7 +1,7 @@
 import type { GameState } from './types'
 
 export const SAVE_KEY = 'flytrap-keeper:save'
-export const SAVE_VERSION = 4
+export const SAVE_VERSION = 5
 
 type RawSave = Record<string, unknown>
 type Migration = (data: RawSave) => RawSave
@@ -42,6 +42,17 @@ const MIGRATIONS: Record<number, Migration> = {
       lastPetAt: null,
     })),
   }),
+  // v4 -> v5: weeds — the first one sprouts a couple of hours after upgrading.
+  4: (data) => {
+    const base = typeof data.lastTickAt === 'number' ? data.lastTickAt : 0
+    return {
+      ...data,
+      plants: ((Array.isArray(data.plants) ? data.plants : []) as RawSave[]).map((plant) => ({
+        ...plant,
+        nextWeedAt: base + 2 * 3_600_000,
+      })),
+    }
+  },
 }
 
 export function saveToString(state: GameState): string {

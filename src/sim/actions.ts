@@ -54,6 +54,26 @@ export function apply(state: GameState, action: Action, now: number): GameState 
         },
       }
     }
+    case 'pullWeed': {
+      const target = s.plants.find((candidate) => candidate.id === action.plantId)
+      if (!target || target.dead || target.dormant) return s
+      if (now < target.nextWeedAt) return s
+      const weeded = withPlant(
+        s,
+        { ...target, nextWeedAt: now + SIM.WEED_RESPAWN_HOURS * HOUR_MS },
+        now,
+      )
+      return bumpCareStreak(
+        {
+          ...weeded,
+          inventory: {
+            ...weeded.inventory,
+            dewdrops: weeded.inventory.dewdrops + SIM.WEED_DEWDROPS,
+          },
+        },
+        now,
+      )
+    }
     case 'feedPlant': {
       if (unavailable(plant) || plant.wilted || SPECIES[plant.speciesId].isSnapper) return s
       if (
@@ -117,7 +137,7 @@ export function apply(state: GameState, action: Action, now: number): GameState 
       if (item.kind === 'seed') {
         if (s.plants.length >= MAX_PLANTS || !item.speciesId) return s
         const id = `p${s.plants.map((p) => p.id).reduce((max, pid) => Math.max(max, Number(pid.slice(1)) || 0), 0) + 1}`
-        const sprout = createPlant(id, item.speciesId)
+        const sprout = createPlant(id, item.speciesId, now)
         return {
           ...s,
           plants: [...s.plants, sprout],
@@ -223,6 +243,14 @@ function bumpCareStreak(state: GameState, now: number): GameState {
   const day = dayKey(now)
   if (state.careStreak.lastDay === day) return state
   const days = state.careStreak.days + 1
-  const next: GameState = { ...state, careStreak: { days, lastDay: day } }
+  const next: GameState = {
+    ...state,
+    careStreak: { days, lastDay: day },
+    // The day's first act of care pays a little check-in bonus.
+    inventory: {
+      ...state.inventory,
+      dewdrops: state.inventory.dewdrops + SIM.DAILY_CARE_DEWDROPS,
+    },
+  }
   return days >= SIM.GREEN_THUMB_DAYS ? award(next, 'green-thumb') : next
 }

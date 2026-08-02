@@ -38,6 +38,7 @@ export function createPlant(
     potColor: null,
     accessory: null,
     flowering: null,
+    lastFloweringEndedAt: null,
     wilted: false,
     dormant: false,
     dead: false,

@@ -107,6 +107,8 @@ export interface PlantState {
   /** One cosmetic at a time — buying another swaps it (like repotting). */
   accessory: AccessoryId | null
   flowering: FloweringState | null
+  /** When the last flowering ended (cut, bloomed or slept away) — the stalk rests before returning. */
+  lastFloweringEndedAt: number | null
   wilted: boolean
   dormant: boolean
   /** Hard mode only — permanently gone, slot can be cleared. */

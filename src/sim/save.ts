@@ -1,7 +1,7 @@
 import type { GameState } from './types'
 
 export const SAVE_KEY = 'flytrap-keeper:save'
-export const SAVE_VERSION = 13
+export const SAVE_VERSION = 14
 
 type RawSave = Record<string, unknown>
 type Migration = (data: RawSave) => RawSave
@@ -124,6 +124,15 @@ const MIGRATIONS: Record<number, Migration> = {
       })),
     }
   },
+  // v13 -> v14: the flower stalk now rests between shows. Without the field a
+  // cut stalk regrew on the very next tick, so the choice dialog never went away.
+  13: (data) => ({
+    ...data,
+    plants: ((Array.isArray(data.plants) ? data.plants : []) as RawSave[]).map((plant) => ({
+      ...plant,
+      lastFloweringEndedAt: null,
+    })),
+  }),
 }
 
 export function saveToString(state: GameState): string {

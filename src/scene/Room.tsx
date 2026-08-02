@@ -58,10 +58,42 @@ export function Room() {
         <boxGeometry args={[0.07, 0.22, 4.5]} />
         <meshStandardMaterial color="#f0e6d4" />
       </mesh>
-      <mesh position={[3.61, -0.78, 1.65]}>
-        <boxGeometry args={[0.07, 0.22, 4.5]} />
+      {/* right-wall skirting is split around the garden door */}
+      <mesh position={[3.61, -0.78, 0.975]}>
+        <boxGeometry args={[0.07, 0.22, 3.15]} />
         <meshStandardMaterial color="#f0e6d4" />
       </mesh>
+      <mesh position={[3.61, -0.78, 3.625]}>
+        <boxGeometry args={[0.07, 0.22, 0.55]} />
+        <meshStandardMaterial color="#f0e6d4" />
+      </mesh>
+
+      {/* the door to the garden — walk into it and you're outside */}
+      <group position={[3.62, 0, 2.95]} rotation-y={-Math.PI / 2}>
+        <mesh position={[0, 0.09, 0]}>
+          <boxGeometry args={[0.98, 2.12, 0.06]} />
+          <meshStandardMaterial color="#e5d6ba" />
+        </mesh>
+        <mesh position={[0, 0.06, 0.025]}>
+          <boxGeometry args={[0.8, 1.94, 0.05]} />
+          <meshStandardMaterial color={WOOD_MID} />
+        </mesh>
+        {[
+          [-0.19, 0.55],
+          [0.19, 0.55],
+          [-0.19, -0.4],
+          [0.19, -0.4],
+        ].map(([x, y]) => (
+          <mesh key={`${x}:${y}`} position={[x, y, 0.055]}>
+            <boxGeometry args={[0.26, 0.72, 0.02]} />
+            <meshStandardMaterial color={WOOD_DARK} />
+          </mesh>
+        ))}
+        <mesh position={[-0.3, 0.08, 0.06]}>
+          <boxGeometry args={[0.05, 0.05, 0.05]} />
+          <meshStandardMaterial color="#e8c49a" />
+        </mesh>
+      </group>
 
       {/* frosted little window on the left wall, above the bed */}
       <group position={[-3.6, 1.55, 0.9]} rotation-y={Math.PI / 2}>

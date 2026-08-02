@@ -1,4 +1,4 @@
-export type SpeciesId = 'dionaea' | 'drosera' | 'nepenthes' | 'sarracenia'
+export type SpeciesId = 'dionaea' | 'drosera' | 'nepenthes' | 'sarracenia' | 'pinguicula'
 /** Real Dionaea cultivars — visual rarities of the same species, same care. */
 export type CultivarId = 'b52' | 'red-dragon' | 'justina'
 /** Pure-silliness plant cosmetics. The googly eyes ride the snapping jaw. */
@@ -23,6 +23,7 @@ export type ShopItemId =
   | 'seed-b52'
   | 'seed-red-dragon'
   | 'seed-justina'
+  | 'seed-pinguicula'
   | 'growlight'
   | 'greenhouse'
   | 'gnome'

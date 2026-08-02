@@ -156,7 +156,9 @@ function applyAction(s: GameState, action: Action, now: number, realNow: number)
     }
     case 'tapWater': {
       if (unavailable(plant) || plant.water >= 100) return s
-      const health = clamp(plant.health - SIM.TAP_WATER_HEALTH_PENALTY, SIM.HEALTH_MIN, 100)
+      // Butterworts grow on limestone in the wild — tap water is fine by them.
+      const penalty = SPECIES[plant.speciesId].limeTolerant ? 0 : SIM.TAP_WATER_HEALTH_PENALTY
+      const health = clamp(plant.health - penalty, SIM.HEALTH_MIN, 100)
       return progressQuest(
         bumpCareStreak(withPlant(s, { ...plant, water: 100, health }), now),
         'water2',
@@ -281,6 +283,10 @@ function applyAction(s: GameState, action: Action, now: number, realNow: number)
         }
         const grown = new Set(next.plants.map((p) => p.cultivar))
         if (CULTIVARS.every((c) => grown.has(c))) next = award(next, 'cultivar-collector')
+        const speciesOwned = new Set(next.plants.map((p) => p.speciesId))
+        if (speciesOwned.size >= Object.keys(SPECIES).length) {
+          next = award(next, 'full-collection')
+        }
         return next
       }
       if (item.kind === 'unlock' || item.kind === 'deco') {

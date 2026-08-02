@@ -48,6 +48,7 @@ const SPECIES_ICON = {
   drosera: '✨',
   nepenthes: '🏺',
   sarracenia: '🎺',
+  pinguicula: '🌸',
 } as const
 
 export function Hud() {

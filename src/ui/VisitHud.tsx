@@ -21,6 +21,7 @@ const SPECIES_ICON = {
   drosera: '✨',
   nepenthes: '🏺',
   sarracenia: '🎺',
+  pinguicula: '🌸',
 } as const
 
 /** The whole HUD while visiting: a name tag, their plants, and the way home. */

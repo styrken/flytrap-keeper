@@ -1,7 +1,7 @@
 import type { GameState } from './types'
 
 export const SAVE_KEY = 'flytrap-keeper:save'
-export const SAVE_VERSION = 12
+export const SAVE_VERSION = 13
 
 type RawSave = Record<string, unknown>
 type Migration = (data: RawSave) => RawSave
@@ -109,6 +109,10 @@ const MIGRATIONS: Record<number, Migration> = {
       })),
     }
   },
+  // v12 -> v13: butterwort, the plant diary and the arcade. The species alone
+  // warrants the bump: older clients must refuse a save that may contain a
+  // pinguicula rather than mis-simulate a species they don't know.
+  12: (data) => data,
 }
 
 export function saveToString(state: GameState): string {

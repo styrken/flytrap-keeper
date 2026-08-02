@@ -82,6 +82,11 @@
       "name": "Trompetkande",
       "latin": "Sarracenia",
       "facts": "Høje trompetformede blade lokker insekter med nektar langs randen; indenfor spærrer nedadvendte hår vejen tilbage. Vil have knaldsol hele sommeren og en rigtig kold dvale hele vinteren."
+    },
+    "pinguicula": {
+      "name": "Vibefedt",
+      "latin": "Pinguicula vulgaris",
+      "facts": "Smørfedtede, klistrede blade fanger selv myg og småkravl og ruller langsomt kanterne om middagen. Undtagelsen ved vandhanen: mange vibefedt-arter vokser på kalksten i naturen, så hårdt vand generer den ikke. Folder sig til en stram vinterroset i dvalen — og den violette blomst er en forårsklassiker."
     }
   },
   "actions": {
@@ -157,6 +162,10 @@
       "seed-justina": {
         "name": "‘Justina Davis’-frø",
         "desc": "En sjælden fluefanger, der forbliver helt grøn — blid, solsikker elegance."
+      },
+      "seed-pinguicula": {
+        "name": "Vibefedt-frø",
+        "desc": "Den blide særling: klistrede blade, violet blomst — og den ene plante, der trækker på skuldrene ad postevand."
       },
       "seed-b52": {
         "name": "‘B52’-frø",
@@ -279,7 +288,8 @@
     "robin-song": "Rødhalsens sang",
     "safe-landing": "Sikker landing",
     "evening-snuffler": "Aftensnuseren",
-    "full-house": "Fuldt hus"
+    "full-house": "Fuldt hus",
+    "full-collection": "Fuld samling"
   },
   "onboarding": {
     "welcome1": "Flytrap Keeper er et roligt pasningsspil i realtid. Din kødædende plante lever videre, mens du er væk — kig forbi et par gange om dagen, pas den, og se den vokse fra spire til blomst.",

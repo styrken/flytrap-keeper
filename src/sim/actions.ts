@@ -1,6 +1,7 @@
 import { type AchievementId, award } from './achievements'
 import { SIM } from './config'
 import { INSECTS, isFireflyNight } from './insects'
+import { remember, remembers } from './journal'
 import { progressQuest } from './quests'
 import { seasonAt } from './season'
 import { currentWeather } from './weather'
@@ -130,6 +131,23 @@ function applyAction(s: GameState, action: Action, now: number, realNow: number)
       if (seasonOf(now) === 'winter') return s
       return greetGuest(s, now, 'lastHedgehogAt', 'evening-snuffler')
     }
+    case 'arcadeScore': {
+      // The computer insists it is not for games; the sim knows better.
+      if (!s.inventory.items.includes('computer')) return s
+      const score = Math.floor(action.score)
+      if (!Number.isFinite(score) || score <= 0) return s
+      const day = dayKey(now)
+      const paidBefore = s.arcade.day === day ? s.arcade.paidToday : 0
+      const earned = Math.floor(score / SIM.ARCADE_SCORE_PER_DEWDROP)
+      const pay = Math.max(0, Math.min(earned, SIM.ARCADE_DAILY_CAP - paidBefore))
+      let next: GameState = {
+        ...s,
+        arcade: { best: Math.max(s.arcade.best, score), day, paidToday: paidBefore + pay },
+        inventory: { ...s.inventory, dewdrops: s.inventory.dewdrops + pay },
+      }
+      if (score >= SIM.ARCADE_HIGHSCORE_AT) next = award(next, 'high-score')
+      return next
+    }
     case 'rescueSnail': {
       if (s.pets.snail) return s
       const last = s.pets.lastSnailAt
@@ -156,7 +174,9 @@ function applyAction(s: GameState, action: Action, now: number, realNow: number)
     }
     case 'tapWater': {
       if (unavailable(plant) || plant.water >= 100) return s
-      const health = clamp(plant.health - SIM.TAP_WATER_HEALTH_PENALTY, SIM.HEALTH_MIN, 100)
+      // Butterworts grow on limestone in the wild — tap water is fine by them.
+      const penalty = SPECIES[plant.speciesId].limeTolerant ? 0 : SIM.TAP_WATER_HEALTH_PENALTY
+      const health = clamp(plant.health - penalty, SIM.HEALTH_MIN, 100)
       return progressQuest(
         bumpCareStreak(withPlant(s, { ...plant, water: 100, health }), now),
         'water2',
@@ -233,7 +253,11 @@ function applyAction(s: GameState, action: Action, now: number, realNow: number)
       const digestFactor = action.insect === 'beetle' ? SIM.BEETLE_DIGEST_FACTOR : 1
       const traps = spendTrapUse(target, trap.id, now, digestFactor)
       const nutrition = clamp(target.nutrition + def.nutrition, 0, 100)
-      let next = withPlant(s, { ...target, traps, nutrition })
+      let caught: PlantState = { ...target, traps, nutrition }
+      if (action.insect !== 'beetle' && !remembers(caught, 'firstCatch')) {
+        caught = remember(caught, 'firstCatch', now)
+      }
+      let next = withPlant(s, caught)
       if (def.dewdrops > 0) {
         next = {
           ...next,
@@ -281,6 +305,10 @@ function applyAction(s: GameState, action: Action, now: number, realNow: number)
         }
         const grown = new Set(next.plants.map((p) => p.cultivar))
         if (CULTIVARS.every((c) => grown.has(c))) next = award(next, 'cultivar-collector')
+        const speciesOwned = new Set(next.plants.map((p) => p.speciesId))
+        if (speciesOwned.size >= Object.keys(SPECIES).length) {
+          next = award(next, 'full-collection')
+        }
         return next
       }
       if (item.kind === 'unlock' || item.kind === 'deco') {
@@ -302,7 +330,10 @@ function applyAction(s: GameState, action: Action, now: number, realNow: number)
       if (item.kind === 'accessory') {
         // Dressing up the active plant — repeatable per plant, swaps the old one.
         if (!item.accessoryId || plant.accessory === item.accessoryId || plant.dead) return s
-        const dressed = withPlant(s, { ...plant, accessory: item.accessoryId })
+        const dressed = withPlant(
+          s,
+          remember({ ...plant, accessory: item.accessoryId }, 'dressed', now),
+        )
         return {
           ...dressed,
           inventory: { ...dressed.inventory, dewdrops: dressed.inventory.dewdrops - item.cost },
@@ -310,7 +341,7 @@ function applyAction(s: GameState, action: Action, now: number, realNow: number)
       }
       // pot: a physical repot of the active plant — repeatable per plant
       if (!item.potColor || plant.potColor === item.potColor) return s
-      const repotted = withPlant(s, { ...plant, potColor: item.potColor })
+      const repotted = withPlant(s, remember({ ...plant, potColor: item.potColor }, 'repot', now))
       return {
         ...repotted,
         inventory: { ...repotted.inventory, dewdrops: repotted.inventory.dewdrops - item.cost },
@@ -320,14 +351,14 @@ function applyAction(s: GameState, action: Action, now: number, realNow: number)
       if (plant.dead || !SPECIES[plant.speciesId].needsDormancy) return s
       if (action.on) {
         if (seasonAt(now) !== 'winter' || plant.dormant) return s
-        return withPlant(s, { ...plant, dormant: true, flowering: null })
+        return withPlant(s, remember({ ...plant, dormant: true, flowering: null }, 'sleep', now))
       }
       if (!plant.dormant) return s
-      return withPlant(s, { ...plant, dormant: false })
+      return withPlant(s, remember({ ...plant, dormant: false }, 'wake', now))
     }
     case 'cutFlower': {
       if (unavailable(plant) || !plant.flowering || plant.flowering.blooming) return s
-      const next = withPlant(s, { ...plant, flowering: null })
+      const next = withPlant(s, remember({ ...plant, flowering: null }, 'cut', now))
       return {
         ...next,
         inventory: {

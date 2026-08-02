@@ -82,6 +82,11 @@
       "name": "Trumpet pitcher",
       "latin": "Sarracenia",
       "facts": "Tall trumpet-shaped leaves lure insects with nectar along the rim; once inside, downward hairs stop the way back. Wants blazing sun all summer and a proper cold dormancy all winter."
+    },
+    "pinguicula": {
+      "name": "Butterwort",
+      "latin": "Pinguicula vulgaris",
+      "facts": "Buttery, sticky leaves catch gnats all on their own, slowly curling their edges over dinner. The odd one out at the tap: many butterworts grow on limestone in the wild, so hard water doesn't bother it. It folds into a tight winter rosette for its rest — and its violet flower is a spring classic."
     }
   },
   "actions": {
@@ -158,6 +163,10 @@
       "seed-justina": {
         "name": "‘Justina Davis’ seeds",
         "desc": "A rare flytrap that stays entirely green — gentle, sun-proof elegance."
+      },
+      "seed-pinguicula": {
+        "name": "Butterwort seeds",
+        "desc": "The gentle oddball: sticky leaves, a violet bloom — and the one plant that shrugs at tap water."
       },
       "seed-b52": {
         "name": "‘B52’ seeds",
@@ -277,7 +286,9 @@
     "robin-song": "The robin's song",
     "safe-landing": "Safe landing",
     "evening-snuffler": "Evening snuffler",
-    "full-house": "Full house"
+    "full-house": "Full house",
+    "full-collection": "Full collection",
+    "high-score": "High score!"
   },
   "onboarding": {
     "welcome1": "Flytrap Keeper is a calm, real-time care game. Your carnivorous plant lives on while you're away — drop by a few times a day, tend to it, and watch it grow from seedling to bloom.",
@@ -291,6 +302,34 @@
     "onTheHouse": "on the house",
     "plant": "Plant the seed 🌱",
     "start": "Let's grow!"
+  },
+  "journal": {
+    "open": "Plant diary",
+    "title": "{{name}}'s diary",
+    "planted": "Planted as a tiny seed 🌱",
+    "firstPage": "The diary begins here — earlier adventures live on in fond memory 📖",
+    "stage": "Grew into a {{stage}}!",
+    "firstCatch": "First catch — snap! 🪰",
+    "stalk": "A flower stalk is reaching for the light 🌿",
+    "bloomed": "Stood in full bloom 🌼",
+    "cut": "The stalk was cut — better safe than sorry ✂️",
+    "wilted": "Wilted… hang in there 🥀",
+    "recovered": "Back from the brink 💚",
+    "sleep": "Tucked in for the winter rest 💤",
+    "wake": "Woke up — hello again, world ☀️",
+    "repot": "Moved into a fresh pot 🪴",
+    "dressed": "Got dressed up ✨",
+    "died": "The end of a little life 🪦"
+  },
+  "arcade": {
+    "title": "SNAP!",
+    "tagline": "Definitely not for games. Definitely.",
+    "start": "Start",
+    "retry": "Play again",
+    "score": "Score",
+    "best": "Best",
+    "gameOver": "SNAPPED!",
+    "hint": "Steer with the arrows, WASD or a swipe — eat the flies, dodge the beetles. Small payouts, daily lid."
   },
   "photo": {
     "take": "Take a postcard photo",

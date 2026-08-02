@@ -1,4 +1,4 @@
-export type SpeciesId = 'dionaea' | 'drosera' | 'nepenthes' | 'sarracenia'
+export type SpeciesId = 'dionaea' | 'drosera' | 'nepenthes' | 'sarracenia' | 'pinguicula'
 /** Real Dionaea cultivars — visual rarities of the same species, same care. */
 export type CultivarId = 'b52' | 'red-dragon' | 'justina'
 /** Pure-silliness plant cosmetics. The googly eyes ride the snapping jaw. */
@@ -23,6 +23,7 @@ export type ShopItemId =
   | 'seed-b52'
   | 'seed-red-dragon'
   | 'seed-justina'
+  | 'seed-pinguicula'
   | 'growlight'
   | 'greenhouse'
   | 'gnome'
@@ -46,6 +47,31 @@ export interface TrapState {
   digestingUntil: number | null
   /** Epoch ms when the trap withered (all uses spent); a fresh trap regrows later. */
   witheredAt: number | null
+}
+
+/** The moments a plant's diary remembers — text lives in the locale files. */
+export type JournalKind =
+  | 'planted'
+  | 'firstPage'
+  | 'stage'
+  | 'firstCatch'
+  | 'stalk'
+  | 'bloomed'
+  | 'cut'
+  | 'wilted'
+  | 'recovered'
+  | 'sleep'
+  | 'wake'
+  | 'repot'
+  | 'dressed'
+  | 'died'
+
+export interface JournalEntry {
+  /** Game-clock ms when it happened. */
+  at: number
+  kind: JournalKind
+  /** For 'stage' entries: the stage that was reached. */
+  stage?: number
 }
 
 export interface FloweringState {
@@ -87,6 +113,8 @@ export interface PlantState {
   dead: boolean
   /** Hard mode: when health first hit the floor; death after enough hours. */
   criticalSince: number | null
+  /** The diary: milestones only, oldest first, capped. */
+  journal: JournalEntry[]
 }
 
 /**
@@ -143,6 +171,8 @@ export interface GameState {
   /** Three daily tasks, redrawn each UTC day. */
   quests: { day: string; items: QuestState[] }
   pets: PetsState
+  /** The desk computer's arcade: best score ever, and today's payout so far. */
+  arcade: { best: number; day: string; paidToday: number }
   /** locale '' means no explicit choice — the UI follows the browser language. */
   settings: { sound: boolean; music: boolean; locale: string; hardMode: boolean }
   /** Distinct real-world days with at least one care action. */
@@ -167,6 +197,7 @@ export type Action =
   | { type: 'greetRobin' }
   | { type: 'greetButterfly' }
   | { type: 'greetHedgehog' }
+  | { type: 'arcadeScore'; score: number }
   | { type: 'feedTrap'; plantId: string; trapId: string }
   | { type: 'feedPlant' }
   | { type: 'catchInsect'; plantId: string; trapId: string; insect: InsectKind }

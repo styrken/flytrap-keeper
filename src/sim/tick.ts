@@ -1,5 +1,6 @@
 import { award } from './achievements'
 import { SIM } from './config'
+import { remember } from './journal'
 import { frogStage, hasFullHouse } from './pets'
 import { drawQuests } from './quests'
 import { seasonAt } from './season'
@@ -106,7 +107,7 @@ function stepPlant(
   const season = seasonAt(t)
   if (plant.dormant) {
     // Dormancy is a full pause (built-in vacation mode); wake with the spring.
-    return season === 'winter' ? plant : { ...plant, dormant: false }
+    return season === 'winter' ? plant : remember({ ...plant, dormant: false }, 'wake', t)
   }
   const species = SPECIES[plant.speciesId]
 
@@ -181,6 +182,7 @@ function stepPlant(
   ) {
     flowering = { startedAt: t, blooming: false }
   }
+  let bloomedNow = false
   if (flowering?.blooming) {
     health = clamp(
       health - (SIM.BLOOM_HEALTH_COST_TOTAL / SIM.BLOOM_HOURS) * hours,
@@ -190,6 +192,7 @@ function stepPlant(
     if (t - flowering.startedAt >= SIM.BLOOM_HOURS * HOUR_MS) {
       flowering = null
       events.bloomed = true
+      bloomedNow = true
     }
   }
 
@@ -218,7 +221,7 @@ function stepPlant(
     traps = [...traps, freshTrap(`t${trapSeq}`)]
   }
 
-  return {
+  let next: PlantState = {
     ...plant,
     water,
     nutrition,
@@ -233,4 +236,14 @@ function stepPlant(
     criticalSince,
     dead,
   }
+
+  // The diary notices what changed in this step, in the order it happened.
+  if (stage > plant.stage) next = remember(next, 'stage', t, stage)
+  if (!plant.wilted && wilted) next = remember(next, 'wilted', t)
+  if (plant.wilted && !wilted) next = remember(next, 'recovered', t)
+  if (plant.flowering === null && flowering !== null) next = remember(next, 'stalk', t)
+  if (bloomedNow) next = remember(next, 'bloomed', t)
+  if (!plant.dead && dead) next = remember(next, 'died', t)
+
+  return next
 }

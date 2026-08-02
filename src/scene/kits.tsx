@@ -35,6 +35,7 @@ export function PlantKit({ plant }: { plant: PlantState }) {
         {plant.speciesId === 'drosera' && <DroseraKit plant={plant} />}
         {plant.speciesId === 'nepenthes' && <NepenthesKit plant={plant} />}
         {plant.speciesId === 'sarracenia' && <SarraceniaKit plant={plant} />}
+        {plant.speciesId === 'pinguicula' && <PinguiculaKit plant={plant} />}
       </group>
     </group>
   )
@@ -431,6 +432,78 @@ function SarraceniaKit({ plant }: { plant: PlantState }) {
           </group>
         )
       })}
+    </group>
+  )
+}
+
+/* --------------------------------- butterwort --------------------------------- */
+
+const PING_LEAF = '#a9c86f'
+const PING_LEAF_DULL = '#9aa86a'
+const PING_FLOWER = '#8a6ac8'
+
+/**
+ * A flat, buttery rosette — wide sticky leaves hugging the soil, dotted with
+ * glisten. From adulthood a thin stalk carries its little violet flower
+ * (butterworts bloom readily; the flytrap keeps the dramatic flowering
+ * dilemma to itself).
+ */
+function PinguiculaKit({ plant }: { plant: PlantState }) {
+  const dull = plant.wilted || plant.dead
+  const leaf = plant.dead ? '#96825f' : dull ? PING_LEAF_DULL : PING_LEAF
+  const count = plant.traps.length
+  return (
+    <group>
+      {plant.accessory === 'googly-eyes' && (
+        <group position={[0, 0.075, 0.06]}>
+          <GooglyEyes spread={0.032} size={0.7} />
+        </group>
+      )}
+      {plant.accessory === 'bow' && (
+        <group position={[0, 0.045, 0.065]}>
+          <BowKnot size={0.7} />
+        </group>
+      )}
+      <mesh position={[0, 0.03, 0]}>
+        <boxGeometry args={[0.09, 0.05, 0.09]} />
+        <meshStandardMaterial color={leaf} />
+      </mesh>
+      {plant.traps.map((trap, i) => (
+        <group key={trap.id} rotation-y={(i * Math.PI * 2) / count + 0.4}>
+          {/* wide flat leaf, barely lifting off the soil */}
+          <group rotation-z={0.22} position={[0, 0.035, 0]}>
+            <mesh position={[0, 0.012, 0.11]}>
+              <boxGeometry args={[0.09, 0.022, 0.2]} />
+              <meshStandardMaterial color={leaf} />
+            </mesh>
+            <mesh position={[0, 0.026, 0.16]}>
+              <boxGeometry args={[0.05, 0.012, 0.05]} />
+              <meshStandardMaterial color={dull ? PING_LEAF_DULL : '#c4dd8c'} />
+            </mesh>
+          </group>
+        </group>
+      ))}
+      {/* the violet spring flower, from adulthood */}
+      {plant.stage >= 2 && !plant.dead && (
+        <group position={[0.03, 0, -0.04]} rotation-z={-0.08}>
+          <mesh position={[0, 0.24, 0]}>
+            <boxGeometry args={[0.022, 0.42, 0.022]} />
+            <meshStandardMaterial color={dull ? PING_LEAF_DULL : '#6f9a5d'} />
+          </mesh>
+          <group position={[0, 0.47, 0]}>
+            {[0, 1, 2, 3].map((i) => (
+              <mesh key={i} rotation-y={(i * Math.PI) / 2} position={[0, 0, 0]}>
+                <boxGeometry args={[0.11, 0.035, 0.05]} />
+                <meshStandardMaterial color={dull ? '#8a7a98' : PING_FLOWER} />
+              </mesh>
+            ))}
+            <mesh position={[0, -0.005, 0]}>
+              <boxGeometry args={[0.04, 0.05, 0.04]} />
+              <meshStandardMaterial color="#f0e6b0" />
+            </mesh>
+          </group>
+        </group>
+      )}
     </group>
   )
 }

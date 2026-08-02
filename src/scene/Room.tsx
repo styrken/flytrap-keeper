@@ -3,7 +3,8 @@
 // inward, so the camera can orbit outside the room and still see in (dollhouse
 // trick) — only the window wall is solid boxes, since the camera never gets
 // behind it.
-import { useSceneState } from '../sceneView'
+import { useIsVisiting, useSceneState } from '../sceneView'
+import { useGame } from '../store'
 import { daylightFactor } from './daylight'
 import { palette } from './palette'
 
@@ -449,8 +450,23 @@ function Lamp({ dark }: { dark: boolean }) {
 }
 
 function Computer({ dark }: { dark: boolean }) {
+  const visiting = useIsVisiting()
+  const setShowArcade = useGame((s) => s.setShowArcade)
   return (
-    <group position={[3.28, -0.145, 0.45]}>
+    <group
+      position={[3.28, -0.145, 0.45]}
+      onPointerDown={(e) => {
+        if (visiting) return
+        e.stopPropagation()
+        setShowArcade(true)
+      }}
+      onPointerOver={() => {
+        if (!visiting) document.body.style.cursor = 'pointer'
+      }}
+      onPointerOut={() => {
+        document.body.style.cursor = 'auto'
+      }}
+    >
       <mesh position={[0.06, 0.02, 0]}>
         <boxGeometry args={[0.14, 0.03, 0.14]} />
         <meshStandardMaterial color="#4a4a4a" />

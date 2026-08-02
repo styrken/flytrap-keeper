@@ -9,6 +9,7 @@ const SPECIES_ICON: Record<SpeciesId, ReactNode> = {
   drosera: '✨',
   nepenthes: '🏺',
   sarracenia: '🎺',
+  pinguicula: '🌸',
 }
 
 export function LexiconDialog() {

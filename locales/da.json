@@ -82,6 +82,11 @@
       "name": "Trompetkande",
       "latin": "Sarracenia",
       "facts": "Høje trompetformede blade lokker insekter med nektar langs randen; indenfor spærrer nedadvendte hår vejen tilbage. Vil have knaldsol hele sommeren og en rigtig kold dvale hele vinteren."
+    },
+    "pinguicula": {
+      "name": "Vibefedt",
+      "latin": "Pinguicula vulgaris",
+      "facts": "Smørfedtede, klistrede blade fanger selv myg og småkravl og ruller langsomt kanterne om middagen. Undtagelsen ved vandhanen: mange vibefedt-arter vokser på kalksten i naturen, så hårdt vand generer den ikke. Folder sig til en stram vinterroset i dvalen — og den violette blomst er en forårsklassiker."
     }
   },
   "actions": {
@@ -158,6 +163,10 @@
       "seed-justina": {
         "name": "‘Justina Davis’-frø",
         "desc": "En sjælden fluefanger, der forbliver helt grøn — blid, solsikker elegance."
+      },
+      "seed-pinguicula": {
+        "name": "Vibefedt-frø",
+        "desc": "Den blide særling: klistrede blade, violet blomst — og den ene plante, der trækker på skuldrene ad postevand."
       },
       "seed-b52": {
         "name": "‘B52’-frø",
@@ -280,7 +289,9 @@
     "robin-song": "Rødhalsens sang",
     "safe-landing": "Sikker landing",
     "evening-snuffler": "Aftensnuseren",
-    "full-house": "Fuldt hus"
+    "full-house": "Fuldt hus",
+    "full-collection": "Fuld samling",
+    "high-score": "Highscore!"
   },
   "onboarding": {
     "welcome1": "Flytrap Keeper er et roligt pasningsspil i realtid. Din kødædende plante lever videre, mens du er væk — kig forbi et par gange om dagen, pas den, og se den vokse fra spire til blomst.",
@@ -294,6 +305,34 @@
     "onTheHouse": "på husets regning",
     "plant": "Plant frøet 🌱",
     "start": "Lad os gro!"
+  },
+  "journal": {
+    "open": "Plantedagbog",
+    "title": "{{name}}s dagbog",
+    "planted": "Plantet som et lille frø 🌱",
+    "firstPage": "Dagbogen begynder her — de tidligere eventyr huskes med varme 📖",
+    "stage": "Voksede til {{stage}}!",
+    "firstCatch": "Første fangst — snap! 🪰",
+    "stalk": "En blomsterstilk strækker sig mod lyset 🌿",
+    "bloomed": "Stod i fuldt flor 🌼",
+    "cut": "Stilken blev klippet — bedre at være på den sikre side ✂️",
+    "wilted": "Visnede… hold ud 🥀",
+    "recovered": "Tilbage fra randen 💚",
+    "sleep": "Puttet til vintersøvn 💤",
+    "wake": "Vågnede — hej igen, verden ☀️",
+    "repot": "Flyttede i ny potte 🪴",
+    "dressed": "Blev fint pyntet ✨",
+    "died": "Enden på et lille liv 🪦"
+  },
+  "arcade": {
+    "title": "SNAP!",
+    "tagline": "Absolut ikke til spil. Absolut.",
+    "start": "Start",
+    "retry": "Spil igen",
+    "score": "Point",
+    "best": "Rekord",
+    "gameOver": "SNAPPET!",
+    "hint": "Styr med pilene, WASD eller et swipe — æd fluerne, undgå billerne. Små gevinster, dagligt loft."
   },
   "photo": {
     "take": "Tag et postkort-foto",

@@ -35,6 +35,7 @@ export const SHOP_ITEMS: ShopItem[] = [
   { id: 'seed-nepenthes', cost: 120, kind: 'seed', speciesId: 'nepenthes' },
   { id: 'seed-sarracenia', cost: 200, kind: 'seed', speciesId: 'sarracenia' },
   { id: 'seed-justina', cost: 100, kind: 'seed', speciesId: 'dionaea', cultivarId: 'justina' },
+  { id: 'seed-pinguicula', cost: 90, kind: 'seed', speciesId: 'pinguicula' },
   { id: 'seed-b52', cost: 120, kind: 'seed', speciesId: 'dionaea', cultivarId: 'b52' },
   {
     id: 'seed-red-dragon',

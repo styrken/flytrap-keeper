@@ -18,6 +18,8 @@ export const ACHIEVEMENTS = [
   'pet-frog',
   'pet-cat',
   'pet-snail',
+  'pet-spider',
+  'ladybird-luck',
   'full-house',
 ] as const
 

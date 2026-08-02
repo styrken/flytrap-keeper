@@ -4,7 +4,8 @@ import { INSECTS, isFireflyNight } from './insects'
 import { progressQuest } from './quests'
 import { seasonAt } from './season'
 import { currentWeather } from './weather'
-import { catAtWindow, petCount } from './pets'
+import { catAtWindow, hasFullHouse, spiderAtCorner, webLootReady } from './pets'
+import { seasonAt as seasonOf } from './season'
 import { canMoveTo, isTrapReady } from './selectors'
 import { MAX_PLANTS, hasGreenhouse, plantCapacity, shopItem, sillPlantCount } from './shop'
 import { CULTIVARS, SPECIES } from './species'
@@ -82,8 +83,37 @@ function applyAction(s: GameState, action: Action, now: number, realNow: number)
       if (!catAtWindow(s, now)) return s
       let next: GameState = { ...s, pets: { ...s.pets, cat: true } }
       next = award(next, 'pet-cat')
-      if (petCount(next, now) >= 3) next = award(next, 'full-house')
+      if (hasFullHouse(next, now)) next = award(next, 'full-house')
       return next
+    }
+    case 'adoptSpider': {
+      // Only while the trial web hangs in the corner.
+      if (!spiderAtCorner(s, now)) return s
+      let next: GameState = { ...s, pets: { ...s.pets, spider: true } }
+      next = award(next, 'pet-spider')
+      if (hasFullHouse(next, now)) next = award(next, 'full-house')
+      return next
+    }
+    case 'lootWeb': {
+      // The spider's rent: a wrapped bug now and then, never a chore.
+      if (!webLootReady(s, now)) return s
+      return {
+        ...s,
+        pets: { ...s.pets, lastWebLootAt: now },
+        inventory: { ...s.inventory, dewdrops: s.inventory.dewdrops + SIM.WEB_LOOT_DEWDROPS },
+      }
+    }
+    case 'greetLadybird': {
+      // Ladybirds hibernate through winter — and luck keeps a gentle pace.
+      if (seasonOf(now) === 'winter') return s
+      const last = s.pets.lastLadybirdAt
+      if (last !== null && now - last < SIM.LADYBIRD_COOLDOWN_HOURS * HOUR_MS) return s
+      const greeted: GameState = {
+        ...s,
+        pets: { ...s.pets, lastLadybirdAt: now },
+        inventory: { ...s.inventory, dewdrops: s.inventory.dewdrops + SIM.LADYBIRD_DEWDROPS },
+      }
+      return award(greeted, 'ladybird-luck')
     }
     case 'rescueSnail': {
       if (s.pets.snail) return s
@@ -105,7 +135,7 @@ function applyAction(s: GameState, action: Action, now: number, realNow: number)
       )
       if (keep) {
         next = award(next, 'pet-snail')
-        if (petCount(next, now) >= 3) next = award(next, 'full-house')
+        if (hasFullHouse(next, now)) next = award(next, 'full-house')
       }
       return next
     }

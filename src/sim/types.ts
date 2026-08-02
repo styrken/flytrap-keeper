@@ -103,6 +103,12 @@ export interface PetsState {
   snail: boolean
   /** Last rescue, so back-to-back taps can't farm the little reward. */
   lastSnailAt: number | null
+  /** The autumn spider accepted a corner tenancy — pays rent in caught bugs. */
+  spider: boolean
+  /** Last time the web's rent was collected. */
+  lastWebLootAt: number | null
+  /** Last ladybird greeting — luck comes at its own gentle pace. */
+  lastLadybirdAt: number | null
 }
 
 export interface GameTime {
@@ -148,6 +154,9 @@ export type Action =
   | { type: 'markFireflies' }
   | { type: 'letCatIn' }
   | { type: 'rescueSnail' }
+  | { type: 'adoptSpider' }
+  | { type: 'lootWeb' }
+  | { type: 'greetLadybird' }
   | { type: 'feedTrap'; plantId: string; trapId: string }
   | { type: 'feedPlant' }
   | { type: 'catchInsect'; plantId: string; trapId: string; insect: InsectKind }

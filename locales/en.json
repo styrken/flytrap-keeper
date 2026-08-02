@@ -99,7 +99,8 @@
     "cutFlower": "Cut the stalk",
     "letBloom": "Let it bloom",
     "removePlant": "Clear the pot",
-    "letCatIn": "Let it in"
+    "letCatIn": "Let it in",
+    "letSpiderStay": "Let it stay"
   },
   "placement": {
     "south-window": "South window",
@@ -129,6 +130,7 @@
     "dormant": "{{name}} is sleeping through winter. 💤 Sweet dreams until spring.",
     "winterHint": "It's winter — {{name}} would love a long nap. Skipping it wears the plant down.",
     "catAtWindow": "A soaked little cat is meowing at the window…",
+    "spiderAtCorner": "A little spider is spinning a trial web in the corner…",
     "flowerChoice": "{{name}} is sending up a flower stalk! Cutting it is the safe choice — blooming costs strength but rewards seeds.",
     "blooming": "{{name}} is in bloom 🌼 — beautiful, and a little exhausting.",
     "dead": "💀 {{name}} didn't make it. Hard mode is unforgiving."
@@ -265,6 +267,8 @@
     "pet-frog": "Metamorphosis!",
     "pet-cat": "Rainy-day friend",
     "pet-snail": "World's calmest pet",
+    "pet-spider": "Eight-legged roommate",
+    "ladybird-luck": "A spot of luck",
     "full-house": "Full house"
   },
   "onboarding": {

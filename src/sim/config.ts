@@ -99,6 +99,13 @@ export const SIM = {
   SNAIL_RESCUE_DEWDROPS: 2,
   SNAIL_RESCUE_COOLDOWN_HOURS: 4,
   SNAIL_KEEP_AT: 3,
+  /** Spider season is autumn; a settled spider pays rent in caught bugs. */
+  SPIDER_DAY_CHANCE: 0.5,
+  WEB_LOOT_DEWDROPS: 2,
+  WEB_LOOT_COOLDOWN_HOURS: 12,
+  /** The ladybird is a guest, never a pet — greeting one brings a spot of luck. */
+  LADYBIRD_DEWDROPS: 1,
+  LADYBIRD_COOLDOWN_HOURS: 2,
 
   NICKNAME_MAX_LENGTH: 20,
 } as const

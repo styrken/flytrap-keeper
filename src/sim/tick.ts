@@ -1,6 +1,6 @@
 import { award } from './achievements'
 import { SIM } from './config'
-import { frogStage, petCount } from './pets'
+import { frogStage, hasFullHouse } from './pets'
 import { drawQuests } from './quests'
 import { seasonAt } from './season'
 import { SPECIES } from './species'
@@ -84,7 +84,7 @@ export function tick(state: GameState, realNow: number): GameState {
   // The tadpole finishing its metamorphosis is a tick-time event too.
   if (frogStage(next.pets, now) >= 4) {
     next = award(next, 'pet-frog')
-    if (petCount(next, now) >= 3) next = award(next, 'full-house')
+    if (hasFullHouse(next, now)) next = award(next, 'full-house')
   }
 
   // A new day brings three fresh quests.

@@ -1,8 +1,9 @@
 import { SIM } from './config'
 import { mulberry32 } from './rng'
+import { seasonAt } from './season'
 import type { GameState, PetsState } from './types'
 import { DAY_MS } from './util'
-import { currentWeather, weatherPeriodMs } from './weather'
+import { currentWeather, weatherAt, weatherPeriodMs } from './weather'
 
 /**
  * The tadpole's metamorphosis, derived purely from elapsed game time:
@@ -29,14 +30,47 @@ export function catAtWindow(state: GameState, now: number): boolean {
   return roll < SIM.CAT_VISIT_CHANCE
 }
 
-/** Whether the sill snail may show up: not kept yet, and not just rescued. */
+/**
+ * Whether the sill snail may show up: not kept yet, not just rescued — and
+ * out during rain or in the period right after it, as real snails are. The
+ * after-rain window also keeps the snail meetable in speed mode, where a
+ * single rain period can pass in real seconds.
+ */
 export function snailAbout(state: GameState, now: number): boolean {
   if (state.pets.snail) return false
-  if (currentWeather(state, now) !== 'rain') return false
   const last = state.pets.lastSnailAt
-  return last === null || now - last >= SIM.SNAIL_RESCUE_COOLDOWN_HOURS * 3_600_000
+  if (last !== null && now - last < SIM.SNAIL_RESCUE_COOLDOWN_HOURS * 3_600_000) return false
+  return (
+    currentWeather(state, now) === 'rain' ||
+    weatherAt(state.rngSeed, now - weatherPeriodMs()) === 'rain'
+  )
 }
 
-/** Moved-in pets: the grown frog, the cat, and the kept snail. */
+/**
+ * Autumn is spider season: on some days (deterministic per seed + day, like
+ * the firefly calendar) a little spider spins a trial web in the corner and
+ * waits for a verdict. Ignored, it is gone with the next day.
+ */
+export function spiderAtCorner(state: GameState, now: number): boolean {
+  if (state.pets.spider) return false
+  if (seasonAt(now) !== 'autumn') return false
+  const day = Math.floor(now / DAY_MS)
+  const roll = mulberry32((state.rngSeed ^ Math.imul(day, 388229)) >>> 0)()
+  return roll < SIM.SPIDER_DAY_CHANCE
+}
+
+/** Whether the settled spider's web holds rent (a wrapped bug) to collect. */
+export const webLootReady = (state: GameState, now: number): boolean =>
+  state.pets.spider &&
+  (state.pets.lastWebLootAt === null ||
+    now - state.pets.lastWebLootAt >= SIM.WEB_LOOT_COOLDOWN_HOURS * 3_600_000)
+
+/** Moved-in pets: the grown frog, the cat, the kept snail, and the spider. */
 export const petCount = (state: GameState, now: number): number =>
-  (frogStage(state.pets, now) >= 4 ? 1 : 0) + (state.pets.cat ? 1 : 0) + (state.pets.snail ? 1 : 0)
+  (frogStage(state.pets, now) >= 4 ? 1 : 0) +
+  (state.pets.cat ? 1 : 0) +
+  (state.pets.snail ? 1 : 0) +
+  (state.pets.spider ? 1 : 0)
+
+/** All four adoptable pets under one roof. (The ladybird is a guest, always.) */
+export const hasFullHouse = (state: GameState, now: number): boolean => petCount(state, now) >= 4

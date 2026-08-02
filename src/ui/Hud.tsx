@@ -11,6 +11,7 @@ import {
   canMoveTo,
   catAtWindow,
   currentWeather,
+  spiderAtCorner,
   firstReadyTrap,
   hasGreenhouse,
   hasWeed,
@@ -346,6 +347,14 @@ export function Hud() {
             <span>🐱 {t('status.catAtWindow')}</span>
             <button type="button" onClick={() => dispatch({ type: 'letCatIn' })}>
               {t('actions.letCatIn')}
+            </button>
+          </div>
+        )}
+        {spiderAtCorner(state, now) && (
+          <div className="banner calm">
+            <span>🕷️ {t('status.spiderAtCorner')}</span>
+            <button type="button" onClick={() => dispatch({ type: 'adoptSpider' })}>
+              {t('actions.letSpiderStay')}
             </button>
           </div>
         )}

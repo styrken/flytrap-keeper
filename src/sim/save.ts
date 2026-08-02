@@ -89,7 +89,16 @@ const MIGRATIONS: Record<number, Migration> = {
     return {
       ...data,
       minigames: { ...minigames, lastWishAt: null },
-      pets: { tadpoleSince: null, cat: false, snailRescues: 0, snail: false, lastSnailAt: null },
+      pets: {
+        tadpoleSince: null,
+        cat: false,
+        snailRescues: 0,
+        snail: false,
+        lastSnailAt: null,
+        spider: false,
+        lastWebLootAt: null,
+        lastLadybirdAt: null,
+      },
       plants: ((Array.isArray(data.plants) ? data.plants : []) as RawSave[]).map((plant) => ({
         ...plant,
         cultivar: null,

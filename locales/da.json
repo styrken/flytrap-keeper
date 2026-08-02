@@ -99,7 +99,8 @@
     "cutFlower": "Klip stilken",
     "letBloom": "Lad den blomstre",
     "removePlant": "Ryd potten",
-    "letCatIn": "Luk den ind"
+    "letCatIn": "Luk den ind",
+    "letSpiderStay": "Lad den blive"
   },
   "placement": {
     "south-window": "Sydvindue",
@@ -129,6 +130,7 @@
     "dormant": "{{name}} sover vintersøvn. 💤 Sov godt — vi ses til foråret.",
     "winterHint": "Det er vinter — {{name}} trænger til en lang lur. Springes den over, slides planten.",
     "catAtWindow": "En gennemblødt lille kat mjaver ude ved ruden…",
+    "spiderAtCorner": "En lille edderkop spinder prøve-net i hjørnet…",
     "flowerChoice": "{{name}} skyder en blomsterstilk! At klippe den er det sikre valg — blomstring koster kræfter, men giver frø.",
     "blooming": "{{name}} blomstrer 🌼 — smukt, men lidt udmattende.",
     "dead": "💀 {{name}} klarede den ikke. Hard mode er nådesløs."
@@ -268,6 +270,8 @@
     "pet-frog": "Fuldendt forvandling!",
     "pet-cat": "Regnvejrsven",
     "pet-snail": "Verdens roligste kæledyr",
+    "pet-spider": "Bofælle på otte ben",
+    "ladybird-luck": "Lykkebringer",
     "full-house": "Fuldt hus"
   },
   "onboarding": {

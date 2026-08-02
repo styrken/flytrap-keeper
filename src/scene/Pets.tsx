@@ -6,8 +6,16 @@ import { Html } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
 import { useEffect, useRef, useState } from 'react'
 import type { Group } from 'three'
-import { playCatch, playCroak, playMeow, playPurr } from '../audio'
-import { SIM, catAtWindow, frogStage, snailAbout } from '../sim'
+import { playCatch, playCroak, playMeow, playPet, playPurr } from '../audio'
+import {
+  SIM,
+  catAtWindow,
+  frogStage,
+  seasonAt,
+  snailAbout,
+  spiderAtCorner,
+  webLootReady,
+} from '../sim'
 import { useIsVisiting, useSceneDispatch, useSceneState } from '../sceneView'
 import type { RoomView } from '../store'
 import { POT_SLOTS, plantsInRoom } from './plantLayout'
@@ -27,6 +35,8 @@ export function Pets({ room }: { room: RoomView }) {
       <WetCat />
       <SillSnail />
       {pets.snail && <SnailJar />}
+      <CornerSpider />
+      <Ladybird />
     </group>
   )
 }
@@ -383,12 +393,13 @@ function SillSnail() {
 
   useEffect(() => {
     if (!active || crawling) return
+    // Quick enough that speed-mode weather can't outrun the snail entirely.
     const timer = window.setTimeout(
       () => {
         x.current = 1.75
         setCrawling(true)
       },
-      15_000 + Math.random() * 25_000,
+      9_000 + Math.random() * 13_000,
     )
     return () => window.clearTimeout(timer)
   }, [active, crawling])
@@ -515,6 +526,265 @@ function SnailJar() {
       {label && (
         <Html position={[0, 0.3, 0]} center zIndexRange={[10, 0]}>
           <div className="float-label">{label}</div>
+        </Html>
+      )}
+    </group>
+  )
+}
+
+/* ---------------------------------- spider ----------------------------------- */
+
+const WEB_STRAND = '#f2efe4'
+const SPIDER_DARK = '#4a3a30'
+
+/** Thin radial strands fanning out of the corner, plus cross threads. */
+function Web({ full }: { full: boolean }) {
+  const angles = full ? [0.12, 0.5, 0.95, 1.32] : [0.35, 1.05]
+  return (
+    <group>
+      {angles.map((a) => (
+        <mesh key={a} position={[Math.cos(a) * 0.19, -Math.sin(a) * 0.19, 0]} rotation-z={-a}>
+          <boxGeometry args={[0.38, 0.006, 0.006]} />
+          <meshStandardMaterial color={WEB_STRAND} transparent opacity={0.55} />
+        </mesh>
+      ))}
+      {full &&
+        [0.16, 0.28].map((r) => (
+          <mesh key={r} position={[Math.cos(0.72) * r, -Math.sin(0.72) * r, 0]} rotation-z={0.85}>
+            <boxGeometry args={[r * 1.3, 0.005, 0.005]} />
+            <meshStandardMaterial color={WEB_STRAND} transparent opacity={0.45} />
+          </mesh>
+        ))}
+    </group>
+  )
+}
+
+function SpiderShape({ scale = 1 }: { scale?: number }) {
+  return (
+    <group scale={scale}>
+      <mesh>
+        <boxGeometry args={[0.05, 0.045, 0.045]} />
+        <meshStandardMaterial color={SPIDER_DARK} />
+      </mesh>
+      <mesh position={[0, -0.032, 0.012]}>
+        <boxGeometry args={[0.032, 0.028, 0.028]} />
+        <meshStandardMaterial color={SPIDER_DARK} />
+      </mesh>
+      {[-0.034, 0.034].map((x) => (
+        <group key={x}>
+          <mesh position={[x, 0.008, 0]} rotation-z={x < 0 ? 0.45 : -0.45}>
+            <boxGeometry args={[0.045, 0.006, 0.03]} />
+            <meshStandardMaterial color={SPIDER_DARK} />
+          </mesh>
+          <mesh position={[x, -0.012, 0]} rotation-z={x < 0 ? -0.35 : 0.35}>
+            <boxGeometry args={[0.045, 0.006, 0.03]} />
+            <meshStandardMaterial color={SPIDER_DARK} />
+          </mesh>
+        </group>
+      ))}
+    </group>
+  )
+}
+
+/**
+ * Autumn's corner tenant. While the trial web hangs, tapping it (or the HUD
+ * banner) lets the spider stay. Settled, it keeps a fuller web and now and
+ * then leaves a wrapped bug to collect — rent, paid in dewdrops.
+ */
+function CornerSpider() {
+  const dispatch = useSceneDispatch()
+  const visiting = useIsVisiting()
+  const trial = useSceneState((s) => spiderAtCorner(s, s.lastTickAt))
+  const settled = useSceneState((s) => s.pets.spider)
+  const loot = useSceneState((s) => webLootReady(s, s.lastTickAt))
+  const [label, pop] = useLabel()
+  const dangle = useRef<Group>(null)
+
+  useFrame((frame) => {
+    const g = dangle.current
+    if (!g) return
+    const t = frame.clock.elapsedTime
+    // trial spider bobs on its thread; the settled one abseils now and then
+    g.position.y = settled
+      ? -0.16 - Math.max(0, Math.sin(t * 0.22)) * 0.18
+      : -0.3 + Math.sin(t * 1.4) * 0.03
+  })
+
+  if (!trial && !settled) return null
+  return (
+    <group
+      position={[-3.42, 2.62, -0.44]}
+      onPointerDown={(e) => {
+        if (visiting) return
+        e.stopPropagation()
+        if (!settled) {
+          dispatch({ type: 'adoptSpider' })
+          playPet()
+          pop('🕷️💚')
+          return
+        }
+        if (loot) {
+          dispatch({ type: 'lootWeb' })
+          playCatch()
+          pop(`🕸️ +${SIM.WEB_LOOT_DEWDROPS} 🫧`)
+        } else {
+          playPet()
+          pop('🕷️')
+        }
+      }}
+      onPointerOver={() => {
+        if (!visiting) document.body.style.cursor = 'pointer'
+      }}
+      onPointerOut={() => {
+        document.body.style.cursor = 'auto'
+      }}
+    >
+      <Web full={settled} />
+      {/* the thread it hangs from */}
+      <mesh position={[0.13, -0.18, 0]}>
+        <boxGeometry args={[0.004, 0.42, 0.004]} />
+        <meshStandardMaterial color={WEB_STRAND} transparent opacity={0.5} />
+      </mesh>
+      <group ref={dangle} position={[0.13, -0.3, 0]}>
+        <SpiderShape />
+      </group>
+      {settled && loot && (
+        <mesh position={[0.3, -0.24, 0]} rotation-z={0.4}>
+          <boxGeometry args={[0.035, 0.05, 0.035]} />
+          <meshStandardMaterial color="#f6f1e6" emissive="#e8dfc0" emissiveIntensity={0.5} />
+        </mesh>
+      )}
+      {/* generous invisible hit area */}
+      <mesh visible={false} position={[0.1, -0.2, 0]}>
+        <boxGeometry args={[0.55, 0.7, 0.25]} />
+        <meshStandardMaterial />
+      </mesh>
+      {label && (
+        <Html position={[0.1, 0.15, 0]} center zIndexRange={[10, 0]}>
+          <div className="float-label">{label}</div>
+        </Html>
+      )}
+    </group>
+  )
+}
+
+/* --------------------------------- ladybird ---------------------------------- */
+
+const LADYBIRD_RED = '#d24545'
+
+/**
+ * The guest that is never a pet: a ladybird lands on the sill for a short
+ * stroll (never in winter — they hibernate). Greeting it with a tap brings a
+ * spot of luck before it flies off. The traps never get a say: gardeners'
+ * best friend, and famously terrible-tasting anyway.
+ */
+function Ladybird() {
+  const dispatch = useSceneDispatch()
+  const visiting = useIsVisiting()
+  const winter = useSceneState((s) => seasonAt(s.lastTickAt) === 'winter')
+  const [strolling, setStrolling] = useState(false)
+  const [label, setLabel] = useState<{ x: number } | null>(null)
+  const group = useRef<Group>(null)
+  const x = useRef(-1.55)
+  const leaving = useRef(false)
+  const age = useRef(0)
+
+  const active = !winter && !visiting
+
+  useEffect(() => {
+    if (!active || strolling) return
+    const timer = window.setTimeout(
+      () => {
+        x.current = -1.55
+        leaving.current = false
+        age.current = 0
+        setStrolling(true)
+      },
+      40_000 + Math.random() * 80_000,
+    )
+    return () => window.clearTimeout(timer)
+  }, [active, strolling])
+
+  useEffect(() => {
+    if (!label) return
+    const timer = window.setTimeout(() => setLabel(null), 1200)
+    return () => window.clearTimeout(timer)
+  }, [label])
+
+  useFrame((frame, delta) => {
+    if (!strolling) return
+    if (!active) {
+      setStrolling(false)
+      return
+    }
+    const g = group.current
+    if (!g) return
+    age.current += delta
+    if (leaving.current || age.current > 22) {
+      // wings out — up and away in a little arc
+      g.position.y += delta * 1.1
+      g.position.x += delta * 0.5
+      if (g.position.y > 1.6) setStrolling(false)
+      return
+    }
+    x.current += delta * 0.045
+    if (x.current > 1.55) {
+      leaving.current = true
+      return
+    }
+    g.position.x = x.current
+    g.position.y = 0.075 + Math.abs(Math.sin(frame.clock.elapsedTime * 9)) * 0.004
+  })
+
+  return (
+    <group>
+      {strolling && (
+        <group
+          ref={group}
+          position={[-1.55, 0.075, 0.3]}
+          onPointerDown={(e) => {
+            if (visiting || leaving.current) return
+            e.stopPropagation()
+            dispatch({ type: 'greetLadybird' })
+            playCatch()
+            setLabel({ x: x.current })
+            leaving.current = true
+          }}
+          onPointerOver={() => {
+            if (!visiting) document.body.style.cursor = 'pointer'
+          }}
+          onPointerOut={() => {
+            document.body.style.cursor = 'auto'
+          }}
+        >
+          <mesh position={[0, 0.014, 0]}>
+            <boxGeometry args={[0.055, 0.028, 0.045]} />
+            <meshStandardMaterial color={LADYBIRD_RED} />
+          </mesh>
+          <mesh position={[0.032, 0.012, 0]}>
+            <boxGeometry args={[0.02, 0.022, 0.032]} />
+            <meshStandardMaterial color="#26221c" />
+          </mesh>
+          {[
+            [-0.012, 0.014],
+            [0.006, -0.014],
+            [-0.018, -0.01],
+          ].map(([dx, dz]) => (
+            <mesh key={`${dx}:${dz}`} position={[dx, 0.03, dz]}>
+              <boxGeometry args={[0.012, 0.004, 0.012]} />
+              <meshStandardMaterial color="#26221c" />
+            </mesh>
+          ))}
+          {/* generous invisible hit area */}
+          <mesh visible={false} position={[0, 0.05, 0]}>
+            <boxGeometry args={[0.22, 0.18, 0.22]} />
+            <meshStandardMaterial />
+          </mesh>
+        </group>
+      )}
+      {label && (
+        <Html position={[label.x, 0.35, 0.3]} center zIndexRange={[10, 0]}>
+          <div className="float-label">🐞 +{SIM.LADYBIRD_DEWDROPS} 🫧</div>
         </Html>
       )}
     </group>

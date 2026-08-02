@@ -1,4 +1,4 @@
-import { award } from './achievements'
+import { type AchievementId, award } from './achievements'
 import { SIM } from './config'
 import { INSECTS, isFireflyNight } from './insects'
 import { progressQuest } from './quests'
@@ -114,6 +114,21 @@ function applyAction(s: GameState, action: Action, now: number, realNow: number)
         inventory: { ...s.inventory, dewdrops: s.inventory.dewdrops + SIM.LADYBIRD_DEWDROPS },
       }
       return award(greeted, 'ladybird-luck')
+    }
+    case 'greetRobin': {
+      // No feeder, no robin — it has standards.
+      if (!s.inventory.items.includes('bird-feeder')) return s
+      return greetGuest(s, now, 'lastRobinAt', 'robin-song')
+    }
+    case 'greetButterfly': {
+      const season = seasonOf(now)
+      if (season !== 'spring' && season !== 'summer') return s
+      return greetGuest(s, now, 'lastButterflyAt', 'safe-landing')
+    }
+    case 'greetHedgehog': {
+      // Hedgehogs sleep the winter away, curled up somewhere dry.
+      if (seasonOf(now) === 'winter') return s
+      return greetGuest(s, now, 'lastHedgehogAt', 'evening-snuffler')
     }
     case 'rescueSnail': {
       if (s.pets.snail) return s
@@ -371,6 +386,23 @@ function spendTrapUse(plant: PlantState, trapId: string, now: number, digestFact
         }
       : trap,
   )
+}
+
+/** Shared shape of every garden-guest hello: a dewdrop on a gentle cooldown. */
+function greetGuest(
+  s: GameState,
+  now: number,
+  field: 'lastRobinAt' | 'lastButterflyAt' | 'lastHedgehogAt',
+  achievement: AchievementId,
+): GameState {
+  const last = s.pets[field]
+  if (last !== null && now - last < SIM.GUEST_COOLDOWN_HOURS * HOUR_MS) return s
+  const greeted: GameState = {
+    ...s,
+    pets: { ...s.pets, [field]: now },
+    inventory: { ...s.inventory, dewdrops: s.inventory.dewdrops + SIM.GUEST_DEWDROPS },
+  }
+  return award(greeted, achievement)
 }
 
 function withPlant(state: GameState, plant: PlantState): GameState {

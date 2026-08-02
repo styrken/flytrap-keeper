@@ -66,6 +66,15 @@ export const playMeow = () => {
   window.setTimeout(() => blip(740, 420, 0.22, 'triangle', 0.06), 150)
 }
 export const playPurr = () => blip(88, 62, 0.4, 'sawtooth', 0.045)
+export const playChirp = () => {
+  blip(1900, 2400, 0.08, 'sine', 0.06)
+  window.setTimeout(() => blip(2200, 1700, 0.1, 'sine', 0.05), 110)
+  window.setTimeout(() => blip(1800, 2600, 0.12, 'sine', 0.05), 260)
+}
+export const playSnuffle = () => {
+  blip(180, 120, 0.09, 'sawtooth', 0.04)
+  window.setTimeout(() => blip(200, 130, 0.11, 'sawtooth', 0.04), 130)
+}
 export const playSplash = () => blip(700, 200, 0.2, 'triangle', 0.1)
 export const playToast = () => {
   blip(880, 1320, 0.16, 'sine', 0.1)

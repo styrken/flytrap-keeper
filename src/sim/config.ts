@@ -106,6 +106,9 @@ export const SIM = {
   /** The ladybird is a guest, never a pet — greeting one brings a spot of luck. */
   LADYBIRD_DEWDROPS: 1,
   LADYBIRD_COOLDOWN_HOURS: 2,
+  /** More garden guests: the feeder robin, the butterfly, the hedgehog. */
+  GUEST_DEWDROPS: 1,
+  GUEST_COOLDOWN_HOURS: 2,
 
   NICKNAME_MAX_LENGTH: 20,
 } as const

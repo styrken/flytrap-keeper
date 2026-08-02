@@ -6,7 +6,7 @@ import { Html } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
 import { useEffect, useRef, useState } from 'react'
 import type { Group } from 'three'
-import { playCatch, playCroak, playMeow, playPet, playPurr } from '../audio'
+import { playCatch, playChirp, playCroak, playMeow, playPet, playPurr, playSnuffle } from '../audio'
 import {
   SIM,
   catAtWindow,
@@ -16,17 +16,24 @@ import {
   spiderAtCorner,
   webLootReady,
 } from '../sim'
-import { useIsVisiting, useSceneDispatch, useSceneState } from '../sceneView'
+import { sceneNow, useIsVisiting, useSceneDispatch, useSceneState } from '../sceneView'
 import type { RoomView } from '../store'
-import { POT_SLOTS, plantsInRoom } from './plantLayout'
+import { daylightFactor } from './daylight'
+import { POT_SLOTS, STAGE_SCALE, plantsInRoom } from './plantLayout'
 
 export function Pets({ room }: { room: RoomView }) {
   const pets = useSceneState((s) => s.pets)
   const now = useSceneState((s) => s.lastTickAt)
+  const items = useSceneState((s) => s.inventory.items)
   const stage = frogStage(pets, now)
 
   if (room === 'greenhouse') {
-    return stage >= 4 ? <Frog /> : null
+    return (
+      <group>
+        {stage >= 4 && <Frog />}
+        <Hedgehog />
+      </group>
+    )
   }
   return (
     <group>
@@ -37,8 +44,20 @@ export function Pets({ room }: { room: RoomView }) {
       {pets.snail && <SnailJar />}
       <CornerSpider />
       <Ladybird />
+      {items.includes('bird-feeder') && <BirdFeeder />}
+      <Butterfly />
     </group>
   )
+}
+
+/** Daylight as React state (polled), so guest timers can follow the clock. */
+function useDaytime(threshold = 0.6): boolean {
+  const [day, setDay] = useState(() => daylightFactor(sceneNow()) >= threshold)
+  useEffect(() => {
+    const id = window.setInterval(() => setDay(daylightFactor(sceneNow()) >= threshold), 5_000)
+    return () => window.clearInterval(id)
+  }, [threshold])
+  return day
 }
 
 /** A float label that pops near a pet for a moment. */
@@ -785,6 +804,410 @@ function Ladybird() {
       {label && (
         <Html position={[label.x, 0.35, 0.3]} center zIndexRange={[10, 0]}>
           <div className="float-label">🐞 +{SIM.LADYBIRD_DEWDROPS} 🫧</div>
+        </Html>
+      )}
+    </group>
+  )
+}
+
+/* ------------------------------ robin & feeder ------------------------------- */
+
+const ROBIN_BROWN = '#8a6a4e'
+const ROBIN_RED = '#d2653c'
+
+/**
+ * A seed tray outside the window. On good days a robin drops by, pecks a
+ * little, and sings when greeted — the friend that keeps visiting right
+ * through winter, when everyone else is asleep.
+ */
+function BirdFeeder() {
+  const dispatch = useSceneDispatch()
+  const visiting = useIsVisiting()
+  const day = useDaytime()
+  const [perched, setPerched] = useState(false)
+  const [label, pop] = useLabel()
+  const bird = useRef<Group>(null)
+  const age = useRef(0)
+
+  const active = day && !visiting
+
+  useEffect(() => {
+    if (!active || perched) return
+    const timer = window.setTimeout(
+      () => {
+        age.current = 0
+        setPerched(true)
+      },
+      35_000 + Math.random() * 65_000,
+    )
+    return () => window.clearTimeout(timer)
+  }, [active, perched])
+
+  useFrame((frame, delta) => {
+    if (!perched) return
+    if (!active) {
+      setPerched(false)
+      return
+    }
+    const g = bird.current
+    if (!g) return
+    age.current += delta
+    if (age.current > 16) {
+      // off it flies
+      g.position.y += delta * 1.4
+      g.position.x -= delta * 0.9
+      if (g.position.y > 2.2) setPerched(false)
+      return
+    }
+    // little hops along the tray, pecking in between
+    const t = frame.clock.elapsedTime
+    g.position.x = Math.sin(t * 0.7) * 0.05
+    g.position.y = Math.abs(Math.sin(t * 5)) * 0.012
+    g.rotation.x = Math.max(0, Math.sin(t * 2.3)) * 0.5 // peck
+  })
+
+  return (
+    <group position={[-0.85, 0, -0.478]}>
+      {/* post and tray */}
+      <mesh position={[0, 0.3, 0]}>
+        <boxGeometry args={[0.035, 0.4, 0.03]} />
+        <meshStandardMaterial color="#7a5a3a" />
+      </mesh>
+      <mesh position={[0, 0.5, 0]}>
+        <boxGeometry args={[0.34, 0.03, 0.05]} />
+        <meshStandardMaterial color="#9a7b52" />
+      </mesh>
+      {[-0.16, 0.16].map((x) => (
+        <mesh key={x} position={[x, 0.535, 0]}>
+          <boxGeometry args={[0.02, 0.04, 0.05]} />
+          <meshStandardMaterial color="#7a5a3a" />
+        </mesh>
+      ))}
+      {/* scattered seeds */}
+      {[-0.07, 0.01, 0.08].map((x, i) => (
+        <mesh key={x} position={[x, 0.518, 0.008 - i * 0.008]}>
+          <boxGeometry args={[0.015, 0.008, 0.015]} />
+          <meshStandardMaterial color="#e8c49a" />
+        </mesh>
+      ))}
+      {perched && (
+        <group
+          position={[0, 0.53, 0]}
+          onPointerDown={(e) => {
+            if (visiting) return
+            e.stopPropagation()
+            dispatch({ type: 'greetRobin' })
+            playChirp()
+            pop(`🐦 +${SIM.GUEST_DEWDROPS} 🫧`)
+          }}
+          onPointerOver={() => {
+            if (!visiting) document.body.style.cursor = 'pointer'
+          }}
+          onPointerOut={() => {
+            document.body.style.cursor = 'auto'
+          }}
+        >
+          <group ref={bird}>
+            <mesh position={[0, 0.035, 0]}>
+              <boxGeometry args={[0.075, 0.06, 0.05]} />
+              <meshStandardMaterial color={ROBIN_BROWN} />
+            </mesh>
+            <mesh position={[0.032, 0.03, 0]}>
+              <boxGeometry args={[0.03, 0.04, 0.044]} />
+              <meshStandardMaterial color={ROBIN_RED} />
+            </mesh>
+            <mesh position={[0.028, 0.075, 0]}>
+              <boxGeometry args={[0.04, 0.04, 0.04]} />
+              <meshStandardMaterial color={ROBIN_BROWN} />
+            </mesh>
+            <mesh position={[0.055, 0.072, 0]}>
+              <boxGeometry args={[0.018, 0.012, 0.012]} />
+              <meshStandardMaterial color="#e8b23c" />
+            </mesh>
+            <mesh position={[-0.05, 0.05, 0]} rotation-z={0.5}>
+              <boxGeometry args={[0.045, 0.014, 0.03]} />
+              <meshStandardMaterial color="#6e5540" />
+            </mesh>
+          </group>
+          {/* generous invisible hit area */}
+          <mesh visible={false} position={[0, 0.06, 0]}>
+            <boxGeometry args={[0.28, 0.24, 0.2]} />
+            <meshStandardMaterial />
+          </mesh>
+        </group>
+      )}
+      {label && (
+        <Html position={[0, 0.85, 0]} center zIndexRange={[10, 0]}>
+          <div className="float-label">{label}</div>
+        </Html>
+      )}
+    </group>
+  )
+}
+
+/* --------------------------------- butterfly --------------------------------- */
+
+const BUTTERFLY_WING = '#e0813c'
+const BUTTERFLY_EDGE = '#5a4030'
+
+/**
+ * Spring and summer's visitor. It flutters around the sill — and if a plant
+ * is blooming, it rests on the flower. That tall stalk is the whole point:
+ * carnivorous plants lift their blooms high so their pollinators never end
+ * up on the menu. Safe landing, always.
+ */
+function Butterfly() {
+  const dispatch = useSceneDispatch()
+  const visiting = useIsVisiting()
+  const day = useDaytime()
+  const summery = useSceneState((s) => {
+    const season = seasonAt(s.lastTickAt)
+    return season === 'spring' || season === 'summer'
+  })
+  const plants = useSceneState((s) => s.plants)
+  const [fluttering, setFluttering] = useState(false)
+  const [label, pop] = useLabel()
+  const group = useRef<Group>(null)
+  const wingL = useRef<Group>(null)
+  const wingR = useRef<Group>(null)
+  const age = useRef(0)
+
+  const active = summery && day && !visiting
+
+  // The safe landing spot: a blooming flytrap's flower, held high on its stalk.
+  const bloomer = plantsInRoom(plants, 'bedroom').findIndex(
+    (plant) => plant.speciesId === 'dionaea' && plant.flowering?.blooming,
+  )
+  const rest =
+    bloomer >= 0
+      ? ([
+          POT_SLOTS[bloomer][0],
+          POT_SLOTS[bloomer][1] +
+            0.32 +
+            0.74 * STAGE_SCALE[Math.min(plants[bloomer]?.stage ?? 3, STAGE_SCALE.length - 1)],
+          POT_SLOTS[bloomer][2] - 0.05,
+        ] as const)
+      : null
+
+  useEffect(() => {
+    if (!active || fluttering) return
+    const timer = window.setTimeout(
+      () => {
+        age.current = 0
+        setFluttering(true)
+      },
+      30_000 + Math.random() * 70_000,
+    )
+    return () => window.clearTimeout(timer)
+  }, [active, fluttering])
+
+  useFrame((_, delta) => {
+    if (!fluttering) return
+    if (!active) {
+      setFluttering(false)
+      return
+    }
+    const g = group.current
+    if (!g) return
+    age.current += delta
+    const t = age.current
+    if (t > 26) {
+      g.position.y += delta * 1.2
+      if (g.position.y > 2.4) setFluttering(false)
+      return
+    }
+    // resting spells on the bloom, flutter loops in between
+    const resting = rest !== null && Math.sin(t * 0.35) > 0.55
+    const flap = resting ? 0.15 : 0.95
+    if (wingL.current) wingL.current.rotation.y = -Math.abs(Math.sin(t * 16)) * flap
+    if (wingR.current) wingR.current.rotation.y = Math.abs(Math.sin(t * 16)) * flap
+    if (resting && rest) {
+      g.position.x += (rest[0] - g.position.x) * Math.min(1, delta * 3)
+      g.position.y += (rest[1] + 0.05 - g.position.y) * Math.min(1, delta * 3)
+      g.position.z += (rest[2] - g.position.z) * Math.min(1, delta * 3)
+    } else {
+      g.position.set(
+        Math.sin(t * 0.6) * 0.9,
+        1.0 + Math.sin(t * 1.1) * 0.3 + Math.sin(t * 5) * 0.03,
+        0.3 + Math.cos(t * 0.8) * 0.25,
+      )
+    }
+  })
+
+  return (
+    <group>
+      {fluttering && (
+        <group
+          ref={group}
+          position={[0, 1.0, 0.3]}
+          onPointerDown={(e) => {
+            if (visiting) return
+            e.stopPropagation()
+            dispatch({ type: 'greetButterfly' })
+            playPet()
+            pop(`🦋 +${SIM.GUEST_DEWDROPS} 🫧`)
+          }}
+          onPointerOver={() => {
+            if (!visiting) document.body.style.cursor = 'pointer'
+          }}
+          onPointerOut={() => {
+            document.body.style.cursor = 'auto'
+          }}
+        >
+          <mesh>
+            <boxGeometry args={[0.014, 0.05, 0.014]} />
+            <meshStandardMaterial color={BUTTERFLY_EDGE} />
+          </mesh>
+          <group ref={wingL}>
+            <mesh position={[-0.035, 0.008, 0]}>
+              <boxGeometry args={[0.06, 0.045, 0.006]} />
+              <meshStandardMaterial color={BUTTERFLY_WING} />
+            </mesh>
+            <mesh position={[-0.028, -0.024, 0]}>
+              <boxGeometry args={[0.04, 0.03, 0.006]} />
+              <meshStandardMaterial color={BUTTERFLY_EDGE} />
+            </mesh>
+          </group>
+          <group ref={wingR}>
+            <mesh position={[0.035, 0.008, 0]}>
+              <boxGeometry args={[0.06, 0.045, 0.006]} />
+              <meshStandardMaterial color={BUTTERFLY_WING} />
+            </mesh>
+            <mesh position={[0.028, -0.024, 0]}>
+              <boxGeometry args={[0.04, 0.03, 0.006]} />
+              <meshStandardMaterial color={BUTTERFLY_EDGE} />
+            </mesh>
+          </group>
+          {/* generous invisible hit area */}
+          <mesh visible={false}>
+            <boxGeometry args={[0.3, 0.3, 0.3]} />
+            <meshStandardMaterial />
+          </mesh>
+        </group>
+      )}
+      {label && (
+        <Html position={[0, 1.55, 0.3]} center zIndexRange={[10, 0]}>
+          <div className="float-label">{label}</div>
+        </Html>
+      )}
+    </group>
+  )
+}
+
+/* --------------------------------- hedgehog ---------------------------------- */
+
+const HEDGEHOG_SPIKES = '#5e4a38'
+const HEDGEHOG_FACE = '#c9a87e'
+
+/**
+ * After dark, a hedgehog trundles across the greenhouse lawn — snuffling for
+ * slugs, doing the garden a quiet favour. It sleeps the winter away, so this
+ * is a three-season guest.
+ */
+function Hedgehog() {
+  const dispatch = useSceneDispatch()
+  const visiting = useIsVisiting()
+  const night = !useDaytime(0.5)
+  const awake = useSceneState((s) => seasonAt(s.lastTickAt) !== 'winter')
+  const [trundling, setTrundling] = useState(false)
+  const [label, setLabel] = useState<{ x: number } | null>(null)
+  const group = useRef<Group>(null)
+  const x = useRef(4.6)
+
+  const active = night && awake && !visiting
+
+  useEffect(() => {
+    if (!active || trundling) return
+    const timer = window.setTimeout(
+      () => {
+        x.current = 4.6
+        setTrundling(true)
+      },
+      20_000 + Math.random() * 55_000,
+    )
+    return () => window.clearTimeout(timer)
+  }, [active, trundling])
+
+  useEffect(() => {
+    if (!label) return
+    const timer = window.setTimeout(() => setLabel(null), 1200)
+    return () => window.clearTimeout(timer)
+  }, [label])
+
+  useFrame((frame, delta) => {
+    if (!trundling) return
+    if (!active) {
+      setTrundling(false)
+      return
+    }
+    const g = group.current
+    if (!g) return
+    x.current -= delta * 0.22
+    if (x.current < -4.8) {
+      setTrundling(false)
+      return
+    }
+    g.position.x = x.current
+    g.position.y = -0.885 + Math.abs(Math.sin(frame.clock.elapsedTime * 6)) * 0.008
+    g.rotation.z = Math.sin(frame.clock.elapsedTime * 6) * 0.03
+  })
+
+  return (
+    <group>
+      {trundling && (
+        <group
+          ref={group}
+          position={[4.6, -0.885, 3.85]}
+          onPointerDown={(e) => {
+            if (visiting) return
+            e.stopPropagation()
+            dispatch({ type: 'greetHedgehog' })
+            playSnuffle()
+            setLabel({ x: x.current })
+          }}
+          onPointerOver={() => {
+            if (!visiting) document.body.style.cursor = 'pointer'
+          }}
+          onPointerOut={() => {
+            document.body.style.cursor = 'auto'
+          }}
+        >
+          <mesh position={[0, 0.075, 0]}>
+            <boxGeometry args={[0.26, 0.15, 0.17]} />
+            <meshStandardMaterial color={HEDGEHOG_SPIKES} />
+          </mesh>
+          {/* spiky back rows */}
+          {[-0.07, 0, 0.07].map((dx, i) => (
+            <mesh key={dx} position={[dx, 0.155, i % 2 === 0 ? 0.03 : -0.03]} rotation-z={0.2}>
+              <boxGeometry args={[0.05, 0.05, 0.1]} />
+              <meshStandardMaterial color="#4c3a2a" />
+            </mesh>
+          ))}
+          {/* pale snout, nose and feet */}
+          <mesh position={[-0.15, 0.05, 0]} rotation-z={0.18}>
+            <boxGeometry args={[0.09, 0.07, 0.1]} />
+            <meshStandardMaterial color={HEDGEHOG_FACE} />
+          </mesh>
+          <mesh position={[-0.2, 0.035, 0]}>
+            <boxGeometry args={[0.025, 0.025, 0.025]} />
+            <meshStandardMaterial color="#3c2f24" />
+          </mesh>
+          {[-0.08, 0.08].map((dx) => (
+            <mesh key={dx} position={[dx, 0.008, 0.06]}>
+              <boxGeometry args={[0.05, 0.02, 0.03]} />
+              <meshStandardMaterial color={HEDGEHOG_FACE} />
+            </mesh>
+          ))}
+          {/* generous invisible hit area */}
+          <mesh visible={false} position={[0, 0.12, 0]}>
+            <boxGeometry args={[0.5, 0.4, 0.4]} />
+            <meshStandardMaterial />
+          </mesh>
+        </group>
+      )}
+      {label && (
+        <Html position={[label.x, -0.5, 3.85]} center zIndexRange={[10, 0]}>
+          <div className="float-label">🦔 +{SIM.GUEST_DEWDROPS} 🫧</div>
         </Html>
       )}
     </group>

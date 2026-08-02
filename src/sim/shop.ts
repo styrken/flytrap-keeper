@@ -47,6 +47,7 @@ export const SHOP_ITEMS: ShopItem[] = [
   { id: 'greenhouse', cost: 250, kind: 'unlock' },
   { id: 'tadpole-jar', cost: 60, kind: 'unlock' },
   { id: 'gnome', cost: 60, kind: 'deco' },
+  { id: 'bird-feeder', cost: 40, kind: 'deco' },
   { id: 'rug', cost: 35, kind: 'deco' },
   { id: 'poster', cost: 30, kind: 'deco' },
   { id: 'radio', cost: 45, kind: 'deco' },

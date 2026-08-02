@@ -182,6 +182,10 @@
         "name": "Vindueskarm-nisse",
         "desc": "Ren pynt. Dømmer lydløst din vandingsrytme."
       },
+      "bird-feeder": {
+        "name": "Foderbræt",
+        "desc": "Et frøbræt uden for ruden. En rødhals kigger forbi — selv midt om vinteren."
+      },
       "rug": {
         "name": "Hyggeligt tæppe",
         "desc": "Binder hele værelset sammen."
@@ -272,6 +276,9 @@
     "pet-snail": "Verdens roligste kæledyr",
     "pet-spider": "Bofælle på otte ben",
     "ladybird-luck": "Lykkebringer",
+    "robin-song": "Rødhalsens sang",
+    "safe-landing": "Sikker landing",
+    "evening-snuffler": "Aftensnuseren",
     "full-house": "Fuldt hus"
   },
   "onboarding": {

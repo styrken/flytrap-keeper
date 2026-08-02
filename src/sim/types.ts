@@ -37,6 +37,7 @@ export type ShopItemId =
   | 'googly-eyes'
   | 'bow'
   | 'tadpole-jar'
+  | 'bird-feeder'
 
 export interface TrapState {
   id: string
@@ -109,6 +110,12 @@ export interface PetsState {
   lastWebLootAt: number | null
   /** Last ladybird greeting — luck comes at its own gentle pace. */
   lastLadybirdAt: number | null
+  /** Last robin greeting at the bird feeder. */
+  lastRobinAt: number | null
+  /** Last butterfly greeting — spring and summer's visitor. */
+  lastButterflyAt: number | null
+  /** Last hedgehog greeting on the greenhouse lawn. */
+  lastHedgehogAt: number | null
 }
 
 export interface GameTime {
@@ -157,6 +164,9 @@ export type Action =
   | { type: 'adoptSpider' }
   | { type: 'lootWeb' }
   | { type: 'greetLadybird' }
+  | { type: 'greetRobin' }
+  | { type: 'greetButterfly' }
+  | { type: 'greetHedgehog' }
   | { type: 'feedTrap'; plantId: string; trapId: string }
   | { type: 'feedPlant' }
   | { type: 'catchInsect'; plantId: string; trapId: string; insect: InsectKind }

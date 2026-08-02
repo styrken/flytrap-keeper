@@ -182,6 +182,10 @@
         "name": "Windowsill gnome",
         "desc": "Purely decorative. Judges your watering schedule silently."
       },
+      "bird-feeder": {
+        "name": "Bird feeder",
+        "desc": "A seed tray outside the window. A robin drops by — even in the dead of winter."
+      },
       "rug": {
         "name": "Cosy rug",
         "desc": "Ties the whole room together."
@@ -269,6 +273,9 @@
     "pet-snail": "World's calmest pet",
     "pet-spider": "Eight-legged roommate",
     "ladybird-luck": "A spot of luck",
+    "robin-song": "The robin's song",
+    "safe-landing": "Safe landing",
+    "evening-snuffler": "Evening snuffler",
     "full-house": "Full house"
   },
   "onboarding": {

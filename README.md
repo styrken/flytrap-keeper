@@ -61,3 +61,4 @@ After setup, every push to the default branch deploys to production and every pu
 - [x] Post-launch — photo mode (postcard snapshots with save/share) and plant accessories: googly eyes that ride the snapping jaw, and a little bow
 - [x] Post-launch — pets (zero needs, pure company): a tadpole that metamorphoses into a greenhouse frog, a rainy-day cat you let in at the window, and a snail that moves in after three gentle rescues
 - [x] Post-launch — pets, second wave: an autumn spider that keeps a corner web and pays rent in caught bugs, and the ladybird — a lucky guest that strolls the sill and can never, ever be trap food
+- [x] Post-launch — garden guests, year round: a robin at a buyable bird feeder (sings even in winter), a spring/summer butterfly that rests safely on blooming flower stalks, and an evening hedgehog on the greenhouse lawn

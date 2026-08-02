@@ -52,6 +52,9 @@ describe('the tadpole jar and the frog', () => {
       spider: false,
       lastWebLootAt: null,
       lastLadybirdAt: null,
+      lastRobinAt: null,
+      lastButterflyAt: null,
+      lastHedgehogAt: null,
     }
     expect(frogStage(pets, T0)).toBe(0)
     expect(frogStage(pets, T0 + d(2))).toBe(1)
@@ -226,6 +229,53 @@ describe('the snail comes out after the rain too', () => {
   })
 })
 
+describe('the garden guests: robin, butterfly, hedgehog', () => {
+  const JULY = Date.UTC(2024, 6, 10, 12)
+  const JANUARY = Date.UTC(2024, 0, 10, 12)
+
+  it('the robin only visits a bought feeder, and sings on a cooldown', () => {
+    // no feeder, no robin
+    expect(apply(init(), { type: 'greetRobin' }, T0).inventory.dewdrops).toBe(0)
+
+    let state = { ...init(), inventory: { dewdrops: 0, items: ['bird-feeder'] } }
+    state = apply(state, { type: 'greetRobin' }, T0)
+    expect(state.inventory.dewdrops).toBe(SIM.GUEST_DEWDROPS + SIM.ACHIEVEMENT_DEWDROPS)
+    expect(state.achievements).toContain('robin-song')
+
+    const tooSoon = tick(state, T0 + h(1))
+    expect(apply(tooSoon, { type: 'greetRobin' }, T0 + h(1))).toBe(tooSoon)
+
+    // the robin visits in the dead of winter too — no hibernation here
+    const winter = tick(state, JANUARY)
+    const greeted = apply(winter, { type: 'greetRobin' }, JANUARY)
+    expect(greeted.inventory.dewdrops - winter.inventory.dewdrops).toBe(SIM.GUEST_DEWDROPS)
+  })
+
+  it('the butterfly is a spring/summer guest with a safe landing', () => {
+    // November is off-season
+    expect(apply(init(), { type: 'greetButterfly' }, T0).inventory.dewdrops).toBe(0)
+
+    const summer = tick(init(), JULY)
+    const greeted = apply(summer, { type: 'greetButterfly' }, JULY)
+    expect(greeted.inventory.dewdrops - summer.inventory.dewdrops).toBe(
+      SIM.GUEST_DEWDROPS + SIM.ACHIEVEMENT_DEWDROPS,
+    )
+    expect(greeted.achievements).toContain('safe-landing')
+
+    const tooSoon = tick(greeted, JULY + h(1))
+    expect(apply(tooSoon, { type: 'greetButterfly' }, JULY + h(1))).toBe(tooSoon)
+  })
+
+  it('the hedgehog snuffles three seasons and hibernates through winter', () => {
+    const autumn = apply(init(), { type: 'greetHedgehog' }, T0) // November
+    expect(autumn.inventory.dewdrops).toBe(SIM.GUEST_DEWDROPS + SIM.ACHIEVEMENT_DEWDROPS)
+    expect(autumn.achievements).toContain('evening-snuffler')
+
+    const midwinter = tick(init(), JANUARY)
+    expect(apply(midwinter, { type: 'greetHedgehog' }, JANUARY)).toBe(midwinter)
+  })
+})
+
 describe('full house', () => {
   it('the fourth moved-in pet fills the house', () => {
     let state = apply(init(500, ['greenhouse']), { type: 'buy', item: 'tadpole-jar' }, T0)
@@ -255,6 +305,9 @@ describe('save migration v11 -> v12 (pets)', () => {
       spider: false,
       lastWebLootAt: null,
       lastLadybirdAt: null,
+      lastRobinAt: null,
+      lastButterflyAt: null,
+      lastHedgehogAt: null,
     })
   })
 })

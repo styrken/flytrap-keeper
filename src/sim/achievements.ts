@@ -20,6 +20,9 @@ export const ACHIEVEMENTS = [
   'pet-snail',
   'pet-spider',
   'ladybird-luck',
+  'robin-song',
+  'safe-landing',
+  'evening-snuffler',
   'full-house',
 ] as const
 

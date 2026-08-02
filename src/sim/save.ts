@@ -98,6 +98,9 @@ const MIGRATIONS: Record<number, Migration> = {
         spider: false,
         lastWebLootAt: null,
         lastLadybirdAt: null,
+        lastRobinAt: null,
+        lastButterflyAt: null,
+        lastHedgehogAt: null,
       },
       plants: ((Array.isArray(data.plants) ? data.plants : []) as RawSave[]).map((plant) => ({
         ...plant,

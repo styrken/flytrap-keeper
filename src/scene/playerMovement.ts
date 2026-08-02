@@ -58,6 +58,25 @@ export const WALL = Number.POSITIVE_INFINITY
  */
 export const ROOM_BOUNDS = { minX: -3.31, maxX: 3.31, minZ: -0.24, maxZ: 3.79 }
 
+export interface Bounds {
+  minX: number
+  maxX: number
+  minZ: number
+  maxZ: number
+}
+
+/** Inside the greenhouse's brick base walls (the doorway stays decorative). */
+export const GREENHOUSE_BOUNDS: Bounds = { minX: -3.25, maxX: 3.25, minZ: -0.78, maxZ: 2.95 }
+
+export type PlayerRoom = 'bedroom' | 'greenhouse'
+
+export const roomBounds = (room: PlayerRoom): Bounds =>
+  room === 'greenhouse' ? GREENHOUSE_BOUNDS : ROOM_BOUNDS
+
+/** Where the keeper stands when a room is entered. */
+export const roomSpawn = (room: PlayerRoom): { x: number; z: number; yaw: number } =>
+  room === 'greenhouse' ? { x: 0, z: 2.45, yaw: Math.PI } : SPAWN
+
 /** Footprints of the fixed furniture (positions from Room.tsx / Diorama.tsx). */
 const FURNITURE: Collider[] = [
   // windowsill + radiator + curtain strip on the window wall
@@ -71,6 +90,16 @@ const FURNITURE: Collider[] = [
   // the thin backrest would wall off every jump approach once grown by the
   // player radius, so the backrest is visual only.
   { id: 'chair', minX: 2.4, maxX: 2.84, minZ: 0.48, maxZ: 0.92, height: 0.42 },
+]
+
+/** Footprints of the greenhouse fixtures (positions from Greenhouse.tsx). */
+const GREENHOUSE_FURNITURE: Collider[] = [
+  // the potting bench in the middle — plants live up there, keepers stay down
+  { id: 'bench', minX: -1.7, maxX: 1.7, minZ: -0.62, maxZ: 0.62, height: WALL },
+  // tomato planter in the back-left corner
+  { id: 'tomatoes', minX: -3.2, maxX: -2.2, minZ: -0.85, maxZ: -0.25, height: WALL },
+  // rain barrel by the left wall
+  { id: 'barrel', minX: -2.85, maxX: -2.35, minZ: 1.35, maxZ: 1.85, height: WALL },
 ]
 
 /** Decor that becomes solid once it actually stands in the room. */
@@ -91,8 +120,9 @@ const COMPUTER: Collider = {
   height: WALL,
 }
 
-/** The solid obstacles for a given set of owned shop items. */
-export function roomColliders(items: readonly string[]): Collider[] {
+/** The solid obstacles of a room, given the displayed garden's shop items. */
+export function roomColliders(items: readonly string[], room: PlayerRoom = 'bedroom'): Collider[] {
+  if (room === 'greenhouse') return [...GREENHOUSE_FURNITURE]
   const colliders = [...FURNITURE]
   if (items.includes('lamp')) colliders.push(LAMP)
   if (items.includes('computer')) colliders.push(COMPUTER)
@@ -110,7 +140,13 @@ function blocksAt(c: Collider, feetY: number): boolean {
  * resolved separately against the boxes grown by the player radius, so a
  * diagonal push into a wall glides along it instead of sticking.
  */
-export function stepPlayer(pos: Vec2, move: Vec2, colliders: readonly Collider[], feetY = 0): Vec2 {
+export function stepPlayer(
+  pos: Vec2,
+  move: Vec2,
+  colliders: readonly Collider[],
+  feetY = 0,
+  bounds: Bounds = ROOM_BOUNDS,
+): Vec2 {
   const r = PLAYER_RADIUS
   let x = pos.x + move.x
   if (move.x !== 0) {
@@ -121,7 +157,7 @@ export function stepPlayer(pos: Vec2, move: Vec2, colliders: readonly Collider[]
       }
     }
   }
-  x = Math.min(ROOM_BOUNDS.maxX, Math.max(ROOM_BOUNDS.minX, x))
+  x = Math.min(bounds.maxX, Math.max(bounds.minX, x))
 
   let z = pos.z + move.z
   if (move.z !== 0) {
@@ -132,7 +168,7 @@ export function stepPlayer(pos: Vec2, move: Vec2, colliders: readonly Collider[]
       }
     }
   }
-  z = Math.min(ROOM_BOUNDS.maxZ, Math.max(ROOM_BOUNDS.minZ, z))
+  z = Math.min(bounds.maxZ, Math.max(bounds.minZ, z))
 
   return { x, z }
 }

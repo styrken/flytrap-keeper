@@ -44,6 +44,8 @@ export const SIM = {
 
   /** Tropical species (misting). */
   HUMIDITY_DECAY_PER_HOUR: 3,
+  /** Glass holds the moisture: humidity drains at half pace in the greenhouse. */
+  GREENHOUSE_HUMIDITY_FACTOR: 0.5,
   HUMIDITY_LOW: 25,
   HUMIDITY_OK: 40,
   HUMIDITY_HEALTH_DECAY_PER_HOUR: 0.6,

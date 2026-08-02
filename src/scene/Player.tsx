@@ -2,6 +2,8 @@ import { useFrame, useThree } from '@react-three/fiber'
 import { useEffect, useMemo, useRef } from 'react'
 import { type Group, type Mesh, Vector3 } from 'three'
 import { playBoing } from '../audio'
+import { useSceneState } from '../sceneView'
+import { useSocial } from '../socialStore'
 import { useGame } from '../store'
 import { consumeJump, initPlayerInput, readMoveInput } from './playerInput'
 import { palette } from './palette'
@@ -12,7 +14,9 @@ import {
   SPAWN,
   type VerticalState,
   groundAt,
+  roomBounds,
   roomColliders,
+  roomSpawn,
   stepPlayer,
   stepVertical,
 } from './playerMovement'
@@ -57,7 +61,7 @@ const DEBUG =
 export function Player() {
   const camera = useThree((s) => s.camera)
   const controls = useThree((s) => s.controls) as unknown as FollowControls | null
-  const uiOpen = useGame(
+  const dialogOpen = useGame(
     (s) =>
       s.showOnboarding ||
       s.showSettings ||
@@ -66,8 +70,14 @@ export function Player() {
       s.showQuests ||
       s.conflict !== null,
   )
-  const items = useGame((s) => s.state.inventory.items)
-  const colliders = useMemo(() => roomColliders(items), [items])
+  const friendsOpen = useSocial((s) => s.showFriends)
+  const uiOpen = dialogOpen || friendsOpen
+  const room = useGame((s) => s.roomView)
+  const visitingAt = useSocial((s) => s.visiting?.username ?? null)
+  // Displayed decor is solid — the friend's floor lamp blocks you too.
+  const items = useSceneState((s) => s.inventory.items)
+  const colliders = useMemo(() => roomColliders(items, room), [items, room])
+  const bounds = useMemo(() => roomBounds(room), [room])
 
   const root = useRef<Group>(null)
   const shadow = useRef<Mesh>(null)
@@ -84,6 +94,15 @@ export function Player() {
   const squash = useRef(0)
 
   useEffect(() => initPlayerInput(), [])
+
+  // Entering a room — or someone else's garden — puts the keeper at its door.
+  useEffect(() => {
+    const spawn = roomSpawn(room)
+    pos.current = { x: spawn.x, z: spawn.z }
+    vert.current = { y: 0, vy: 0, grounded: true }
+    yaw.current = spawn.yaw
+    targetYaw.current = spawn.yaw
+  }, [room, visitingAt])
 
   useFrame((_, delta) => {
     const g = root.current
@@ -110,6 +129,7 @@ export function Player() {
         { x: moveDir.x * PLAYER_SPEED * dt, z: moveDir.z * PLAYER_SPEED * dt },
         colliders,
         vert.current.y,
+        bounds,
       )
       pos.current.x = step.x
       pos.current.z = step.z

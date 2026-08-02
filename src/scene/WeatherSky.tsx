@@ -5,7 +5,8 @@ import type { Group, InstancedMesh, Mesh, MeshStandardMaterial } from 'three'
 import { Color, Object3D } from 'three'
 import { playCatch, setRainAmbience } from '../audio'
 import { SIM, currentWeather } from '../sim'
-import { gameNow, useGame } from '../store'
+import { sceneNow, useIsVisiting, useSceneDispatch, useSceneState } from '../sceneView'
+import { useGame } from '../store'
 import { daylightFactor } from './daylight'
 import { palette } from './palette'
 
@@ -19,22 +20,16 @@ const DAY_BG = new Color('#ead9c2')
 const NIGHT_BG = new Color('#57506a')
 const RAIN_DROPS = 110
 
-export function WeatherSky() {
-  const weather = useGame((s) => currentWeather(s.state, s.state.lastTickAt))
+/**
+ * Room-independent atmosphere: the canvas background follows the displayed
+ * garden's day/night, and the rain ambience follows its weather (with the
+ * local device's sound setting). Mounted once, whichever room is on stage.
+ */
+export function SkyMood() {
+  const weather = useSceneState((s) => currentWeather(s, s.lastTickAt))
   const soundOn = useGame((s) => s.state.settings.sound)
   const scene = useThree((s) => s.scene)
-  const skyMat = useRef<MeshStandardMaterial>(null)
-  const sun = useRef<Mesh>(null)
-  const clouds = useRef<Group>(null)
-  const rain = useRef<InstancedMesh>(null)
-  const drops = useRef<{ x: number; y: number; z: number; speed: number }[] | null>(null)
-  const dummy = useMemo(() => new Object3D(), [])
-  const targetSky = useMemo(() => new Color(), [])
   const targetBg = useMemo(() => new Color(), [])
-  const reduceMotion = useMemo(
-    () => window.matchMedia('(prefers-reduced-motion: reduce)').matches,
-    [],
-  )
 
   useEffect(() => {
     setRainAmbience(weather === 'rain' && soundOn)
@@ -42,16 +37,37 @@ export function WeatherSky() {
   }, [weather, soundOn])
 
   useFrame((_, delta) => {
-    const daylight = daylightFactor(gameNow())
+    if (scene.background instanceof Color) {
+      const daylight = daylightFactor(sceneNow())
+      targetBg.copy(DAY_BG).lerp(NIGHT_BG, 1 - daylight)
+      scene.background.lerp(targetBg, Math.min(1, delta * 2))
+    }
+  })
+  return null
+}
+
+/** The weather as seen through the bedroom window. */
+export function WeatherSky() {
+  const weather = useSceneState((s) => currentWeather(s, s.lastTickAt))
+  const skyMat = useRef<MeshStandardMaterial>(null)
+  const sun = useRef<Mesh>(null)
+  const clouds = useRef<Group>(null)
+  const rain = useRef<InstancedMesh>(null)
+  const drops = useRef<{ x: number; y: number; z: number; speed: number }[] | null>(null)
+  const dummy = useMemo(() => new Object3D(), [])
+  const targetSky = useMemo(() => new Color(), [])
+  const reduceMotion = useMemo(
+    () => window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+    [],
+  )
+
+  useFrame((_, delta) => {
+    const daylight = daylightFactor(sceneNow())
     const ease = Math.min(1, delta * 2)
 
     if (skyMat.current) {
       targetSky.set(SKY_BASE[weather]).lerp(NIGHT_SKY, 1 - daylight)
       skyMat.current.color.lerp(targetSky, ease)
-    }
-    if (scene.background instanceof Color) {
-      targetBg.copy(DAY_BG).lerp(NIGHT_BG, 1 - daylight)
-      scene.background.lerp(targetBg, ease)
     }
     if (sun.current) sun.current.visible = weather === 'sun' && daylight > 0.5
     if (clouds.current) {
@@ -118,30 +134,49 @@ export function WeatherSky() {
         <boxGeometry args={[0.012, 0.09, 0.012]} />
         <meshStandardMaterial color="#7fa8c9" transparent opacity={0.65} />
       </instancedMesh>
-      <GoldenDrop raining={weather === 'rain' && !reduceMotion} />
+      <GoldenDrop area={{ x0: -1.05, x1: 1.05, z: -0.45, yTop: 2.0, yBottom: 0.2 }} />
     </group>
   )
 }
 
-/** A shiny raindrop worth catching before it hits the sill — rain-only minigame. */
-function GoldenDrop({ raining }: { raining: boolean }) {
-  const dispatch = useGame((s) => s.dispatch)
+export interface DropArea {
+  x0: number
+  x1: number
+  z: number
+  yTop: number
+  yBottom: number
+}
+
+/**
+ * A shiny raindrop worth catching before it lands — rain-only minigame.
+ * The area says where it falls: down the window pane, or in through the
+ * greenhouse roof vent. Guests don't get to catch them.
+ */
+export function GoldenDrop({ area }: { area: DropArea }) {
+  const dispatch = useSceneDispatch()
+  const visiting = useIsVisiting()
+  const weather = useSceneState((s) => currentWeather(s, s.lastTickAt))
+  const reduceMotion = useMemo(
+    () => window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+    [],
+  )
+  const raining = weather === 'rain' && !reduceMotion && !visiting
   const [drop, setDrop] = useState<{ id: number; x: number } | null>(null)
   const [label, setLabel] = useState<{ x: number; y: number } | null>(null)
   const group = useRef<Group>(null)
-  const y = useRef(2.0)
+  const y = useRef(area.yTop)
 
   useEffect(() => {
     if (!raining || drop) return
     const timer = window.setTimeout(
       () => {
-        y.current = 2.0
-        setDrop({ id: Date.now(), x: -1.05 + Math.random() * 2.1 })
+        y.current = area.yTop
+        setDrop({ id: Date.now(), x: area.x0 + Math.random() * (area.x1 - area.x0) })
       },
       7000 + Math.random() * 13000,
     )
     return () => window.clearTimeout(timer)
-  }, [raining, drop])
+  }, [raining, drop, area])
 
   useEffect(() => {
     if (!label) return
@@ -157,7 +192,7 @@ function GoldenDrop({ raining }: { raining: boolean }) {
     if (!drop || !group.current) return
     y.current -= delta * 0.4
     group.current.position.y = y.current
-    if (y.current < 0.2) setDrop(null) // missed — it just joins the rain
+    if (y.current < area.yBottom) setDrop(null) // missed — it just joins the rain
   })
 
   return (
@@ -165,7 +200,7 @@ function GoldenDrop({ raining }: { raining: boolean }) {
       {drop && raining && (
         <group
           ref={group}
-          position={[drop.x, 2.0, -0.45]}
+          position={[drop.x, area.yTop, area.z]}
           onPointerDown={(e) => {
             e.stopPropagation()
             dispatch({ type: 'catchRaindrop' })
@@ -192,7 +227,7 @@ function GoldenDrop({ raining }: { raining: boolean }) {
         </group>
       )}
       {label && (
-        <Html position={[label.x, label.y + 0.1, -0.45]} center zIndexRange={[10, 0]}>
+        <Html position={[label.x, label.y + 0.1, area.z]} center zIndexRange={[10, 0]}>
           <div className="float-label">+{SIM.RAINDROP_DEWDROPS} 🫧</div>
         </Html>
       )}

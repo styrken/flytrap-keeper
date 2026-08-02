@@ -3,7 +3,7 @@
 // inward, so the camera can orbit outside the room and still see in (dollhouse
 // trick) — only the window wall is solid boxes, since the camera never gets
 // behind it.
-import { useGame } from '../store'
+import { useSceneState } from '../sceneView'
 import { daylightFactor } from './daylight'
 import { palette } from './palette'
 
@@ -295,8 +295,8 @@ export function Room() {
 
 /** Shop decor: each owned item pops up on its hand-picked spot in the room. */
 export function RoomDecor() {
-  const items = useGame((s) => s.state.inventory.items)
-  const lastTickAt = useGame((s) => s.state.lastTickAt)
+  const items = useSceneState((s) => s.inventory.items)
+  const lastTickAt = useSceneState((s) => s.lastTickAt)
   const dark = daylightFactor(lastTickAt) < 0.6
   return (
     <group>

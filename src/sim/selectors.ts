@@ -1,6 +1,14 @@
 import { SIM } from './config'
+import {
+  GREENHOUSE_CAPACITY,
+  MAX_PLANTS,
+  greenhousePlantCount,
+  hasGreenhouse,
+  inGreenhouse,
+  sillPlantCount,
+} from './shop'
 import { SPECIES } from './species'
-import type { GameState, PlantState, TrapState } from './types'
+import type { GameState, PlacementId, PlantState, TrapState } from './types'
 import { HOUR_MS } from './util'
 
 export const activePlant = (state: GameState): PlantState | undefined =>
@@ -91,6 +99,20 @@ export function stageProgress(plant: PlantState): StageProgress {
 
 export const lightLevel = (plant: PlantState): number =>
   SPECIES[plant.speciesId].lightLevels[plant.placement]
+
+/**
+ * Whether the plant could move to `placement` right now: unlocks owned and a
+ * free spot in the target room (sill and greenhouse bench each hold three).
+ */
+export function canMoveTo(state: GameState, plant: PlantState, placement: PlacementId): boolean {
+  if (placement === plant.placement) return false
+  if (placement === 'growlight' && !state.inventory.items.includes('growlight')) return false
+  if (placement === 'greenhouse') {
+    return hasGreenhouse(state) && greenhousePlantCount(state) < GREENHOUSE_CAPACITY
+  }
+  // Any windowsill spot: leaving the greenhouse needs a free spot on the sill.
+  return !inGreenhouse(plant) || sillPlantCount(state) < MAX_PLANTS
+}
 
 export type Mood = 'happy' | 'thirsty' | 'hungry' | 'dry' | 'sleepy' | 'wilted' | 'dead' | 'dormant'
 

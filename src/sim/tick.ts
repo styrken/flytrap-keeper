@@ -108,8 +108,12 @@ function stepPlant(
   if (species.passiveCatch && nutrition < SIM.PASSIVE_CATCH_CAP) {
     nutrition = Math.min(SIM.PASSIVE_CATCH_CAP, nutrition + SIM.PASSIVE_CATCH_PER_HOUR * hours)
   }
+  const humidityDrain =
+    plant.placement === 'greenhouse'
+      ? SIM.HUMIDITY_DECAY_PER_HOUR * SIM.GREENHOUSE_HUMIDITY_FACTOR
+      : SIM.HUMIDITY_DECAY_PER_HOUR
   const humidity = species.needsMisting
-    ? clamp(plant.humidity - SIM.HUMIDITY_DECAY_PER_HOUR * hours, 0, 100)
+    ? clamp(plant.humidity - humidityDrain * hours, 0, 100)
     : plant.humidity
 
   // A temperate plant kept awake through winter is exhausted: it never

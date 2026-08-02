@@ -330,10 +330,12 @@ _Mål: En Venus flytrap i 3D man reelt kan passe over flere dage — og som gemm
 - [x] Spilhastighed (speed mode): valgbart tempo ×1/×10/×60/×600 i indstillinger via et spil-ur i simmen (skala + ankre) — forfald, fordøjelse, vejr, årstider og dag/nat følger med, mens `updatedAt` forbliver væg-ur af hensyn til sky-synk. HUD'en viser spiltid med ⏩-badge; offline-loftet gælder fortsat i spiltimer; gamle saves migreres (v8).
 - [x] Passer-avatar i stedet for fast kamera: en lille blocky figur (grøn passer-kasket, fluefanger-badge) man går rundt med via WASD/piletaster eller virtuelt joystick på touch; gå-cyklus, drejning og blød følgekamera-logik. Kollision mod seng, skrivebord, stol, karm, vægge og den købte gulvlampe er ren, testbar matematik i `playerMovement.ts` (samme princip som sim-kernen). Klik-interaktionerne, insekt-minispillet og HUD'en er uændrede — figuren giver skala og nærvær, den gater ingen handlinger.
 - [x] Hop og klatring: mellemrum (eller Hop-knappen på touch) hopper — tyngdekraft, squash-and-stretch-landing og en løsrevet blob-skygge, der bliver på fladen under figuren. Møbeltoppe er gangbare flader: op på sengen og stolen fra gulvet, stol → skrivebord som lille platform-kæde (karmen er bevidst umulig — planterne skal have fred). Sengen er hoppebold: hårde landinger giver et lille "boing" og et hop. Hop-fysikken er rene funktioner med tests (apex-højde, kant-fald, seng-bounce).
+- [x] **Drivhuset**: købbart i butikken (250 🫧) — et glashus med egen scene (glasvægge/-tag, pottebord, tomatkasse) og tre ekstra pladser. Ny placering `greenhouse` med godt lys til alle arter og halveret fugtighedstab (godt til kandebæreren); rumskifter i HUD'en, insekter, minispil og passeren følger med derud (egne kollisions-bokse og spawn ved døren). Save-version 10 (ingen nye felter — bumpet så gamle klienter afviser fremfor at fejlsimulere den nye placering).
+- [x] **Venner, chat og besøg**: venneliste via brugernavn (anmod/acceptér — at tilføje tilbage ER at acceptere), 1:1-chat med ulæst-prik, og læse-besøg i vennens værelse/drivhus: klienten henter vennens save-blob og renderer den read-only (kig, men rør ikke — alle handlinger er slået fra, men passeren går med på besøg). Kræver sky-konto; serveren fik to nye endpoints (`/api/friends`, `/api/chat`) og to små tabeller (venskaber + beskeder) — den fortolker stadig ikke saves. Handel/gaver er fortsat bevidst fravalgt.
 
 ### Backlog (senere, efter lyst)
 
-Passkeys (WebAuthn) · PWA + påmindelser ("Your plant is thirsty 🌱") · rigtige vejrdata via API · dele/forære frø til venner · butterwort som art nr. 5 · flere sprog · drivhus-scene.
+Passkeys (WebAuthn) · PWA + påmindelser ("Your plant is thirsty 🌱") · rigtige vejrdata via API · dele/forære frø til venner · butterwort som art nr. 5 · flere sprog.
 
 ## 13. Risici og modtræk
 
@@ -352,7 +354,7 @@ Passkeys (WebAuthn) · PWA + påmindelser ("Your plant is thirsty 🌱") · rigt
 
 ## 14. Afgrænsning (bevidst fravalgt)
 
-Multiplayer og handel mellem spillere · mail, nyhedsbreve og tredjeparts-login · push-notifikationer · native apps · fotorealisme · monetization. Backenden forbliver en "dum" save-opbevaring — al spillogik bor i klienten.
+Handel og gaver mellem spillere · mail, nyhedsbreve og tredjeparts-login · push-notifikationer · native apps · fotorealisme · monetization. Backenden forbliver dum om spillet: den opbevarer saves, venskaber og chatbeskeder uden at fortolke dem — al spillogik bor i klienten. (Venneliste, chat og læse-besøg kom til efter launch som en bevidst, lille undtagelse fra "ingen multiplayer".)
 
 ## 15. Åbne spørgsmål
 

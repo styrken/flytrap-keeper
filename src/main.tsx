@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import App from './App'
 import { initAudioUnlock, initMusic } from './audio'
 import { initI18n } from './i18n'
+import { initSocial } from './socialStore'
 import { initGame, useGame } from './store'
 import './styles.css'
 
@@ -11,6 +12,7 @@ if (!root) throw new Error('Missing #root element')
 
 void initI18n().then((i18n) => {
   initGame()
+  initSocial()
   initAudioUnlock()
   initMusic()
   const { locale } = useGame.getState().state.settings

@@ -1,13 +1,16 @@
 import { describe, expect, it } from 'vitest'
 import {
   GRAVITY,
+  GREENHOUSE_BOUNDS,
   JUMP_VELOCITY,
   PLAYER_RADIUS,
   ROOM_BOUNDS,
   SPAWN,
   type VerticalState,
   groundAt,
+  roomBounds,
   roomColliders,
+  roomSpawn,
   stepPlayer,
   stepVertical,
 } from '../src/scene/playerMovement'
@@ -198,5 +201,43 @@ describe('jumping', () => {
     const { state, bounced } = simulate({ y: 0.65, vy: 0, grounded: false }, FLOOR, 3)
     expect(bounced).toBe(false)
     expect(state).toEqual({ y: 0, vy: 0, grounded: true })
+  })
+})
+
+describe('greenhouse movement', () => {
+  const glass = roomColliders([], 'greenhouse')
+
+  it('spawns by the door, inside the glass and clear of the fixtures', () => {
+    const spawn = roomSpawn('greenhouse')
+    const bounds = roomBounds('greenhouse')
+    expect(spawn.x).toBeGreaterThan(bounds.minX)
+    expect(spawn.x).toBeLessThan(bounds.maxX)
+    expect(spawn.z).toBeGreaterThan(bounds.minZ)
+    expect(spawn.z).toBeLessThan(bounds.maxZ)
+    for (const c of glass) {
+      const overlaps =
+        spawn.x > c.minX - PLAYER_RADIUS &&
+        spawn.x < c.maxX + PLAYER_RADIUS &&
+        spawn.z > c.minZ - PLAYER_RADIUS &&
+        spawn.z < c.maxZ + PLAYER_RADIUS
+      expect(overlaps, c.id).toBe(false)
+    }
+  })
+
+  it('the potting bench blocks the way to the plants', () => {
+    const bench = collider('bench', glass)
+    const next = stepPlayer({ x: 0, z: 1.4 }, { x: 0, z: -1.2 }, glass, 0, GREENHOUSE_BOUNDS)
+    expect(next.z).toBeCloseTo(bench.maxZ + PLAYER_RADIUS)
+  })
+
+  it('stays inside the glass walls', () => {
+    const out = stepPlayer({ x: 3.1, z: 2.8 }, { x: 1, z: 1 }, glass, 0, GREENHOUSE_BOUNDS)
+    expect(out.x).toBe(GREENHOUSE_BOUNDS.maxX)
+    expect(out.z).toBe(GREENHOUSE_BOUNDS.maxZ)
+  })
+
+  it('the bedroom stays the default room for old call sites', () => {
+    expect(roomColliders([]).some((c) => c.id === 'bed')).toBe(true)
+    expect(roomColliders([], 'greenhouse').some((c) => c.id === 'bed')).toBe(false)
   })
 })

@@ -54,3 +54,5 @@ After setup, every push to the default branch deploys to production and every pu
 - [x] Post-launch — full room (walls, bed, desk, second window) and buyable room decor
 - [x] Post-launch — a walkable keeper avatar: stroll the room with WASD/arrows (touch joystick on mobile) while the camera follows
 - [x] Post-launch — jumping: Space (or the Hop button) hops onto the bed and chair, chair → desk works, and the bed is bouncy
+- [x] Post-launch — greenhouse: a buyable glass room with three extra bench spots, bright light and humid air
+- [x] Post-launch — friends: add by username, chat, and visit each other's rooms read-only (requires a cloud account)

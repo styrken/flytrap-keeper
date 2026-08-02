@@ -28,7 +28,7 @@ export const SPECIES: Record<SpeciesId, SpeciesDef> = {
     needsMisting: false,
     passiveCatch: false,
     needsDormancy: true,
-    lightLevels: { 'south-window': 1, 'north-window': 0.55, growlight: 1.05 },
+    lightLevels: { 'south-window': 1, 'north-window': 0.55, growlight: 1.05, greenhouse: 1.1 },
     stages: [
       { xpThreshold: 0, trapCount: 1 },
       { xpThreshold: 300, trapCount: 2 },
@@ -42,7 +42,7 @@ export const SPECIES: Record<SpeciesId, SpeciesDef> = {
     needsMisting: false,
     passiveCatch: true,
     needsDormancy: false,
-    lightLevels: { 'south-window': 1, 'north-window': 0.7, growlight: 1.05 },
+    lightLevels: { 'south-window': 1, 'north-window': 0.7, growlight: 1.05, greenhouse: 1.1 },
     stages: [
       { xpThreshold: 0, trapCount: 3 },
       { xpThreshold: 300, trapCount: 4 },
@@ -56,7 +56,7 @@ export const SPECIES: Record<SpeciesId, SpeciesDef> = {
     needsMisting: true,
     passiveCatch: false,
     needsDormancy: false,
-    lightLevels: { 'south-window': 0.85, 'north-window': 0.6, growlight: 1.05 },
+    lightLevels: { 'south-window': 0.85, 'north-window': 0.6, growlight: 1.05, greenhouse: 1.15 },
     stages: [
       { xpThreshold: 0, trapCount: 1 },
       { xpThreshold: 300, trapCount: 2 },
@@ -70,7 +70,7 @@ export const SPECIES: Record<SpeciesId, SpeciesDef> = {
     needsMisting: false,
     passiveCatch: false,
     needsDormancy: true,
-    lightLevels: { 'south-window': 1, 'north-window': 0.45, growlight: 1 },
+    lightLevels: { 'south-window': 1, 'north-window': 0.45, growlight: 1, greenhouse: 1.15 },
     stages: [
       { xpThreshold: 0, trapCount: 2 },
       { xpThreshold: 300, trapCount: 3 },

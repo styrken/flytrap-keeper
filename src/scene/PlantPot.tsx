@@ -4,20 +4,22 @@ import { useRef, useState } from 'react'
 import type { Group } from 'three'
 import { playCatch, playPet } from '../audio'
 import { type PlantState, SIM, hasWeed } from '../sim'
+import { useIsVisiting, useSceneDispatch, useSceneState } from '../sceneView'
 import { useGame } from '../store'
 import { PlantKit } from './kits'
 import { palette } from './palette'
 import { POT_SLOTS } from './plantLayout'
 
 export function PlantPot({ plant, slot }: { plant: PlantState; slot: number }) {
-  const isActive = useGame((s) => s.state.activePlantId === plant.id)
-  const dispatch = useGame((s) => s.dispatch)
+  const isActive = useSceneState((s) => s.activePlantId === plant.id)
+  const visiting = useIsVisiting()
+  const dispatch = useSceneDispatch()
   const position = POT_SLOTS[slot] ?? POT_SLOTS[0]
   const potColor = plant.potColor ?? palette.pot
   const rimColor = plant.potColor ?? palette.potRim
-  const now = useGame((s) => s.state.lastTickAt)
+  const now = useSceneState((s) => s.lastTickAt)
   // During onboarding the pot sits empty until the seed is ceremonially planted.
-  const hideKit = useGame((s) => s.showOnboarding && !s.onboardingPlanted)
+  const hideKit = useGame((s) => s.showOnboarding && !s.onboardingPlanted) && !visiting
   const kitWrap = useRef<Group>(null)
   const pulseRequest = useRef(false)
   const pulseStart = useRef(-1)
@@ -48,6 +50,7 @@ export function PlantPot({ plant, slot }: { plant: PlantState; slot: number }) {
     <group
       position={position}
       onPointerDown={(e) => {
+        if (visiting) return // look, don't touch
         e.stopPropagation()
         if (!isActive) {
           dispatch({ type: 'selectPlant', plantId: plant.id })
@@ -61,7 +64,7 @@ export function PlantPot({ plant, slot }: { plant: PlantState; slot: number }) {
         popLabel('💚')
       }}
       onPointerOver={() => {
-        if (!plant.dead) document.body.style.cursor = 'pointer'
+        if (!plant.dead && !visiting) document.body.style.cursor = 'pointer'
       }}
       onPointerOut={() => {
         document.body.style.cursor = 'auto'
@@ -100,13 +103,14 @@ export function PlantPot({ plant, slot }: { plant: PlantState; slot: number }) {
         <group
           position={[0.16, 0.31, 0.13]}
           onPointerDown={(e) => {
+            if (visiting) return
             e.stopPropagation()
             dispatch({ type: 'pullWeed', plantId: plant.id })
             playCatch()
             popLabel(`+${SIM.WEED_DEWDROPS} 🫧`)
           }}
           onPointerOver={() => {
-            document.body.style.cursor = 'pointer'
+            if (!visiting) document.body.style.cursor = 'pointer'
           }}
           onPointerOut={() => {
             document.body.style.cursor = 'auto'

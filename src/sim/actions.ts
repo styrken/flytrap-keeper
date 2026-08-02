@@ -40,6 +40,20 @@ export function apply(state: GameState, action: Action, now: number): GameState 
       if (plant.humidity >= 100) return s
       return bumpCareStreak(withPlant(s, { ...plant, humidity: 100 }, now), now)
     }
+    case 'pet': {
+      if (plant.dead || plant.dormant) return s
+      if (plant.lastPetAt !== null && now - plant.lastPetAt < SIM.PET_COOLDOWN_HOURS * HOUR_MS) {
+        return s
+      }
+      const petted = withPlant(s, { ...plant, lastPetAt: now }, now)
+      return {
+        ...petted,
+        inventory: {
+          ...petted.inventory,
+          dewdrops: petted.inventory.dewdrops + SIM.PET_DEWDROPS,
+        },
+      }
+    }
     case 'feedPlant': {
       if (unavailable(plant) || plant.wilted || SPECIES[plant.speciesId].isSnapper) return s
       if (

@@ -46,6 +46,8 @@ export interface PlantState {
   trapSeq: number
   /** Hand-feeding cooldown for non-snapper species. */
   lastFedAt: number | null
+  /** Petting cooldown — affection pays a tiny dewdrop trickle. */
+  lastPetAt: number | null
   potColor: string | null
   flowering: FloweringState | null
   wilted: boolean
@@ -75,6 +77,7 @@ export type Action =
   | { type: 'water' }
   | { type: 'tapWater' }
   | { type: 'mist' }
+  | { type: 'pet' }
   | { type: 'feedTrap'; plantId: string; trapId: string }
   | { type: 'feedPlant' }
   | { type: 'catchInsect'; plantId: string; trapId: string; insect: InsectKind }

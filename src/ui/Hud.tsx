@@ -2,12 +2,15 @@ import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { playSplash, playToast } from '../audio'
 import {
+  HOUR_MS,
   SIM,
   activePlant,
   canFeedPlant,
   currentWeather,
   firstReadyTrap,
   mood,
+  msToNextStage,
+  nextTrapOpenAt,
   readyTrapCount,
   seasonAt,
   speciesOf,
@@ -67,6 +70,39 @@ export function Hud() {
   const barrelLow = state.weather.rainBarrel < SIM.WATER_COST
   const needsWater = plant.water < 99.5 && !plant.dormant && !plant.dead
   const winterRest = season === 'winter' && species.needsDormancy
+
+  // Context line: always tell the player what's happening and when.
+  const fmtDuration = (ms: number) => {
+    const minutes = Math.max(1, Math.round(ms / 60_000))
+    const days = Math.floor(minutes / 1440)
+    const hours = Math.floor((minutes % 1440) / 60)
+    const mins = minutes % 60
+    if (days > 0) return `${days}${t('time.day')} ${hours}${t('time.hour')}`
+    if (hours > 0) return `${hours}${t('time.hour')} ${mins}${t('time.min')}`
+    return `${mins}${t('time.min')}`
+  }
+  const statusLine = (() => {
+    if (species.isSnapper) {
+      if (ready > 0 && !plant.wilted && !plant.dormant && !plant.dead) return t('scene.hintSnap')
+      const opensAt = nextTrapOpenAt(plant)
+      if (opensAt && opensAt > now) {
+        return `⏳ ${t('status.trapDigesting', { name: plant.nickname, time: fmtDuration(opensAt - now) })}`
+      }
+    } else if (!plant.wilted && !canFeedPlant(plant, now) && plant.lastFedAt !== null) {
+      const fullUntil = plant.lastFedAt + SIM.FEED_PLANT_COOLDOWN_HOURS * HOUR_MS
+      if (fullUntil > now) {
+        return `⏳ ${t('status.fullFed', { name: plant.nickname, time: fmtDuration(fullUntil - now) })}`
+      }
+    }
+    if (weather === 'rain' && state.weather.rainBarrel < SIM.BARREL_CAP - 1) {
+      return `🌧️ ${t('status.rainFilling')}`
+    }
+    const eta = msToNextStage(plant)
+    if (eta !== null) {
+      return `🌱 ${t('status.growingEta', { stage: t(`stage.${plant.stage + 1}`), time: fmtDuration(eta) })}`
+    }
+    return species.isSnapper ? t('scene.hintSnap') : t('scene.hintCare')
+  })()
 
   return (
     <div className="hud">
@@ -230,7 +266,7 @@ export function Hud() {
             ))}
           </div>
         )}
-        <p className="hint">{species.isSnapper ? t('scene.hintSnap') : t('scene.hintCare')}</p>
+        <p className="hint">{statusLine}</p>
         <div className="actions">
           <button
             type="button"

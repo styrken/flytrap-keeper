@@ -199,6 +199,34 @@ describe('renaming', () => {
   })
 })
 
+describe('petting', () => {
+  it('pays a dewdrop at most once per cooldown', () => {
+    let state = apply(init(), { type: 'pet' }, T0)
+    expect(state.inventory.dewdrops).toBe(SIM.PET_DEWDROPS)
+    expect(activePlant(state)!.lastPetAt).toBe(T0)
+
+    const tooSoon = apply(state, { type: 'pet' }, T0 + h(0.5))
+    expect(tooSoon.inventory.dewdrops).toBe(SIM.PET_DEWDROPS)
+    expect(activePlant(tooSoon)!.lastPetAt).toBe(T0)
+
+    state = apply(state, { type: 'pet' }, T0 + h(SIM.PET_COOLDOWN_HOURS + 0.1))
+    expect(state.inventory.dewdrops).toBe(SIM.PET_DEWDROPS * 2)
+  })
+})
+
+describe('status helpers', () => {
+  it('reports when the next digesting trap reopens and estimates growth', async () => {
+    const { msToNextStage, nextTrapOpenAt, xpRatePerHour } = await import('../src/sim')
+    const fresh = activePlant(init())!
+    expect(nextTrapOpenAt(fresh)).toBeNull()
+    expect(xpRatePerHour(fresh)).toBeGreaterThan(0)
+    expect(msToNextStage(fresh)).toBeGreaterThan(0)
+
+    const fed = apply(init(), { type: 'feedTrap', plantId: 'p1', trapId: 't1' }, T0)
+    expect(nextTrapOpenAt(activePlant(fed)!)).toBe(T0 + h(SIM.DIGEST_HOURS))
+  })
+})
+
 describe('growth stages', () => {
   it('advancing past a threshold raises the stage and grows new traps', () => {
     const state = init()

@@ -6,6 +6,7 @@ import { RainBarrel } from './Barrel'
 import { Insects } from './Insects'
 import { palette } from './palette'
 import { PlantPot } from './PlantPot'
+import { Room } from './Room'
 import { WeatherSky } from './WeatherSky'
 
 const MODEL_WATERING_CAN = '/models/watering-can.glb'
@@ -15,6 +16,7 @@ export function Diorama() {
   const hasGnome = useGame((s) => s.state.inventory.items.includes('gnome'))
   return (
     <group>
+      <Room />
       <Windowsill />
       <WindowFrame />
       <WeatherSky />

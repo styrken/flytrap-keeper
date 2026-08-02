@@ -29,6 +29,44 @@ export const canFeedPlant = (plant: PlantState, now: number): boolean =>
   !plant.wilted &&
   (plant.lastFedAt === null || now - plant.lastFedAt >= SIM.FEED_PLANT_COOLDOWN_HOURS * HOUR_MS)
 
+export const canPet = (plant: PlantState, now: number): boolean =>
+  !plant.dead &&
+  !plant.dormant &&
+  (plant.lastPetAt === null || now - plant.lastPetAt >= SIM.PET_COOLDOWN_HOURS * HOUR_MS)
+
+/** When the next digesting trap reopens, or null if none are digesting. */
+export const nextTrapOpenAt = (plant: PlantState): number | null => {
+  const times = plant.traps
+    .map((trap) => trap.digestingUntil)
+    .filter((t): t is number => t !== null)
+  return times.length ? Math.min(...times) : null
+}
+
+/** Current growth speed under the present care — mirrors the tick formula. */
+export function xpRatePerHour(plant: PlantState): number {
+  if (plant.wilted || plant.dormant || plant.dead || plant.water <= 0) return 0
+  const species = speciesOf(plant)
+  const light = species.lightLevels[plant.placement]
+  const waterFactor =
+    plant.water >= SIM.WATER_OK_THRESHOLD ? 1 : plant.water / SIM.WATER_OK_THRESHOLD
+  const humidityFactor =
+    species.needsMisting && plant.humidity < SIM.HUMIDITY_OK
+      ? Math.max(0.4, plant.humidity / SIM.HUMIDITY_OK)
+      : 1
+  const nutritionBonus = 1 + SIM.NUTRITION_XP_BONUS_MAX * (plant.nutrition / 100)
+  return SIM.BASE_XP_PER_HOUR * light * waterFactor * humidityFactor * nutritionBonus
+}
+
+/** Rough time until the next stage at the current growth speed, or null. */
+export function msToNextStage(plant: PlantState): number | null {
+  const stages = SPECIES[plant.speciesId].stages
+  const next = stages[plant.stage + 1]?.xpThreshold
+  if (next === undefined) return null
+  const rate = xpRatePerHour(plant)
+  if (rate <= 0) return null
+  return ((next - plant.xp) / rate) * HOUR_MS
+}
+
 export interface StageProgress {
   stage: number
   isMax: boolean

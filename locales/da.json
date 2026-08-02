@@ -71,9 +71,18 @@
     "north-window": "Nordvindue",
     "growlight": "Growlampe"
   },
+  "time": {
+    "day": "d",
+    "hour": "t",
+    "min": "m"
+  },
   "status": {
     "wilted": "Åh nej — {{name}} er visnet. Hold den vandet, så kommer den til hægterne igen.",
     "tapWaterWarning": "Postevand virker i en snæver vending, men kalken koster lidt sundhed.",
+    "trapDigesting": "{{name}} fordøjer — fælden åbner igen om {{time}}",
+    "fullFed": "{{name}} er mæt — kan fodres igen om {{time}}",
+    "rainFilling": "Det regner — tønden fyldes op",
+    "growingEta": "{{stage}} om ca. {{time}} med denne pasning",
     "dormant": "{{name}} sover vintersøvn. 💤 Sov godt — vi ses til foråret.",
     "winterHint": "Det er vinter — {{name}} trænger til en lang lur. Springes den over, slides planten.",
     "flowerChoice": "{{name}} skyder en blomsterstilk! At klippe den er det sikre valg — blomstring koster kræfter, men giver frø.",

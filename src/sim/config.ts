@@ -65,5 +65,9 @@ export const SIM = {
   CUT_REWARD_DEWDROPS: 8,
   HARD_MODE_DEATH_HOURS: 72,
 
+  /** Petting: always a wiggle, a dewdrop at most once per cooldown. */
+  PET_COOLDOWN_HOURS: 1,
+  PET_DEWDROPS: 1,
+
   NICKNAME_MAX_LENGTH: 20,
 } as const

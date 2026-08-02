@@ -48,6 +48,7 @@ function blip(
 }
 
 export const playSnap = () => blip(320, 60, 0.12, 'square', 0.2)
+export const playPet = () => blip(660, 920, 0.1, 'sine', 0.07)
 export const playTease = () => blip(220, 140, 0.06, 'square', 0.05)
 export const playCatch = () => {
   blip(520, 880, 0.14, 'sine', 0.15)

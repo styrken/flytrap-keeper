@@ -71,9 +71,18 @@
     "north-window": "North window",
     "growlight": "Grow light"
   },
+  "time": {
+    "day": "d",
+    "hour": "h",
+    "min": "m"
+  },
   "status": {
     "wilted": "Oh no — {{name}} has wilted. Keep it watered and it will bounce back.",
     "tapWaterWarning": "Tap water works in a pinch, but the limescale costs a little health.",
+    "trapDigesting": "{{name}} is digesting — the trap reopens in {{time}}",
+    "fullFed": "{{name}} is full — feeding again in {{time}}",
+    "rainFilling": "It's raining — the barrel is filling up",
+    "growingEta": "{{stage}} in about {{time}} with this care",
     "dormant": "{{name}} is sleeping through winter. 💤 Sweet dreams until spring.",
     "winterHint": "It's winter — {{name}} would love a long nap. Skipping it wears the plant down.",
     "flowerChoice": "{{name}} is sending up a flower stalk! Cutting it is the safe choice — blooming costs strength but rewards seeds.",

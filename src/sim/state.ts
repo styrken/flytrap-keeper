@@ -26,6 +26,7 @@ export function createPlant(id: string, speciesId: SpeciesId): PlantState {
     traps: Array.from({ length: trapCount }, (_, i) => freshTrap(`t${i + 1}`)),
     trapSeq: trapCount,
     lastFedAt: null,
+    lastPetAt: null,
     potColor: null,
     flowering: null,
     wilted: false,

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  SAVE_VERSION,
   SIM,
   activePlant,
   apply,
@@ -173,7 +174,7 @@ describe('save migration v1 -> v2', () => {
 
     const loaded = loadFromString(JSON.stringify(v1))
     expect(loaded).not.toBeNull()
-    expect(loaded!.saveVersion).toBe(3)
+    expect(loaded!.saveVersion).toBe(SAVE_VERSION)
     expect(loaded!.weather.rainBarrel).toBe(60)
     expect(loaded!.settings.sound).toBe(true)
     expect(loaded!.careStreak).toEqual({ days: 0, lastDay: null })

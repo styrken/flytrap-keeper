@@ -4,6 +4,7 @@ import { canRainWater } from '../sim'
 import { useIsVisiting, useSceneDispatch, useSceneState } from '../sceneView'
 import { useGame } from '../store'
 import { RainBarrel } from './Barrel'
+import { Garden } from './Garden'
 import { Greenhouse } from './Greenhouse'
 import { Insects } from './Insects'
 import { palette } from './palette'
@@ -35,6 +36,17 @@ export function Diorama() {
           <RainBarrel position={[-1.3, 0.06, 0.16]} />
           {hasGnome && <Gnome position={[1.34, 0.06, -0.12]} />}
         </>
+      ) : room === 'garden' ? (
+        <>
+          <Garden />
+          {/* the barrel out here stands where it belongs: under the downspout */}
+          <RainBarrel position={[1.85, -0.884, -0.55]} />
+          {hasGnome && (
+            <group position={[-0.95, -0.884, -0.4]} scale={1.35}>
+              <Gnome position={[0, 0, 0]} />
+            </group>
+          )}
+        </>
       ) : (
         <>
           <Greenhouse />
@@ -46,7 +58,7 @@ export function Diorama() {
         <PlantPot key={plant.id} plant={plant} slot={slot} />
       ))}
       <Pets room={room} />
-      {!visiting && <Insects key={room} room={room} />}
+      {!visiting && room !== 'garden' && <Insects key={room} room={room} />}
     </group>
   )
 }

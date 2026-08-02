@@ -1,15 +1,19 @@
 import { describe, expect, it } from 'vitest'
 import {
+  GARDEN_BOUNDS,
   GRAVITY,
   GREENHOUSE_BOUNDS,
   JUMP_VELOCITY,
   PLAYER_RADIUS,
+  type PlayerRoom,
   ROOM_BOUNDS,
   SPAWN,
   type VerticalState,
+  doorwayAt,
   groundAt,
   roomBounds,
   roomColliders,
+  roomDoorways,
   roomSpawn,
   stepPlayer,
   stepVertical,
@@ -239,5 +243,114 @@ describe('greenhouse movement', () => {
   it('the bedroom stays the default room for old call sites', () => {
     expect(roomColliders([]).some((c) => c.id === 'bed')).toBe(true)
     expect(roomColliders([], 'greenhouse').some((c) => c.id === 'bed')).toBe(false)
+  })
+})
+
+describe('garden movement', () => {
+  const lawn = roomColliders(['greenhouse'], 'garden')
+
+  it('spawns on the path, inside the fence and clear of everything', () => {
+    const spawn = roomSpawn('garden')
+    expect(spawn.x).toBeGreaterThan(GARDEN_BOUNDS.minX)
+    expect(spawn.x).toBeLessThan(GARDEN_BOUNDS.maxX)
+    expect(spawn.z).toBeGreaterThan(GARDEN_BOUNDS.minZ)
+    expect(spawn.z).toBeLessThan(GARDEN_BOUNDS.maxZ)
+    for (const c of lawn) {
+      const overlaps =
+        spawn.x > c.minX - PLAYER_RADIUS &&
+        spawn.x < c.maxX + PLAYER_RADIUS &&
+        spawn.z > c.minZ - PLAYER_RADIUS &&
+        spawn.z < c.maxZ + PLAYER_RADIUS
+      expect(overlaps, c.id).toBe(false)
+    }
+  })
+
+  it('the picket fence keeps the keeper on the lawn', () => {
+    const out = stepPlayer({ x: 5.9, z: 6.1 }, { x: 1, z: 1 }, lawn, 0, GARDEN_BOUNDS)
+    expect(out.x).toBe(GARDEN_BOUNDS.maxX)
+    expect(out.z).toBe(GARDEN_BOUNDS.maxZ)
+    const west = stepPlayer({ x: -5.9, z: 3 }, { x: -1, z: 0 }, lawn, 0, GARDEN_BOUNDS)
+    expect(west.x).toBe(GARDEN_BOUNDS.minX)
+  })
+
+  it('the apple tree trunk blocks the way', () => {
+    const tree = collider('tree', lawn)
+    const next = stepPlayer({ x: 5.4, z: 5.0 }, { x: 0, z: 0.6 }, lawn, 0, GARDEN_BOUNDS)
+    expect(next.z).toBeCloseTo(tree.minZ - PLAYER_RADIUS)
+  })
+
+  it('the greenhouse stands solid only once it is owned', () => {
+    const start = { x: 4.6, z: 1.6 }
+    const move = { x: 0, z: -0.5 }
+    const without = stepPlayer(start, move, roomColliders([], 'garden'), 0, GARDEN_BOUNDS)
+    expect(without.z).toBeCloseTo(1.1)
+    const glass = collider('garden-greenhouse', lawn)
+    const blocked = stepPlayer(start, move, lawn, 0, GARDEN_BOUNDS)
+    expect(blocked.z).toBeCloseTo(glass.maxZ + PLAYER_RADIUS)
+  })
+})
+
+describe('doorways', () => {
+  const ALL_ITEMS = ['lamp', 'computer', 'greenhouse']
+  const ROOMS: PlayerRoom[] = ['bedroom', 'garden', 'greenhouse']
+
+  it('walking into the bedroom door steps out into the garden', () => {
+    // pushing east at the door: the wall bound stops the feet inside the mat
+    const atDoor = stepPlayer({ x: 3.1, z: 2.95 }, { x: 0.4, z: 0 }, roomColliders(ALL_ITEMS))
+    expect(doorwayAt('bedroom', atDoor, true)?.to).toBe('garden')
+    // same push a stride further north hits plain wall
+    const atWall = stepPlayer({ x: 3.1, z: 3.6 }, { x: 0.4, z: 0 }, roomColliders(ALL_ITEMS))
+    expect(doorwayAt('bedroom', atWall, true)).toBeNull()
+  })
+
+  it('the front door leads back into the bedroom', () => {
+    const lawn = roomColliders([], 'garden')
+    const atDoor = stepPlayer({ x: 0.9, z: -0.3 }, { x: 0, z: -0.5 }, lawn, 0, GARDEN_BOUNDS)
+    expect(doorwayAt('garden', atDoor, false)?.to).toBe('bedroom')
+  })
+
+  it('the greenhouse door works only once the greenhouse is owned', () => {
+    const lawn = roomColliders(ALL_ITEMS, 'garden')
+    const atDoor = stepPlayer({ x: 4.6, z: 1.6 }, { x: 0, z: -0.5 }, lawn, 0, GARDEN_BOUNDS)
+    expect(doorwayAt('garden', atDoor, true)?.to).toBe('greenhouse')
+    expect(doorwayAt('garden', atDoor, false)).toBeNull()
+  })
+
+  it('the greenhouse doorway gap leads out to the garden', () => {
+    const glass = roomColliders(ALL_ITEMS, 'greenhouse')
+    const out = stepPlayer({ x: 0, z: 2.7 }, { x: 0, z: 0.5 }, glass, 0, GREENHOUSE_BOUNDS)
+    expect(doorwayAt('greenhouse', out, true)?.to).toBe('garden')
+    // hugging the front glass off to the side is not going through the door
+    const aside = stepPlayer({ x: 1.5, z: 2.7 }, { x: 0, z: 0.5 }, glass, 0, GREENHOUSE_BOUNDS)
+    expect(doorwayAt('greenhouse', aside, true)).toBeNull()
+  })
+
+  it('open floor is never a door mat', () => {
+    expect(doorwayAt('bedroom', { x: 0.5, z: 2.3 }, true)).toBeNull()
+    expect(doorwayAt('garden', { x: 0.9, z: 2.6 }, true)).toBeNull()
+    expect(doorwayAt('greenhouse', { x: 0, z: 2.45 }, true)).toBeNull()
+  })
+
+  it('every arrival spot is in bounds, off the mats and clear of furniture', () => {
+    for (const room of ROOMS) {
+      for (const door of roomDoorways(room)) {
+        const { to, spawn } = door
+        const bounds = roomBounds(to)
+        expect(spawn.x, `${room}→${to} x`).toBeGreaterThan(bounds.minX - 1e-6)
+        expect(spawn.x, `${room}→${to} x`).toBeLessThan(bounds.maxX + 1e-6)
+        expect(spawn.z, `${room}→${to} z`).toBeGreaterThan(bounds.minZ - 1e-6)
+        expect(spawn.z, `${room}→${to} z`).toBeLessThan(bounds.maxZ + 1e-6)
+        // never arrive standing on a mat — that would bounce you straight back
+        expect(doorwayAt(to, spawn, true), `${room}→${to} mat`).toBeNull()
+        for (const c of roomColliders(ALL_ITEMS, to)) {
+          const overlaps =
+            spawn.x > c.minX - PLAYER_RADIUS &&
+            spawn.x < c.maxX + PLAYER_RADIUS &&
+            spawn.z > c.minZ - PLAYER_RADIUS &&
+            spawn.z < c.maxZ + PLAYER_RADIUS
+          expect(overlaps, `${room}→${to} inside ${c.id}`).toBe(false)
+        }
+      }
+    }
   })
 })

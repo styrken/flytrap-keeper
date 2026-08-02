@@ -18,6 +18,7 @@ import {
   stageProgress,
 } from '../sim'
 import { useGame } from '../store'
+import { FlytrapIcon } from './FlytrapIcon'
 import { Meter } from './Meter'
 import { PourGame } from './PourGame'
 
@@ -33,7 +34,12 @@ const MOOD_ICON = {
 } as const
 const WEATHER_ICON = { sun: '☀️', clouds: '☁️', rain: '🌧️' } as const
 const SEASON_ICON = { spring: '🌸', summer: '🌻', autumn: '🍂', winter: '❄️' } as const
-const SPECIES_ICON = { dionaea: '🪤', drosera: '✨', nepenthes: '🏺', sarracenia: '🎺' } as const
+const SPECIES_ICON = {
+  dionaea: <FlytrapIcon size={14} />,
+  drosera: '✨',
+  nepenthes: '🏺',
+  sarracenia: '🎺',
+} as const
 
 export function Hud() {
   const { t } = useTranslation()

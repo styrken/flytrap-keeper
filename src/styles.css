@@ -368,6 +368,12 @@ h1 {
 .seed-art {
   font-size: 2.4rem;
   grid-row: span 2;
+  display: flex;
+  align-items: center;
+}
+
+.flytrap-icon {
+  vertical-align: -0.12em;
 }
 
 .seed-text {

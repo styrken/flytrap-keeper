@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { activePlant } from '../sim'
 import { useGame } from '../store'
+import { FlytrapIcon } from './FlytrapIcon'
 
 export function Onboarding() {
   const { t } = useTranslation()
@@ -28,7 +29,9 @@ export function Onboarding() {
             <p className="onboarding-welcome">{t('onboarding.welcome1')}</p>
             <ul className="onboarding-tips">
               <li>💧 {t('onboarding.tip1')}</li>
-              <li>🪤 {t('onboarding.tip2')}</li>
+              <li>
+                <FlytrapIcon size={15} /> {t('onboarding.tip2')}
+              </li>
               <li>☀️ {t('onboarding.tip3')}</li>
             </ul>
             <button type="button" className="onboarding-start" onClick={() => setStep(1)}>
@@ -42,7 +45,7 @@ export function Onboarding() {
             <h2>🌱 {t('onboarding.seeTheSeed')}</h2>
             <div className="seed-packet">
               <span className="seed-art" aria-hidden="true">
-                🪤
+                <FlytrapIcon size={46} />
               </span>
               <div className="seed-text">
                 <strong>{t('onboarding.packetName')}</strong>

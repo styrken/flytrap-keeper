@@ -1,9 +1,11 @@
+import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { SPECIES, type SpeciesId } from '../sim'
 import { useGame } from '../store'
+import { FlytrapIcon } from './FlytrapIcon'
 
-const SPECIES_ICON: Record<SpeciesId, string> = {
-  dionaea: '🪤',
+const SPECIES_ICON: Record<SpeciesId, ReactNode> = {
+  dionaea: <FlytrapIcon size={16} />,
   drosera: '✨',
   nepenthes: '🏺',
   sarracenia: '🎺',

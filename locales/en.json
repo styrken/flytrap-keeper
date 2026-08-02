@@ -4,8 +4,32 @@
     "tagline": "a Venus flytrap tale",
     "stage": "pre-alpha"
   },
+  "stats": {
+    "water": "Water",
+    "nutrition": "Nutrition",
+    "health": "Health"
+  },
+  "stage": {
+    "0": "Seedling",
+    "1": "Young plant",
+    "2": "Adult",
+    "3": "Mature",
+    "next": "Growth to next stage"
+  },
+  "actions": {
+    "water": "Water",
+    "feed": "Feed",
+    "spot": "Window spot"
+  },
+  "placement": {
+    "south-window": "South window",
+    "north-window": "North window"
+  },
+  "status": {
+    "wilted": "Oh no — {{name}} has wilted. Keep it watered and it will bounce back."
+  },
   "scene": {
     "hintDrag": "Drag to look around",
-    "hintSnap": "Tap a trap — it loves a little attention"
+    "hintSnap": "Tap an open trap to feed it"
   }
 }

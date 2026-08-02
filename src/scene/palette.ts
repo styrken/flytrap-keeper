@@ -1,0 +1,17 @@
+export const palette = {
+  sill: '#c99e6d',
+  frame: '#f6f1e6',
+  sky: '#9fd3ea',
+  skyDim: '#b9c9d4',
+  sun: '#f7d154',
+  pot: '#c96f4a',
+  potRim: '#b35c3a',
+  soil: '#4a3527',
+  stem: '#3f9b4f',
+  stemWilted: '#7a8a58',
+  trap: '#58b862',
+  trapWilted: '#6f9a5d',
+  trapWithered: '#8a7355',
+  mouth: '#d4506e',
+  mouthWithered: '#7a6248',
+} as const

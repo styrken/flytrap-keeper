@@ -273,15 +273,15 @@ Estimaterne er kalendertid i hobbytempo (aftener/weekender). 3D koster lidt ekst
 
 _Mål: En Venus flytrap i 3D man reelt kan passe over flere dage — og som gemmes lokalt._
 
-- [ ] Sim-kerne: `GameState`, `tick`, offline catch-up, seedet RNG
-- [ ] Stats (vand/næring/sundhed) + placeringer og lys
-- [ ] Handlinger via raycast + HUD: vand, fodr (klik på fælde), flyt placering
-- [ ] Fælde-slid: 3 brug pr. fælde + fordøjelsestid (lukket fælde i 3D)
-- [ ] Vækst: XP + stadier via modulær klods-plante
-- [ ] Visnen (slatten positur, afdæmpede farver) + genopretning — ingen permanent død
-- [ ] Save/load i localStorage med versionering
-- [ ] HUD: behovsmålere, handlingsknapper — mobil-først, store touch-mål
-- [ ] Vitest: forfald, catch-up, vækst, fælde-regler ("7 dages pasning" som test)
+- [x] Sim-kerne: `GameState`, `tick`, offline catch-up, seedet RNG
+- [x] Stats (vand/næring/sundhed) + placeringer og lys
+- [x] Handlinger via raycast + HUD: vand, fodr (klik på fælde), flyt placering
+- [x] Fælde-slid: 3 brug pr. fælde + fordøjelsestid (lukket fælde i 3D) + genvækst efter 24 t
+- [x] Vækst: XP + stadier via modulær klods-plante
+- [x] Visnen (slatten positur, afdæmpede farver) + genopretning — ingen permanent død
+- [x] Save/load i localStorage med versionering
+- [x] HUD: behovsmålere, handlingsknapper — mobil-først, store touch-mål
+- [x] Vitest: forfald, catch-up, vækst, fælde-regler ("7 dages pasning" som test)
 
 **Definition of done:** Kan spilles på telefon og desktop; en uges simuleret pasning opfører sig korrekt; visnen kan altid vendes; kører flydende på midrange-mobil.
 

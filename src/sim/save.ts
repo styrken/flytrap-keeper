@@ -1,0 +1,54 @@
+import type { GameState } from './types'
+
+export const SAVE_KEY = 'flytrap-keeper:save'
+export const SAVE_VERSION = 1
+
+type RawSave = Record<string, unknown>
+type Migration = (data: RawSave) => RawSave
+
+/** Keyed by the version being migrated FROM. Runs in sequence up to SAVE_VERSION. */
+const MIGRATIONS: Record<number, Migration> = {}
+
+export function saveToString(state: GameState): string {
+  return JSON.stringify(state)
+}
+
+/** Returns null for corrupt, unrecognizable, or newer-than-us saves. */
+export function loadFromString(raw: string): GameState | null {
+  let data: unknown
+  try {
+    data = JSON.parse(raw)
+  } catch {
+    return null
+  }
+  if (typeof data !== 'object' || data === null) return null
+
+  let save = data as RawSave
+  let version = typeof save.saveVersion === 'number' ? save.saveVersion : NaN
+  if (!Number.isFinite(version) || version > SAVE_VERSION) return null
+
+  while (version < SAVE_VERSION) {
+    const migrate = MIGRATIONS[version]
+    if (!migrate) return null
+    save = migrate(save)
+    version += 1
+    save.saveVersion = version
+  }
+
+  return looksLikeGameState(save) ? (save as unknown as GameState) : null
+}
+
+function looksLikeGameState(data: RawSave): boolean {
+  if (typeof data.lastTickAt !== 'number' || typeof data.rngSeed !== 'number') return false
+  if (!Array.isArray(data.plants) || data.plants.length === 0) return false
+  const plant = data.plants[0] as RawSave
+  return (
+    typeof plant === 'object' &&
+    plant !== null &&
+    typeof plant.water === 'number' &&
+    typeof plant.nutrition === 'number' &&
+    typeof plant.health === 'number' &&
+    typeof plant.xp === 'number' &&
+    Array.isArray(plant.traps)
+  )
+}

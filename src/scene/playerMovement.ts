@@ -65,17 +65,24 @@ export interface Bounds {
   maxZ: number
 }
 
-/** Inside the greenhouse's brick base walls (the doorway stays decorative). */
+/** Inside the greenhouse's brick base walls (the doorway leads to the garden). */
 export const GREENHOUSE_BOUNDS: Bounds = { minX: -3.25, maxX: 3.25, minZ: -0.78, maxZ: 2.95 }
 
-export type PlayerRoom = 'bedroom' | 'greenhouse'
+/** Inside the garden's picket fence, up against the house facade to the north. */
+export const GARDEN_BOUNDS: Bounds = { minX: -6.05, maxX: 6.05, minZ: -0.66, maxZ: 6.28 }
+
+export type PlayerRoom = 'bedroom' | 'greenhouse' | 'garden'
 
 export const roomBounds = (room: PlayerRoom): Bounds =>
-  room === 'greenhouse' ? GREENHOUSE_BOUNDS : ROOM_BOUNDS
+  room === 'greenhouse' ? GREENHOUSE_BOUNDS : room === 'garden' ? GARDEN_BOUNDS : ROOM_BOUNDS
 
-/** Where the keeper stands when a room is entered. */
+/** Where the keeper stands when a room is entered from the HUD. */
 export const roomSpawn = (room: PlayerRoom): { x: number; z: number; yaw: number } =>
-  room === 'greenhouse' ? { x: 0, z: 2.45, yaw: Math.PI } : SPAWN
+  room === 'greenhouse'
+    ? { x: 0, z: 2.45, yaw: Math.PI }
+    : room === 'garden'
+      ? { x: 0.9, z: 2.6, yaw: Math.PI } // on the path, admiring the house
+      : SPAWN
 
 /** Footprints of the fixed furniture (positions from Room.tsx / Diorama.tsx). */
 const FURNITURE: Collider[] = [
@@ -102,6 +109,34 @@ const GREENHOUSE_FURNITURE: Collider[] = [
   { id: 'barrel', minX: -2.85, maxX: -2.35, minZ: 1.35, maxZ: 1.85, height: WALL },
 ]
 
+/** Footprints of the garden fixtures (positions from Garden.tsx). */
+const GARDEN_FURNITURE: Collider[] = [
+  // flower box under the big window
+  { id: 'flowerbed', minX: -3.55, maxX: -1.25, minZ: -1.1, maxZ: -0.56, height: WALL },
+  // rain barrel under the downspout, right of the front door
+  { id: 'garden-barrel', minX: 1.6, maxX: 2.1, minZ: -0.8, maxZ: -0.3, height: WALL },
+  // the old apple tree (trunk only — the canopy is well above head height)
+  { id: 'tree', minX: 5.15, maxX: 5.65, minZ: 5.65, maxZ: 6.15, height: WALL },
+  // letterbox by the gate
+  { id: 'mailbox', minX: 1.52, maxX: 1.88, minZ: 5.84, maxZ: 6.16, height: WALL },
+  // clothesline poles
+  { id: 'pole-w', minX: -5.42, maxX: -5.18, minZ: 2.18, maxZ: 2.42, height: WALL },
+  { id: 'pole-e', minX: -3.12, maxX: -2.88, minZ: 2.18, maxZ: 2.42, height: WALL },
+  // shrubs in the south-west corner and along the east fence
+  { id: 'bush-sw', minX: -6.1, maxX: -5.15, minZ: 5.25, maxZ: 6.1, height: WALL },
+  { id: 'bush-e', minX: 5.45, maxX: 6.1, minZ: 2.3, maxZ: 2.95, height: WALL },
+]
+
+/** The greenhouse standing in the garden — solid only once it is owned. */
+const GARDEN_GREENHOUSE: Collider = {
+  id: 'garden-greenhouse',
+  minX: 3.2,
+  maxX: 6.0,
+  minZ: -1.1,
+  maxZ: 0.95,
+  height: WALL,
+}
+
 /** Decor that becomes solid once it actually stands in the room. */
 const LAMP: Collider = {
   id: 'lamp',
@@ -123,10 +158,98 @@ const COMPUTER: Collider = {
 /** The solid obstacles of a room, given the displayed garden's shop items. */
 export function roomColliders(items: readonly string[], room: PlayerRoom = 'bedroom'): Collider[] {
   if (room === 'greenhouse') return [...GREENHOUSE_FURNITURE]
+  if (room === 'garden') {
+    const colliders = [...GARDEN_FURNITURE]
+    if (items.includes('greenhouse')) colliders.push(GARDEN_GREENHOUSE)
+    return colliders
+  }
   const colliders = [...FURNITURE]
   if (items.includes('lamp')) colliders.push(LAMP)
   if (items.includes('computer')) colliders.push(COMPUTER)
   return colliders
+}
+
+/* --------------------------------- doorways ---------------------------------- */
+
+export interface Doorway {
+  /** Where this door leads. */
+  to: PlayerRoom
+  /** The door mat: step into this zone and you walk through. */
+  minX: number
+  maxX: number
+  minZ: number
+  maxZ: number
+  /** Where you arrive on the other side — clear of that room's own door mats. */
+  spawn: { x: number; z: number; yaw: number }
+  /** The garden's greenhouse door only exists once the greenhouse is owned. */
+  needsGreenhouse?: boolean
+}
+
+/**
+ * The doors that stitch the world together: the bedroom door opens onto the
+ * garden, the house's front door leads back in, and the greenhouse (once
+ * owned) can be entered from the garden and left through its doorway gap.
+ * Every mat sits against a wall or bound, so you trigger it by deliberately
+ * walking into the door — never by strolling past.
+ */
+const DOORWAYS: Record<PlayerRoom, Doorway[]> = {
+  bedroom: [
+    // the door in the right wall, out to the garden
+    {
+      to: 'garden',
+      minX: 3.17,
+      maxX: 3.4,
+      minZ: 2.62,
+      maxZ: 3.28,
+      spawn: { x: 0.9, z: -0.1, yaw: 0 },
+    },
+  ],
+  garden: [
+    // the front door of the house, back into the bedroom
+    {
+      to: 'bedroom',
+      minX: 0.55,
+      maxX: 1.25,
+      minZ: -0.9,
+      maxZ: -0.52,
+      spawn: { x: 2.82, z: 2.95, yaw: -Math.PI / 2 },
+    },
+    // the greenhouse door on its south face
+    {
+      to: 'greenhouse',
+      minX: 4.3,
+      maxX: 4.9,
+      minZ: 0.95,
+      maxZ: 1.28,
+      needsGreenhouse: true,
+      spawn: { x: 0, z: 2.45, yaw: Math.PI },
+    },
+  ],
+  greenhouse: [
+    // the doorway gap in the front base wall, out to the garden
+    {
+      to: 'garden',
+      minX: -0.45,
+      maxX: 0.45,
+      minZ: 2.88,
+      maxZ: 3.1,
+      spawn: { x: 4.6, z: 1.6, yaw: 0 },
+    },
+  ],
+}
+
+/** The doorways leading out of `room` (for tests and tooling). */
+export const roomDoorways = (room: PlayerRoom): readonly Doorway[] => DOORWAYS[room]
+
+/** The doorway the keeper is standing in, if any. */
+export function doorwayAt(room: PlayerRoom, pos: Vec2, greenhouseOwned: boolean): Doorway | null {
+  for (const door of DOORWAYS[room]) {
+    if (door.needsGreenhouse && !greenhouseOwned) continue
+    if (pos.x > door.minX && pos.x < door.maxX && pos.z > door.minZ && pos.z < door.maxZ) {
+      return door
+    }
+  }
+  return null
 }
 
 /** Whether a collider blocks someone whose feet are at `feetY`: walkable tops

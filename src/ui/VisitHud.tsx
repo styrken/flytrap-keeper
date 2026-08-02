@@ -44,7 +44,7 @@ export function VisitHud() {
   if (!visiting) return null
   const { state, username } = visiting
   const winter = seasonAt(state.lastTickAt) === 'winter'
-  const showRooms = state.plants.some((plant) => roomOfPlant(plant) === 'greenhouse')
+  const showGreenhouse = state.plants.some((plant) => roomOfPlant(plant) === 'greenhouse')
 
   return (
     <div className="hud">
@@ -56,15 +56,22 @@ export function VisitHud() {
       </header>
 
       <footer className="hud-bottom">
-        {showRooms && (
-          <div className="plant-switcher" role="group" aria-label={t('actions.spot')}>
-            <button
-              type="button"
-              className={roomView === 'bedroom' ? 'active' : ''}
-              onClick={() => setRoomView('bedroom')}
-            >
-              🛏️ {t('room.bedroom')}
-            </button>
+        <div className="plant-switcher" role="group" aria-label={t('actions.spot')}>
+          <button
+            type="button"
+            className={roomView === 'bedroom' ? 'active' : ''}
+            onClick={() => setRoomView('bedroom')}
+          >
+            🛏️ {t('room.bedroom')}
+          </button>
+          <button
+            type="button"
+            className={roomView === 'garden' ? 'active' : ''}
+            onClick={() => setRoomView('garden')}
+          >
+            🌳 {t('room.garden')}
+          </button>
+          {showGreenhouse && (
             <button
               type="button"
               className={roomView === 'greenhouse' ? 'active' : ''}
@@ -72,8 +79,8 @@ export function VisitHud() {
             >
               🌿 {t('room.greenhouse')}
             </button>
-          </div>
-        )}
+          )}
+        </div>
         {state.plants.length > 1 && (
           <div className="plant-switcher">
             {state.plants.map((plant) => (

@@ -115,6 +115,7 @@
   },
   "room": {
     "bedroom": "Room",
+    "garden": "Garden",
     "greenhouse": "Greenhouse"
   },
   "time": {

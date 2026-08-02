@@ -413,15 +413,22 @@ export function Hud() {
       </div>
 
       <footer className="hud-bottom">
-        {hasGreenhouse(state) && (
-          <div className="plant-switcher room-switcher" role="group" aria-label={t('actions.spot')}>
-            <button
-              type="button"
-              className={roomView === 'bedroom' ? 'active' : ''}
-              onClick={() => setRoomView('bedroom')}
-            >
-              🛏️ {t('room.bedroom')}
-            </button>
+        <div className="plant-switcher room-switcher" role="group" aria-label={t('actions.spot')}>
+          <button
+            type="button"
+            className={roomView === 'bedroom' ? 'active' : ''}
+            onClick={() => setRoomView('bedroom')}
+          >
+            🛏️ {t('room.bedroom')}
+          </button>
+          <button
+            type="button"
+            className={roomView === 'garden' ? 'active' : ''}
+            onClick={() => setRoomView('garden')}
+          >
+            🌳 {t('room.garden')}
+          </button>
+          {hasGreenhouse(state) && (
             <button
               type="button"
               className={roomView === 'greenhouse' ? 'active' : ''}
@@ -429,8 +436,8 @@ export function Hud() {
             >
               🌿 {t('room.greenhouse')}
             </button>
-          </div>
-        )}
+          )}
+        </div>
         {state.plants.length > 1 && (
           <div className="plant-switcher">
             {state.plants.map((candidate) => (

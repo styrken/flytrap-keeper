@@ -13,6 +13,7 @@ import {
   PLAYER_SPEED,
   SPAWN,
   type VerticalState,
+  doorwayAt,
   groundAt,
   roomBounds,
   roomColliders,
@@ -73,11 +74,13 @@ export function Player() {
   const friendsOpen = useSocial((s) => s.showFriends)
   const uiOpen = dialogOpen || friendsOpen
   const room = useGame((s) => s.roomView)
+  const setRoomView = useGame((s) => s.setRoomView)
   const visitingAt = useSocial((s) => s.visiting?.username ?? null)
   // Displayed decor is solid — the friend's floor lamp blocks you too.
   const items = useSceneState((s) => s.inventory.items)
   const colliders = useMemo(() => roomColliders(items, room), [items, room])
   const bounds = useMemo(() => roomBounds(room), [room])
+  const greenhouseOwned = items.includes('greenhouse')
 
   const root = useRef<Group>(null)
   const shadow = useRef<Mesh>(null)
@@ -92,12 +95,16 @@ export function Player() {
   const speed = useRef(0)
   const phase = useRef(0)
   const squash = useRef(0)
+  // Set when walking through a door, so the next room starts just inside it.
+  const doorSpawn = useRef<{ x: number; z: number; yaw: number } | null>(null)
 
   useEffect(() => initPlayerInput(), [])
 
-  // Entering a room — or someone else's garden — puts the keeper at its door.
+  // Entering a room — through a door, the HUD, or someone else's garden —
+  // puts the keeper at the matching threshold.
   useEffect(() => {
-    const spawn = roomSpawn(room)
+    const spawn = doorSpawn.current ?? roomSpawn(room)
+    doorSpawn.current = null
     pos.current = { x: spawn.x, z: spawn.z }
     vert.current = { y: 0, vy: 0, grounded: true }
     yaw.current = spawn.yaw
@@ -134,6 +141,14 @@ export function Player() {
       pos.current.x = step.x
       pos.current.z = step.z
       targetYaw.current = Math.atan2(moveDir.x, moveDir.z)
+
+      // Doors are walked through, not clicked: step onto the mat and go.
+      const door = doorwayAt(room, pos.current, greenhouseOwned)
+      if (door) {
+        doorSpawn.current = door.spawn
+        setRoomView(door.to)
+        return
+      }
     }
 
     // Vertical: gravity, jumping, landing — with a bounce when the bed breaks

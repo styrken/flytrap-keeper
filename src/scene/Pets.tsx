@@ -35,6 +35,10 @@ export function Pets({ room }: { room: RoomView }) {
       </group>
     )
   }
+  if (room === 'garden') {
+    // The night hedgehog patrols this lawn too — same guest, bigger beat.
+    return <Hedgehog />
+  }
   return (
     <group>
       {pets.tadpoleSince !== null && stage < 4 && <TadpoleJar stage={stage} />}

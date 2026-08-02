@@ -22,7 +22,7 @@ const ONBOARDED_KEY = 'flytrap-keeper:onboarded'
  */
 export const gameNow = () => toGameTime(useGame.getState().state.time, Date.now())
 
-export type RoomView = 'bedroom' | 'greenhouse'
+export type RoomView = 'bedroom' | 'greenhouse' | 'garden'
 
 /** The HUD stats a player can tap to open the little explainer dialog. */
 export const STAT_INFO_IDS = [
@@ -131,8 +131,9 @@ export const useGame = create<GameStore>()((set, get) => ({
   adoptState: (rawState) => {
     const state = tick(rawState, Date.now())
     set({ state, conflict: null })
-    // An adopted save without a greenhouse can't leave the camera stranded there.
-    if (!hasGreenhouse(state)) set({ roomView: 'bedroom' })
+    // An adopted save without a greenhouse can't leave the camera stranded
+    // there. (The garden is always there — no guard needed.)
+    if (get().roomView === 'greenhouse' && !hasGreenhouse(state)) set({ roomView: 'bedroom' })
     persist(state)
     armTicker()
   },

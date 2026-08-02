@@ -170,11 +170,16 @@ function stepPlant(
     stage += 1
   }
 
-  // Flowering (flytrap only, phase 5): the stalk appears at peak condition.
+  // Flowering (flytrap only, phase 5): the stalk appears at peak condition —
+  // but only after resting since the last one, so the cut/bloom choice sticks.
   let flowering = plant.flowering
+  let lastFloweringEndedAt = plant.lastFloweringEndedAt
+  const rested =
+    lastFloweringEndedAt === null || t - lastFloweringEndedAt >= SIM.FLOWER_REST_HOURS * HOUR_MS
   if (
     species.id === 'dionaea' &&
     flowering === null &&
+    rested &&
     stage >= 3 &&
     xp >= SIM.FLOWER_XP &&
     !wilted &&
@@ -191,6 +196,7 @@ function stepPlant(
     )
     if (t - flowering.startedAt >= SIM.BLOOM_HOURS * HOUR_MS) {
       flowering = null
+      lastFloweringEndedAt = t
       events.bloomed = true
       bloomedNow = true
     }
@@ -233,6 +239,7 @@ function stepPlant(
     traps,
     trapSeq,
     flowering,
+    lastFloweringEndedAt,
     criticalSince,
     dead,
   }

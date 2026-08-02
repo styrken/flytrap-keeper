@@ -351,14 +351,29 @@ function applyAction(s: GameState, action: Action, now: number, realNow: number)
       if (plant.dead || !SPECIES[plant.speciesId].needsDormancy) return s
       if (action.on) {
         if (seasonAt(now) !== 'winter' || plant.dormant) return s
-        return withPlant(s, remember({ ...plant, dormant: true, flowering: null }, 'sleep', now))
+        return withPlant(
+          s,
+          remember(
+            {
+              ...plant,
+              dormant: true,
+              flowering: null,
+              lastFloweringEndedAt: plant.flowering ? now : plant.lastFloweringEndedAt,
+            },
+            'sleep',
+            now,
+          ),
+        )
       }
       if (!plant.dormant) return s
       return withPlant(s, remember({ ...plant, dormant: false }, 'wake', now))
     }
     case 'cutFlower': {
       if (unavailable(plant) || !plant.flowering || plant.flowering.blooming) return s
-      const next = withPlant(s, remember({ ...plant, flowering: null }, 'cut', now))
+      const next = withPlant(
+        s,
+        remember({ ...plant, flowering: null, lastFloweringEndedAt: now }, 'cut', now),
+      )
       return {
         ...next,
         inventory: {

@@ -65,6 +65,8 @@ export const SIM = {
   BLOOM_HEALTH_COST_TOTAL: 15,
   BLOOM_REWARD_DEWDROPS: 60,
   CUT_REWARD_DEWDROPS: 8,
+  /** After a stalk is cut or blooms out, the plant rests this long before the next one. */
+  FLOWER_REST_HOURS: 168,
   HARD_MODE_DEATH_HOURS: 72,
 
   /** Petting: always a wiggle, a dewdrop at most once per cooldown. */

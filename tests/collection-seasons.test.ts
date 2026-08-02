@@ -214,6 +214,32 @@ describe('flowering', () => {
     expect(cut.inventory.dewdrops).toBe(withStalk.inventory.dewdrops + SIM.CUT_REWARD_DEWDROPS)
   })
 
+  it('the choice sticks: the stalk rests before returning, even on a thriving plant', () => {
+    const cutAt = T0 + h(1)
+    const withStalk = tick(readyToFlower(), cutAt)
+    let state = apply(withStalk, { type: 'cutFlower' }, cutAt)
+
+    // It used to be back on the very next tick. Keep the plant in stalk-worthy
+    // shape the whole rest period and make sure it stays away.
+    let at = cutAt
+    while (at + h(12) < cutAt + SIM.FLOWER_REST_HOURS * h(1)) {
+      at += h(12)
+      state = tick(state, at)
+      expect(activePlant(state)!.flowering).toBeNull()
+      const watered = apply(state, { type: 'water' }, at)
+      state = watered !== state ? watered : apply(state, { type: 'tapWater' }, at)
+    }
+
+    // Once rested, the thriving plant may send up the next stalk.
+    for (let i = 0; i < 4 && !activePlant(state)!.flowering; i++) {
+      at += h(12)
+      state = tick(state, at)
+      const watered = apply(state, { type: 'water' }, at)
+      state = watered !== state ? watered : apply(state, { type: 'tapWater' }, at)
+    }
+    expect(activePlant(state)!.flowering).not.toBeNull()
+  })
+
   it('letting it bloom costs strength but pays seeds after five days', () => {
     const withStalk = tick(readyToFlower(), T0 + h(1))
     let state = apply(withStalk, { type: 'letBloom' }, T0 + h(1))

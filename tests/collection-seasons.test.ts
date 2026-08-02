@@ -296,7 +296,7 @@ describe('save migration v2 -> v3', () => {
     expect(loaded).not.toBeNull()
     expect(loaded!.saveVersion).toBe(SAVE_VERSION)
     expect(loaded!.activePlantId).toBe('p1')
-    expect(loaded!.settings).toEqual({ sound: false, locale: 'en', hardMode: false })
+    expect(loaded!.settings).toEqual({ sound: false, music: true, locale: 'en', hardMode: false })
     expect(loaded!.plants[0].humidity).toBe(80)
     expect(loaded!.plants[0].dead).toBe(false)
   })

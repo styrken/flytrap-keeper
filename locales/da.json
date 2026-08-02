@@ -76,7 +76,8 @@
   "time": {
     "day": "d",
     "hour": "t",
-    "min": "m"
+    "min": "m",
+    "clock": "Spilur"
   },
   "status": {
     "wilted": "Åh nej — {{name}} er visnet. Hold den vandet, så kommer den til hægterne igen.",
@@ -211,10 +212,20 @@
     "close": "Luk",
     "general": "Generelt",
     "sound": "Lyd",
+    "music": "Musik",
+    "musicMuted": "Musikken spiller, når lyden er slået til — lyd-knappen slår alt fra.",
     "on": "Til",
     "off": "Fra",
     "hardMode": "Hard mode",
-    "hardModeHint": "Tilvalg for de modige: en plante, der ligger i bunden i dagevis, dør for altid."
+    "hardModeHint": "Tilvalg for de modige: en plante, der ligger i bunden i dagevis, dør for altid.",
+    "speedTitle": "Spilhastighed",
+    "speedHint": {
+      "x1": "Realtid — planten lever i samme tempo som den virkelige verden.",
+      "x10": "10× — et spildøgn tager cirka 2½ time.",
+      "x60": "60× — et spildøgn tager 24 minutter.",
+      "x600": "600× — et spildøgn tager under 3 minutter."
+    },
+    "speedNote": "Hastigheden spoler også vejr, årstider, dag og nat frem. Spiluret beholder sit forspring, når du vender tilbage til realtid."
   },
   "account": {
     "title": "Konto & sky-synk",

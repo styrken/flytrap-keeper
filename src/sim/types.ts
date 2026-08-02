@@ -73,11 +73,23 @@ export interface PlantState {
   criticalSince: number | null
 }
 
+export interface GameTime {
+  /** Game ms per real ms — 1 is real time. */
+  scale: number
+  /** Real epoch ms when the current scale took effect. */
+  realAnchor: number
+  /** Game-clock ms at that same moment. */
+  gameAnchor: number
+}
+
 export interface GameState {
   saveVersion: number
+  /** Wall-clock time of the last change — cloud sync compares this, never game time. */
   updatedAt: number
+  /** Game-clock time the sim last advanced to; every sim timestamp lives on this clock. */
   lastTickAt: number
   rngSeed: number
+  time: GameTime
   plants: PlantState[]
   activePlantId: string
   inventory: { dewdrops: number; items: string[] }
@@ -85,7 +97,7 @@ export interface GameState {
   minigames: { lastRaindropAt: number | null }
   /** Three daily tasks, redrawn each UTC day. */
   quests: { day: string; items: QuestState[] }
-  settings: { sound: boolean; locale: string; hardMode: boolean }
+  settings: { sound: boolean; music: boolean; locale: string; hardMode: boolean }
   /** Distinct real-world days with at least one care action. */
   careStreak: { days: number; lastDay: string | null }
   achievements: string[]
@@ -109,6 +121,8 @@ export type Action =
   | { type: 'cutFlower' }
   | { type: 'letBloom' }
   | { type: 'removePlant'; plantId: string }
+  | { type: 'setTimeScale'; scale: number }
   | { type: 'setSound'; on: boolean }
+  | { type: 'setMusic'; on: boolean }
   | { type: 'setLocale'; locale: string }
   | { type: 'setHardMode'; on: boolean }

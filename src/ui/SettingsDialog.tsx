@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { loadFromString, saveToString } from '../sim'
+import { TIME_SCALES, loadFromString, saveToString } from '../sim'
 import { useGame } from '../store'
 import { deleteAccountRemote, loginAccount, registerAccount, resetAccountPassword } from '../sync'
 
@@ -24,6 +24,7 @@ export function SettingsDialog() {
           </button>
         </header>
         <SoundSection />
+        <SpeedSection />
         <AccountSection />
         <DataSection />
       </div>
@@ -46,6 +47,10 @@ function SoundSection() {
         {settings.sound ? '🔊' : '🔇'} {t('settings.sound')}:{' '}
         {settings.sound ? t('settings.on') : t('settings.off')}
       </button>
+      <button type="button" onClick={() => dispatch({ type: 'setMusic', on: !settings.music })}>
+        🎵 {t('settings.music')}: {settings.music ? t('settings.on') : t('settings.off')}
+      </button>
+      {!settings.sound && settings.music && <p className="muted">{t('settings.musicMuted')}</p>}
       <div className="dialog-row">
         <button
           type="button"
@@ -71,6 +76,31 @@ function SoundSection() {
         💀 {t('settings.hardMode')}: {settings.hardMode ? t('settings.on') : t('settings.off')}
       </button>
       <p className="muted">{t('settings.hardModeHint')}</p>
+    </section>
+  )
+}
+
+function SpeedSection() {
+  const { t } = useTranslation()
+  const scale = useGame((s) => s.state.time.scale)
+  const dispatch = useGame((s) => s.dispatch)
+  return (
+    <section className="dialog-section">
+      <h3>⏩ {t('settings.speedTitle')}</h3>
+      <div className="dialog-row">
+        {TIME_SCALES.map((preset) => (
+          <button
+            key={preset}
+            type="button"
+            className={scale === preset ? 'primary' : ''}
+            onClick={() => dispatch({ type: 'setTimeScale', scale: preset })}
+          >
+            ×{preset}
+          </button>
+        ))}
+      </div>
+      <p className="muted">{t(`settings.speedHint.x${scale}`)}</p>
+      {scale > 1 && <p className="muted">{t('settings.speedNote')}</p>}
     </section>
   )
 }

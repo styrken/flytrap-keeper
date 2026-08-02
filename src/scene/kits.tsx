@@ -5,7 +5,7 @@ import { useMemo, useRef } from 'react'
 import type { Group } from 'three'
 import { playSnap, playTease } from '../audio'
 import { type PlantState, type TrapState, isTrapReady } from '../sim'
-import { useGame } from '../store'
+import { gameNow, useGame } from '../store'
 import { insectBus } from './insectBus'
 import { palette } from './palette'
 import { STAGE_SCALE, STEM_LAYOUT } from './plantLayout'
@@ -173,7 +173,7 @@ function Trap({
       position={position}
       rotation-z={withered ? 0.5 : 0}
       onPointerDown={(e) => {
-        if (!interactive || !isTrapReady(trap, Date.now())) return
+        if (!interactive || !isTrapReady(trap, gameNow())) return
         e.stopPropagation()
         const presence = insectBus.presence
         if (presence && presence.plantId === plant.id && presence.trapIndex === index) {
@@ -191,7 +191,7 @@ function Trap({
         }
       }}
       onPointerOver={() => {
-        if (interactive && isTrapReady(trap, Date.now())) document.body.style.cursor = 'pointer'
+        if (interactive && isTrapReady(trap, gameNow())) document.body.style.cursor = 'pointer'
       }}
       onPointerOut={() => {
         document.body.style.cursor = 'auto'

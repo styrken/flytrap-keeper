@@ -5,7 +5,7 @@ import type { Group } from 'three'
 import { Vector3 } from 'three'
 import { playCatch, playOuch } from '../audio'
 import { type InsectKind, INSECTS, SPECIES, insectKindFromRoll, isTrapReady } from '../sim'
-import { useGame } from '../store'
+import { gameNow, useGame } from '../store'
 import { insectBus } from './insectBus'
 import { trapApproachPoint } from './plantLayout'
 
@@ -25,7 +25,7 @@ interface FloatLabel {
 /** Any open trap on any healthy flytrap, with its slot for positioning. */
 function snapperTargets() {
   const state = useGame.getState().state
-  const now = Date.now()
+  const now = gameNow()
   const targets: { plantId: string; trapIndex: number; slot: number; stage: number }[] = []
   state.plants.forEach((plant, slot) => {
     if (!SPECIES[plant.speciesId].isSnapper) return

@@ -76,7 +76,8 @@
   "time": {
     "day": "d",
     "hour": "h",
-    "min": "m"
+    "min": "m",
+    "clock": "Game clock"
   },
   "status": {
     "wilted": "Oh no — {{name}} has wilted. Keep it watered and it will bounce back.",
@@ -208,10 +209,20 @@
     "close": "Close",
     "general": "General",
     "sound": "Sound",
+    "music": "Music",
+    "musicMuted": "Music plays once sound is turned on — the sound toggle mutes everything.",
     "on": "On",
     "off": "Off",
     "hardMode": "Hard mode",
-    "hardModeHint": "Opt-in for the brave: a plant left at rock bottom for days dies for good."
+    "hardModeHint": "Opt-in for the brave: a plant left at rock bottom for days dies for good.",
+    "speedTitle": "Game speed",
+    "speedHint": {
+      "x1": "Real time — the plant lives at the pace of the real world.",
+      "x10": "10× — a game day passes in about 2½ hours.",
+      "x60": "60× — a game day passes in 24 minutes.",
+      "x600": "600× — a game day passes in under 3 minutes."
+    },
+    "speedNote": "Speed also fast-forwards weather, seasons, day and night. The game clock keeps its head start when you return to real time."
   },
   "account": {
     "title": "Account & cloud sync",

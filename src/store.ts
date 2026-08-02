@@ -8,10 +8,18 @@ import {
   loadFromString,
   saveToString,
   tick,
+  toGameTime,
 } from './sim'
 import { type CloudSave, type SyncState, checkSession, logoutAccount, pushSave } from './sync'
 
 const ONBOARDED_KEY = 'flytrap-keeper:onboarded'
+
+/**
+ * Game-clock "now" — what scene and HUD code must compare against sim
+ * timestamps (digestion, weeds, daylight), since speed mode runs the game
+ * clock faster than `Date.now()`.
+ */
+export const gameNow = () => toGameTime(useGame.getState().state.time, Date.now())
 
 interface GameStore {
   state: GameState
@@ -53,17 +61,19 @@ export const useGame = create<GameStore>()((set, get) => ({
   sync: { kind: 'unknown' },
   conflict: null,
   dispatch: (action) => {
-    const next = apply(get().state, action, Date.now())
-    if (next !== get().state) {
+    const prev = get().state
+    const next = apply(prev, action, Date.now())
+    if (next !== prev) {
       set({ state: next })
       persist(next)
+      if (next.time.scale !== prev.time.scale) armTicker()
     }
   },
   tickNow: () => {
     const next = tick(get().state, Date.now())
     if (next !== get().state) {
       set({ state: next })
-      persist(next)
+      persistThrottled(next)
     }
   },
   finishOnboarding: () => {
@@ -84,6 +94,7 @@ export const useGame = create<GameStore>()((set, get) => ({
     const state = tick(rawState, Date.now())
     set({ state, conflict: null })
     persist(state)
+    armTicker()
   },
   resetGame: () => {
     const now = Date.now()
@@ -104,6 +115,7 @@ export const useGame = create<GameStore>()((set, get) => ({
       conflict: null,
     })
     persist(state)
+    armTicker()
   },
   resolveConflict: (choice) => {
     const { conflict, state } = get()
@@ -147,6 +159,29 @@ function persist(state: GameState) {
     // Storage unavailable (private mode, quota) — keep playing in memory.
   }
   schedulePush(state)
+}
+
+let lastTickPersistAt = 0
+
+/**
+ * Pure time-advance updates are fully recomputable from `lastTickAt`, so the
+ * fast-tick cadence of speed mode may write storage (and push to the cloud)
+ * at the usual relaxed pace. Player actions always persist immediately.
+ */
+function persistThrottled(state: GameState) {
+  const now = Date.now()
+  if (now - lastTickPersistAt < 25_000) return
+  lastTickPersistAt = now
+  persist(state)
+}
+
+let tickTimer: number | undefined
+
+/** Speed mode simulates in shorter strides so meters and clock stay smooth. */
+function armTicker() {
+  window.clearInterval(tickTimer)
+  const fast = useGame.getState().state.time.scale > 1
+  tickTimer = window.setInterval(() => useGame.getState().tickNow(), fast ? 5_000 : 30_000)
 }
 
 /** Adopt the newest of local vs cloud at startup; push if local wins. */
@@ -213,10 +248,15 @@ export function initGame(now = Date.now()) {
     // ignore
   }
 
-  window.setInterval(() => useGame.getState().tickNow(), 30_000)
+  armTicker()
   document.addEventListener('visibilitychange', () => {
-    if (!document.hidden) useGame.getState().tickNow()
-    else schedulePush(useGame.getState().state, 0)
+    if (!document.hidden) {
+      useGame.getState().tickNow()
+    } else {
+      // Leaving: write the freshest state (tick persists lazily) and push now.
+      persist(useGame.getState().state)
+      schedulePush(useGame.getState().state, 0)
+    }
   })
 
   void checkSession().then(({ sync, save }) => {

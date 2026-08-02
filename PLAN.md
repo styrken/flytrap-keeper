@@ -291,6 +291,7 @@ _Mål: En Venus flytrap i 3D man reelt kan passe over flere dage — og som gemm
 - [x] Insekttyper med forskellig værdi + biller der skader fælden
 - [x] Vejrsystem + regnvandstønde i scenen (vand bliver en ressource; postevands-dilemmaet)
 - [x] Humør-poseringer, blad-svaj, dag/nat-lys, snap-/regn-lyde (syntetiseret Web Audio — ingen lydfiler)
+- [x] Rolig baggrundsmusik: generativ vuggevise (pad-akkorder + spilledåse-toner, syntetiseret — ingen lydfiler) med egen til/fra-knap i indstillinger
 - [x] Førstegangsflow/tutorial med navngivning og ægte pasningstips
 - [x] 8 achievements med dugdråbe-bonus og toast
 - [x] Kit-polering: fælde-tænder, regnvandstønde med synligt vandniveau, skyer og regn (flere voxel-props kan afløse løbende)
@@ -326,6 +327,7 @@ _Mål: En Venus flytrap i 3D man reelt kan passe over flere dage — og som gemm
 - [x] "Start forfra"-knap under Din save (to-trins bekræftelse) + genoptagelig onboarding efter reload
 - [x] Værelset bygget færdigt: alle vægge (dollhouse-teknik — sidevægge er ensidede og usynlige udefra), matteret sidevindue, seng, skrivebord, stol, væghylde med kaktus, vægur; kameraet kan dreje meget længere rundt (azimuth ±1,45 rad)
 - [x] Indret-dit-værelse i butikken: tæppe (35), plakat (30), hylderadio (45), gulvlampe (55, lyser om aftenen) og computer (90, skærmen gløder) — samme deco-mekanisme som nissen, så gamle saves virker uændret. _Fravalg: fri træk-og-slip-placering — faste, håndplacerede pladser er langt bedre på mobil._
+- [x] Spilhastighed (speed mode): valgbart tempo ×1/×10/×60/×600 i indstillinger via et spil-ur i simmen (skala + ankre) — forfald, fordøjelse, vejr, årstider og dag/nat følger med, mens `updatedAt` forbliver væg-ur af hensyn til sky-synk. HUD'en viser spiltid med ⏩-badge; offline-loftet gælder fortsat i spiltimer; gamle saves migreres (v8).
 - [x] Passer-avatar i stedet for fast kamera: en lille blocky figur (grøn passer-kasket, fluefanger-badge) man går rundt med via WASD/piletaster eller virtuelt joystick på touch; gå-cyklus, drejning og blød følgekamera-logik. Kollision mod seng, skrivebord, stol, karm, vægge og den købte gulvlampe er ren, testbar matematik i `playerMovement.ts` (samme princip som sim-kernen). Klik-interaktionerne, insekt-minispillet og HUD'en er uændrede — figuren giver skala og nærvær, den gater ingen handlinger.
 - [x] Hop og klatring: mellemrum (eller Hop-knappen på touch) hopper — tyngdekraft, squash-and-stretch-landing og en løsrevet blob-skygge, der bliver på fladen under figuren. Møbeltoppe er gangbare flader: op på sengen og stolen fra gulvet, stol → skrivebord som lille platform-kæde (karmen er bevidst umulig — planterne skal have fred). Sengen er hoppebold: hårde landinger giver et lille "boing" og et hop. Hop-fysikken er rene funktioner med tests (apex-højde, kant-fald, seng-bounce).
 

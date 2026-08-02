@@ -1156,3 +1156,11 @@ h1 {
     font-size: 0.8rem;
   }
 }
+
+/* When the top containers stack (portrait phones), center them like the rest
+   of the HUD; in the side-by-side layout they stay pinned to their corners. */
+@media (max-width: 640px) {
+  .hud-top {
+    align-items: center;
+  }
+}

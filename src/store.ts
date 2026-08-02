@@ -46,6 +46,7 @@ interface GameStore {
   showLexicon: boolean
   showQuests: boolean
   showJournal: boolean
+  showArcade: boolean
   /** Stat whose explainer dialog is open — pure view state, never saved. */
   statInfo: StatInfoId | null
   /** A freshly composed postcard (data URL) awaiting save/share, or null. */
@@ -64,6 +65,7 @@ interface GameStore {
   setShowLexicon: (show: boolean) => void
   setShowQuests: (show: boolean) => void
   setShowJournal: (show: boolean) => void
+  setShowArcade: (show: boolean) => void
   setStatInfo: (stat: StatInfoId | null) => void
   setPhoto: (photo: string | null) => void
   setRoomView: (room: RoomView) => void
@@ -85,6 +87,7 @@ export const useGame = create<GameStore>()((set, get) => ({
   showLexicon: false,
   showQuests: false,
   showJournal: false,
+  showArcade: false,
   statInfo: null,
   photo: null,
   roomView: 'bedroom',
@@ -120,6 +123,7 @@ export const useGame = create<GameStore>()((set, get) => ({
   setShowLexicon: (show) => set({ showLexicon: show }),
   setShowQuests: (show) => set({ showQuests: show }),
   setShowJournal: (show) => set({ showJournal: show }),
+  setShowArcade: (show) => set({ showArcade: show }),
   setStatInfo: (statInfo) => set({ statInfo }),
   setPhoto: (photo) => set({ photo }),
   setRoomView: (room) => set({ roomView: room }),
@@ -149,6 +153,7 @@ export const useGame = create<GameStore>()((set, get) => ({
       showLexicon: false,
       showQuests: false,
       showJournal: false,
+      showArcade: false,
       statInfo: null,
       photo: null,
       roomView: 'bedroom',

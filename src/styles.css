@@ -907,6 +907,95 @@ h1 {
   color: var(--muted, #6d6155);
 }
 
+.arcade-card {
+  max-width: 360px;
+}
+
+.arcade-screen {
+  position: relative;
+  margin-top: 10px;
+}
+
+.arcade-canvas {
+  display: block;
+  width: 100%;
+  image-rendering: pixelated;
+  border-radius: 10px;
+  border: 3px solid #3c4a34;
+  background: #1c231a;
+}
+
+.arcade-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: rgba(28, 35, 26, 0.72);
+  border-radius: 10px;
+}
+
+.arcade-gameover {
+  color: #f6f1e6;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.arcade-reward {
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.arcade-stats {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+
+.arcade-hint {
+  font-size: 0.82rem;
+}
+
+.arcade-dpad {
+  display: grid;
+  grid-template-areas: '. up .' 'left . right' '. down .';
+  gap: 6px;
+  width: 150px;
+  margin: 8px auto 0;
+}
+
+.arcade-dpad button {
+  padding: 10px 0;
+}
+
+.arcade-dpad .dpad-up {
+  grid-area: up;
+}
+
+.arcade-dpad .dpad-down {
+  grid-area: down;
+}
+
+.arcade-dpad .dpad-left {
+  grid-area: left;
+}
+
+.arcade-dpad .dpad-right {
+  grid-area: right;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .arcade-dpad {
+    display: none;
+  }
+}
+
 .hud-bottom {
   display: flex;
   flex-direction: column;

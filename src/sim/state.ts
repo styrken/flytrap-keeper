@@ -60,6 +60,7 @@ export function createInitialState(now: number, seed: number): GameState {
     weather: { rainBarrel: SIM.BARREL_INITIAL },
     minigames: { lastRaindropAt: null, lastWishAt: null },
     quests: drawQuests(seed >>> 0, now, [plant]),
+    arcade: { best: 0, day: '', paidToday: 0 },
     pets: {
       tadpoleSince: null,
       cat: false,

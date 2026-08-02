@@ -171,6 +171,8 @@ export interface GameState {
   /** Three daily tasks, redrawn each UTC day. */
   quests: { day: string; items: QuestState[] }
   pets: PetsState
+  /** The desk computer's arcade: best score ever, and today's payout so far. */
+  arcade: { best: number; day: string; paidToday: number }
   /** locale '' means no explicit choice — the UI follows the browser language. */
   settings: { sound: boolean; music: boolean; locale: string; hardMode: boolean }
   /** Distinct real-world days with at least one care action. */
@@ -195,6 +197,7 @@ export type Action =
   | { type: 'greetRobin' }
   | { type: 'greetButterfly' }
   | { type: 'greetHedgehog' }
+  | { type: 'arcadeScore'; score: number }
   | { type: 'feedTrap'; plantId: string; trapId: string }
   | { type: 'feedPlant' }
   | { type: 'catchInsect'; plantId: string; trapId: string; insect: InsectKind }

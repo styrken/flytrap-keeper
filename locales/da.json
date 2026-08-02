@@ -289,7 +289,8 @@
     "safe-landing": "Sikker landing",
     "evening-snuffler": "Aftensnuseren",
     "full-house": "Fuldt hus",
-    "full-collection": "Fuld samling"
+    "full-collection": "Fuld samling",
+    "high-score": "Highscore!"
   },
   "onboarding": {
     "welcome1": "Flytrap Keeper er et roligt pasningsspil i realtid. Din kødædende plante lever videre, mens du er væk — kig forbi et par gange om dagen, pas den, og se den vokse fra spire til blomst.",
@@ -321,6 +322,16 @@
     "repot": "Flyttede i ny potte 🪴",
     "dressed": "Blev fint pyntet ✨",
     "died": "Enden på et lille liv 🪦"
+  },
+  "arcade": {
+    "title": "SNAP!",
+    "tagline": "Absolut ikke til spil. Absolut.",
+    "start": "Start",
+    "retry": "Spil igen",
+    "score": "Point",
+    "best": "Rekord",
+    "gameOver": "SNAPPET!",
+    "hint": "Styr med pilene, WASD eller et swipe — æd fluerne, undgå billerne. Små gevinster, dagligt loft."
   },
   "photo": {
     "take": "Tag et postkort-foto",

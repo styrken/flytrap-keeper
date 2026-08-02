@@ -286,7 +286,8 @@
     "safe-landing": "Safe landing",
     "evening-snuffler": "Evening snuffler",
     "full-house": "Full house",
-    "full-collection": "Full collection"
+    "full-collection": "Full collection",
+    "high-score": "High score!"
   },
   "onboarding": {
     "welcome1": "Flytrap Keeper is a calm, real-time care game. Your carnivorous plant lives on while you're away — drop by a few times a day, tend to it, and watch it grow from seedling to bloom.",
@@ -318,6 +319,16 @@
     "repot": "Moved into a fresh pot 🪴",
     "dressed": "Got dressed up ✨",
     "died": "The end of a little life 🪦"
+  },
+  "arcade": {
+    "title": "SNAP!",
+    "tagline": "Definitely not for games. Definitely.",
+    "start": "Start",
+    "retry": "Play again",
+    "score": "Score",
+    "best": "Best",
+    "gameOver": "SNAPPED!",
+    "hint": "Steer with the arrows, WASD or a swipe — eat the flies, dodge the beetles. Small payouts, daily lid."
   },
   "photo": {
     "take": "Take a postcard photo",

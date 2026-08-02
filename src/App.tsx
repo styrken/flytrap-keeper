@@ -7,6 +7,7 @@ import { PhotoRig } from './scene/PhotoRig'
 import { Player } from './scene/Player'
 import { FLOOR_Y, HEAD_HEIGHT, SPAWN } from './scene/playerMovement'
 import { useIsVisiting } from './sceneView'
+import { ArcadeGame } from './ui/ArcadeGame'
 import { FriendsDialog } from './ui/FriendsDialog'
 import { Hud } from './ui/Hud'
 import { TouchControls } from './ui/Joystick'
@@ -54,6 +55,7 @@ export default function App() {
       <ShopDialog />
       <QuestsDialog />
       <JournalDialog />
+      <ArcadeGame />
       <PhotoDialog />
       <StatInfoDialog />
       <LexiconDialog />

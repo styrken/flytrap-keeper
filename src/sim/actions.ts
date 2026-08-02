@@ -131,6 +131,23 @@ function applyAction(s: GameState, action: Action, now: number, realNow: number)
       if (seasonOf(now) === 'winter') return s
       return greetGuest(s, now, 'lastHedgehogAt', 'evening-snuffler')
     }
+    case 'arcadeScore': {
+      // The computer insists it is not for games; the sim knows better.
+      if (!s.inventory.items.includes('computer')) return s
+      const score = Math.floor(action.score)
+      if (!Number.isFinite(score) || score <= 0) return s
+      const day = dayKey(now)
+      const paidBefore = s.arcade.day === day ? s.arcade.paidToday : 0
+      const earned = Math.floor(score / SIM.ARCADE_SCORE_PER_DEWDROP)
+      const pay = Math.max(0, Math.min(earned, SIM.ARCADE_DAILY_CAP - paidBefore))
+      let next: GameState = {
+        ...s,
+        arcade: { best: Math.max(s.arcade.best, score), day, paidToday: paidBefore + pay },
+        inventory: { ...s.inventory, dewdrops: s.inventory.dewdrops + pay },
+      }
+      if (score >= SIM.ARCADE_HIGHSCORE_AT) next = award(next, 'high-score')
+      return next
+    }
     case 'rescueSnail': {
       if (s.pets.snail) return s
       const last = s.pets.lastSnailAt

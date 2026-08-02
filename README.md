@@ -62,3 +62,6 @@ After setup, every push to the default branch deploys to production and every pu
 - [x] Post-launch — pets (zero needs, pure company): a tadpole that metamorphoses into a greenhouse frog, a rainy-day cat you let in at the window, and a snail that moves in after three gentle rescues
 - [x] Post-launch — pets, second wave: an autumn spider that keeps a corner web and pays rent in caught bugs, and the ladybird — a lucky guest that strolls the sill and can never, ever be trap food
 - [x] Post-launch — garden guests, year round: a robin at a buyable bird feeder (sings even in winter), a spring/summer butterfly that rests safely on blooming flower stalks, and an evening hedgehog on the greenhouse lawn
+- [x] Post-launch — butterwort as species five: the lime-tolerant exception where tap water doesn't hurt, completing the classic carnivore lineup (and the Full collection achievement)
+- [x] Post-launch — the plant diary: every plant journals its milestones, from seed to bloom (and back from the brink), readable via the 📔 button
+- [x] Post-launch — SNAP!: a retro arcade game on the desk computer — a growing flytrap tongue, flies to eat, beetles to dodge, a daily pocket-money lid

@@ -117,6 +117,7 @@ const MIGRATIONS: Record<number, Migration> = {
     const base = typeof data.lastTickAt === 'number' ? data.lastTickAt : 0
     return {
       ...data,
+      arcade: { best: 0, day: '', paidToday: 0 },
       plants: ((Array.isArray(data.plants) ? data.plants : []) as RawSave[]).map((plant) => ({
         ...plant,
         journal: [{ at: base, kind: 'firstPage' }],

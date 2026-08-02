@@ -114,4 +114,9 @@ export const SIM = {
 
   /** The diary keeps milestones only — and even those are capped. */
   JOURNAL_MAX_ENTRIES: 60,
+
+  /** The SNAP! arcade: pocket money with a daily lid — play for joy, not grind. */
+  ARCADE_SCORE_PER_DEWDROP: 5,
+  ARCADE_DAILY_CAP: 10,
+  ARCADE_HIGHSCORE_AT: 25,
 } as const

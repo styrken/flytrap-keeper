@@ -6,6 +6,7 @@ import { Lights } from './scene/Lights'
 import { Hud } from './ui/Hud'
 import { LexiconDialog } from './ui/LexiconDialog'
 import { Onboarding } from './ui/Onboarding'
+import { QuestsDialog } from './ui/QuestsDialog'
 import { ConflictDialog, SettingsDialog } from './ui/SettingsDialog'
 import { ShopDialog } from './ui/ShopDialog'
 
@@ -32,6 +33,7 @@ export default function App() {
       <Hud />
       <Onboarding />
       <ShopDialog />
+      <QuestsDialog />
       <LexiconDialog />
       <SettingsDialog />
       <ConflictDialog />

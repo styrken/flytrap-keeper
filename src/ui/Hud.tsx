@@ -42,6 +42,7 @@ export function Hud() {
   const setShowSettings = useGame((s) => s.setShowSettings)
   const setShowShop = useGame((s) => s.setShowShop)
   const setShowLexicon = useGame((s) => s.setShowLexicon)
+  const setShowQuests = useGame((s) => s.setShowQuests)
   const plant = activePlant(state)
   const [editingName, setEditingName] = useState(false)
   const renameCancelled = useRef(false)
@@ -62,6 +63,28 @@ export function Hud() {
     }
     prevAchievements.current = achievementCount
   }, [achievementCount, state.achievements, t])
+
+  const questsDoneCount = state.quests.items.filter((q) => q.progress >= q.target).length
+  const questsTotal = state.quests.items.length
+  const questsKey = `${state.quests.day}:${questsDoneCount}`
+  const prevQuestsKey = useRef<string | null>(null)
+  useEffect(() => {
+    const prev = prevQuestsKey.current
+    prevQuestsKey.current = questsKey
+    if (prev === null) return
+    const [prevDay, prevDone] = prev.split(':')
+    if (prevDay !== state.quests.day) return
+    if (questsDoneCount > Number(prevDone)) {
+      setToast(
+        questsDoneCount === questsTotal
+          ? `🎉 ${t('quests.allDone', { n: SIM.QUEST_ALL_BONUS })}`
+          : `📋 ${t('quests.done', { n: SIM.QUEST_DEWDROPS })}`,
+      )
+      playToast()
+      const timer = window.setTimeout(() => setToast(null), 3500)
+      return () => window.clearTimeout(timer)
+    }
+  }, [questsKey, questsDoneCount, questsTotal, state.quests.day, t])
 
   const careDays = state.careStreak.days
   useEffect(() => {
@@ -182,6 +205,14 @@ export function Hud() {
           <div className="meters-foot">
             <span aria-label={t('stats.dewdrops')}>🫧 {state.inventory.dewdrops}</span>
             <span>
+              <button
+                type="button"
+                className={`icon-btn${questsDoneCount < questsTotal ? ' has-pip' : ''}`}
+                aria-label={t('quests.title')}
+                onClick={() => setShowQuests(true)}
+              >
+                📋
+              </button>
               <button
                 type="button"
                 className="icon-btn"

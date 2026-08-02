@@ -1,4 +1,5 @@
 import { SIM } from './config'
+import { drawQuests } from './quests'
 import { SAVE_VERSION } from './save'
 import { DEFAULT_NICKNAMES, SPECIES } from './species'
 import type { GameState, PlantState, SpeciesId, TrapState } from './types'
@@ -49,6 +50,7 @@ export function createInitialState(now: number, seed: number): GameState {
     inventory: { dewdrops: 0, items: [] },
     weather: { rainBarrel: SIM.BARREL_INITIAL },
     minigames: { lastRaindropAt: null },
+    quests: drawQuests(seed >>> 0, now, [plant]),
     settings: { sound: true, locale: 'en', hardMode: false },
     careStreak: { days: 0, lastDay: null },
     achievements: [],

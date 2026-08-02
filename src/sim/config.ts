@@ -82,5 +82,9 @@ export const SIM = {
   RAINDROP_DEWDROPS: 1,
   RAINDROP_COOLDOWN_SECONDS: 8,
 
+  /** Daily quests: three per day, paid on completion, bonus for the full set. */
+  QUEST_DEWDROPS: 5,
+  QUEST_ALL_BONUS: 10,
+
   NICKNAME_MAX_LENGTH: 20,
 } as const

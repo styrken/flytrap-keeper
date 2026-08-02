@@ -177,6 +177,22 @@ h1 {
   cursor: pointer;
 }
 
+.icon-btn.has-pip {
+  position: relative;
+}
+
+.icon-btn.has-pip::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #e2574c;
+  border: 1.5px solid #fffdf8;
+}
+
 .hud-middle {
   display: flex;
   flex-direction: column;
@@ -661,6 +677,11 @@ h1 {
   flex-direction: column;
   gap: 2px;
   font-size: 0.92rem;
+}
+
+.quest-row.done {
+  background: #e6f0dd;
+  opacity: 0.85;
 }
 
 .shop-item button {

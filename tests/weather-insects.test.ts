@@ -11,10 +11,14 @@ import {
   weatherAt,
   weatherPeriodMs,
 } from '../src/sim'
+import type { GameState } from '../src/sim'
 
 const T0 = 1_700_000_000_000
 const h = (n: number) => n * 3_600_000
-const init = () => createInitialState(T0, 42)
+const init = (): GameState => {
+  const s = createInitialState(T0, 42)
+  return { ...s, quests: { ...s.quests, items: [] } }
+}
 
 /** Find the start of the first period with the wanted weather at/after `from`. */
 function findPeriod(seed: number, from: number, wanted: 'sun' | 'clouds' | 'rain'): number {

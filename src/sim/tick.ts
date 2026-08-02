@@ -1,10 +1,11 @@
 import { award } from './achievements'
 import { SIM } from './config'
+import { drawQuests } from './quests'
 import { seasonAt } from './season'
 import { SPECIES } from './species'
 import { freshTrap } from './state'
 import type { GameState, PlantState } from './types'
-import { clamp, HOUR_MS } from './util'
+import { clamp, dayKey, HOUR_MS } from './util'
 import { weatherAt } from './weather'
 
 interface StepEvents {
@@ -74,6 +75,11 @@ export function tick(state: GameState, now: number): GameState {
     if (before.wilted && !after.wilted) next = award(next, 'survivor')
   }
   if (barrelHitCap) next = award(next, 'rain-collector')
+
+  // A new day brings three fresh quests.
+  if (dayKey(now) !== next.quests.day) {
+    next = { ...next, quests: drawQuests(next.rngSeed, now, next.plants) }
+  }
 
   return next
 }

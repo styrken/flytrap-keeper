@@ -1,6 +1,7 @@
 import { award } from './achievements'
 import { SIM } from './config'
 import { INSECTS } from './insects'
+import { progressQuest } from './quests'
 import { seasonAt } from './season'
 import { currentWeather } from './weather'
 import { isTrapReady } from './selectors'
@@ -9,7 +10,7 @@ import { SPECIES } from './species'
 import { createPlant } from './state'
 import { tick } from './tick'
 import type { Action, GameState, PlantState } from './types'
-import { clamp, HOUR_MS } from './util'
+import { clamp, dayKey, HOUR_MS } from './util'
 
 /**
  * Apply a player action at wall-clock `now`. The world is ticked first so the
@@ -33,7 +34,12 @@ export function apply(state: GameState, action: Action, now: number): GameState 
           ? { ...s.inventory, dewdrops: s.inventory.dewdrops + SIM.POUR_PERFECT_DEWDROPS }
           : s.inventory,
       }
-      return bumpCareStreak(withPlant(paid, { ...plant, water: 100 }, now), now)
+      let next = progressQuest(
+        bumpCareStreak(withPlant(paid, { ...plant, water: 100 }, now), now),
+        'water2',
+      )
+      if (action.perfect) next = progressQuest(next, 'pour1')
+      return next
     }
     case 'catchRaindrop': {
       if (currentWeather(s, now) !== 'rain') return s
@@ -49,12 +55,18 @@ export function apply(state: GameState, action: Action, now: number): GameState 
     case 'tapWater': {
       if (unavailable(plant) || plant.water >= 100) return s
       const health = clamp(plant.health - SIM.TAP_WATER_HEALTH_PENALTY, SIM.HEALTH_MIN, 100)
-      return bumpCareStreak(withPlant(s, { ...plant, water: 100, health }, now), now)
+      return progressQuest(
+        bumpCareStreak(withPlant(s, { ...plant, water: 100, health }, now), now),
+        'water2',
+      )
     }
     case 'mist': {
       if (unavailable(plant) || !SPECIES[plant.speciesId].needsMisting) return s
       if (plant.humidity >= 100) return s
-      return bumpCareStreak(withPlant(s, { ...plant, humidity: 100 }, now), now)
+      return progressQuest(
+        bumpCareStreak(withPlant(s, { ...plant, humidity: 100 }, now), now),
+        'mist1',
+      )
     }
     case 'pet': {
       if (plant.dead || plant.dormant) return s
@@ -62,13 +74,16 @@ export function apply(state: GameState, action: Action, now: number): GameState 
         return s
       }
       const petted = withPlant(s, { ...plant, lastPetAt: now }, now)
-      return {
-        ...petted,
-        inventory: {
-          ...petted.inventory,
-          dewdrops: petted.inventory.dewdrops + SIM.PET_DEWDROPS,
+      return progressQuest(
+        {
+          ...petted,
+          inventory: {
+            ...petted.inventory,
+            dewdrops: petted.inventory.dewdrops + SIM.PET_DEWDROPS,
+          },
         },
-      }
+        'pet2',
+      )
     }
     case 'pullWeed': {
       const target = s.plants.find((candidate) => candidate.id === action.plantId)
@@ -79,15 +94,18 @@ export function apply(state: GameState, action: Action, now: number): GameState 
         { ...target, nextWeedAt: now + SIM.WEED_RESPAWN_HOURS * HOUR_MS },
         now,
       )
-      return bumpCareStreak(
-        {
-          ...weeded,
-          inventory: {
-            ...weeded.inventory,
-            dewdrops: weeded.inventory.dewdrops + SIM.WEED_DEWDROPS,
+      return progressQuest(
+        bumpCareStreak(
+          {
+            ...weeded,
+            inventory: {
+              ...weeded.inventory,
+              dewdrops: weeded.inventory.dewdrops + SIM.WEED_DEWDROPS,
+            },
           },
-        },
-        now,
+          now,
+        ),
+        'weed2',
       )
     }
     case 'feedPlant': {
@@ -128,7 +146,10 @@ export function apply(state: GameState, action: Action, now: number): GameState 
         }
       }
       if (action.insect === 'beetle') next = award(next, 'beetle-lesson')
-      else next = award(next, 'first-catch')
+      else {
+        next = award(next, 'first-catch')
+        next = progressQuest(next, 'catch2')
+      }
       if (action.insect === 'spider') next = award(next, 'spider-snack')
       return bumpCareStreak(next, now)
     }
@@ -251,9 +272,6 @@ function withPlant(state: GameState, plant: PlantState, now: number): GameState 
     updatedAt: now,
   }
 }
-
-/** UTC day key — deterministic across timezones and offline catch-up. */
-const dayKey = (now: number) => new Date(now).toISOString().slice(0, 10)
 
 function bumpCareStreak(state: GameState, now: number): GameState {
   const day = dayKey(now)

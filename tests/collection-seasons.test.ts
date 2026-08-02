@@ -16,7 +16,10 @@ const T0 = 1_700_000_000_000 // 2023-11-14, autumn
 const WINTER = Date.UTC(2024, 0, 10)
 const h = (n: number) => n * 3_600_000
 
-const init = (now = T0) => createInitialState(now, 42)
+const init = (now = T0): GameState => {
+  const s = createInitialState(now, 42)
+  return { ...s, quests: { ...s.quests, items: [] } }
+}
 const rich = (now = T0, dewdrops = 500): GameState => {
   const s = init(now)
   return { ...s, inventory: { ...s.inventory, dewdrops } }

@@ -320,9 +320,13 @@ _Mål: En Venus flytrap i 3D man reelt kan passe over flere dage — og som gemm
 - [x] **Dansk oversættelse** (`da.json`) med sprogskifter i indstillinger — testen håndhæver 1:1-nøgledækning med engelsk
 - [x] Polering: humør/positurer for dvale og død, gravsten, valg-ring, tilgængelige dialoger
 
+### Efter launch
+
+- [x] Daglige opgaver: 3 tilfældige (men deterministiske pr. dag) opgaver — vand ×2, fang ×2, lug ×2, kæl ×2, perfekt hældning, dis kandebæreren (kun når man ejer en levende Nepenthes). +5 🫧 pr. opgave, +10 bonus når alle tre er klaret; 📋-knap med rød prik i HUD'en og toast ved fuldførelse. Nulstilles ved UTC-midnat.
+
 ### Backlog (senere, efter lyst)
 
-Passkeys (WebAuthn) · PWA + påmindelser ("Your plant is thirsty 🌱") · rigtige vejrdata via API · daglige opgaver · dele/forære frø til venner · butterwort som art nr. 5 · flere sprog.
+Passkeys (WebAuthn) · PWA + påmindelser ("Your plant is thirsty 🌱") · rigtige vejrdata via API · dele/forære frø til venner · butterwort som art nr. 5 · flere sprog · drivhus-scene.
 
 ## 13. Risici og modtræk
 

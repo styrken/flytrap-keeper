@@ -130,6 +130,22 @@
     "title": "Artsleksikon",
     "locked": "??? — dyrk arten for at låse dens historie op."
   },
+  "quests": {
+    "title": "Dagens opgaver",
+    "reset": "Nye opgaver i morgen",
+    "bonusRow": "Alle tre klaret: +{{n}} bonus",
+    "bonusDone": "Alt klaret i dag — flot! 🎉",
+    "done": "Opgave klaret: +{{n}} dugdråber",
+    "allDone": "Alle dagens opgaver klaret! +{{n}} bonus",
+    "items": {
+      "water2": "Vand dine planter {{target}} gange",
+      "catch2": "Fang {{target}} insekter",
+      "weed2": "Lug {{target}} ukrudt",
+      "pet2": "Kæl for dine planter {{target}} gange",
+      "pour1": "Lav en perfekt hældning",
+      "mist1": "Dis kandebæreren"
+    }
+  },
   "achievements": {
     "toast": "Bedrift låst op",
     "first-catch": "Første fangst!",

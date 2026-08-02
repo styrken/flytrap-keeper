@@ -4,6 +4,14 @@ export type WeatherKind = 'sun' | 'clouds' | 'rain'
 export type InsectKind = 'fly' | 'mosquito' | 'spider' | 'beetle'
 export type Season = 'spring' | 'summer' | 'autumn' | 'winter'
 
+export type QuestId = 'water2' | 'catch2' | 'weed2' | 'pet2' | 'pour1' | 'mist1'
+
+export interface QuestState {
+  id: QuestId
+  target: number
+  progress: number
+}
+
 export type ShopItemId =
   | 'seed-drosera'
   | 'seed-nepenthes'
@@ -70,6 +78,8 @@ export interface GameState {
   inventory: { dewdrops: number; items: string[] }
   weather: { rainBarrel: number }
   minigames: { lastRaindropAt: number | null }
+  /** Three daily tasks, redrawn each UTC day. */
+  quests: { day: string; items: QuestState[] }
   settings: { sound: boolean; locale: string; hardMode: boolean }
   /** Distinct real-world days with at least one care action. */
   careStreak: { days: number; lastDay: string | null }

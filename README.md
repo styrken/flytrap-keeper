@@ -50,3 +50,4 @@ After setup, every push to the default branch deploys to production and every pu
 - [x] Phase 3 — account & cloud sync (username + password, no email) — _code-complete; goes live with the one-time Vercel + database setup above_
 - [x] Phase 4 — collection: sundew, tropical pitcher, trumpet pitcher, shop, up to three pots
 - [x] Phase 5 — seasons, winter dormancy, flowering, hard mode, Danish translation
+- [x] Post-launch — onboarding, pour & golden-drop minigames, room decor, daily tasks

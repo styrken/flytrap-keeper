@@ -21,6 +21,7 @@ interface GameStore {
   showSettings: boolean
   showShop: boolean
   showLexicon: boolean
+  showQuests: boolean
   sync: SyncState
   /** A cloud save awaiting a keep-local-or-take-cloud decision. */
   conflict: CloudSave | null
@@ -31,6 +32,7 @@ interface GameStore {
   setShowSettings: (show: boolean) => void
   setShowShop: (show: boolean) => void
   setShowLexicon: (show: boolean) => void
+  setShowQuests: (show: boolean) => void
   setSync: (sync: SyncState) => void
   /** Replace the whole game state (cloud adopt / file import) and persist it. */
   adoptState: (state: GameState) => void
@@ -45,6 +47,7 @@ export const useGame = create<GameStore>()((set, get) => ({
   showSettings: false,
   showShop: false,
   showLexicon: false,
+  showQuests: false,
   sync: { kind: 'unknown' },
   conflict: null,
   dispatch: (action) => {
@@ -73,6 +76,7 @@ export const useGame = create<GameStore>()((set, get) => ({
   setShowSettings: (show) => set({ showSettings: show }),
   setShowShop: (show) => set({ showShop: show }),
   setShowLexicon: (show) => set({ showLexicon: show }),
+  setShowQuests: (show) => set({ showQuests: show }),
   setSync: (sync) => set({ sync }),
   adoptState: (rawState) => {
     const state = tick(rawState, Date.now())

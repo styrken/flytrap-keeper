@@ -127,6 +127,22 @@
     "title": "Species lexicon",
     "locked": "??? — grow this species to unlock its story."
   },
+  "quests": {
+    "title": "Daily tasks",
+    "reset": "New tasks tomorrow",
+    "bonusRow": "All three done: +{{n}} bonus",
+    "bonusDone": "All done today — nice! 🎉",
+    "done": "Task complete: +{{n}} dewdrops",
+    "allDone": "All daily tasks done! +{{n}} bonus",
+    "items": {
+      "water2": "Water your plants {{target}} times",
+      "catch2": "Catch {{target}} insects",
+      "weed2": "Pull {{target}} weeds",
+      "pet2": "Pet your plants {{target}} times",
+      "pour1": "Make a perfect pour",
+      "mist1": "Mist the tropical pitcher"
+    }
+  },
   "achievements": {
     "toast": "Achievement unlocked",
     "first-catch": "First catch!",

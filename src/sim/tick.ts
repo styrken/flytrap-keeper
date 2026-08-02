@@ -4,6 +4,7 @@ import { drawQuests } from './quests'
 import { seasonAt } from './season'
 import { SPECIES } from './species'
 import { freshTrap } from './state'
+import { toGameTime } from './time'
 import type { GameState, PlantState } from './types'
 import { clamp, dayKey, HOUR_MS } from './util'
 import { weatherAt } from './weather'
@@ -13,15 +14,18 @@ interface StepEvents {
 }
 
 /**
- * Advance the world to `now`. Pure and deterministic — the same function handles
- * live ticks and offline catch-up. Never trust timers for elapsed time; this is
- * always driven by wall-clock timestamps.
+ * Advance the world to the game-clock time for wall-clock `realNow`. Pure and
+ * deterministic — the same function handles live ticks and offline catch-up.
+ * Never trust timers for elapsed time; this is always driven by timestamps.
+ * In speed mode the game clock runs faster than the wall clock, so one real
+ * minute can simulate an hour — all sim timestamps live on the game clock.
  */
-export function tick(state: GameState, now: number): GameState {
+export function tick(state: GameState, realNow: number): GameState {
+  const now = toGameTime(state.time, realNow)
   if (now === state.lastTickAt) return state
   if (now < state.lastTickAt) {
     // Clock went backwards (drift, timezone games) — resync without simulating.
-    return { ...state, lastTickAt: now, updatedAt: now }
+    return { ...state, lastTickAt: now, updatedAt: realNow }
   }
 
   const elapsedMs = now - state.lastTickAt
@@ -53,7 +57,7 @@ export function tick(state: GameState, now: number): GameState {
     plants,
     weather: { ...state.weather, rainBarrel },
     lastTickAt: now,
-    updatedAt: now,
+    updatedAt: realNow,
   }
 
   if (events.bloomed) {

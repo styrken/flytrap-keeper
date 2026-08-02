@@ -326,6 +326,7 @@ _Mål: En Venus flytrap i 3D man reelt kan passe over flere dage — og som gemm
 - [x] "Start forfra"-knap under Din save (to-trins bekræftelse) + genoptagelig onboarding efter reload
 - [x] Værelset bygget færdigt: alle vægge (dollhouse-teknik — sidevægge er ensidede og usynlige udefra), matteret sidevindue, seng, skrivebord, stol, væghylde med kaktus, vægur; kameraet kan dreje meget længere rundt (azimuth ±1,45 rad)
 - [x] Indret-dit-værelse i butikken: tæppe (35), plakat (30), hylderadio (45), gulvlampe (55, lyser om aftenen) og computer (90, skærmen gløder) — samme deco-mekanisme som nissen, så gamle saves virker uændret. _Fravalg: fri træk-og-slip-placering — faste, håndplacerede pladser er langt bedre på mobil._
+- [x] Spilhastighed (speed mode): valgbart tempo ×1/×10/×60/×600 i indstillinger via et spil-ur i simmen (skala + ankre) — forfald, fordøjelse, vejr, årstider og dag/nat følger med, mens `updatedAt` forbliver væg-ur af hensyn til sky-synk. HUD'en viser spiltid med ⏩-badge; offline-loftet gælder fortsat i spiltimer; gamle saves migreres (v8).
 
 ### Backlog (senere, efter lyst)
 

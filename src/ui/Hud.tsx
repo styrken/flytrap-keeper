@@ -16,8 +16,9 @@ import {
   seasonAt,
   speciesOf,
   stageProgress,
+  toGameTime,
 } from '../sim'
-import { useGame } from '../store'
+import { gameNow, useGame } from '../store'
 import { FlytrapIcon } from './FlytrapIcon'
 import { Meter } from './Meter'
 import { PourGame } from './PourGame'
@@ -191,7 +192,7 @@ export function Hud() {
             · {t(`species.${plant.speciesId}.name`)} · {t(`stage.${plant.stage}`)}{' '}
             {MOOD_ICON[mood(plant, season === 'winter')]} ·{' '}
             <span title={t(`weather.${weather}`)}>{WEATHER_ICON[weather]}</span>{' '}
-            <span title={t(`season.${season}`)}>{SEASON_ICON[season]}</span>
+            <span title={t(`season.${season}`)}>{SEASON_ICON[season]}</span> · <GameClock />
           </p>
         </div>
         <div className="meters">
@@ -356,7 +357,7 @@ export function Hud() {
             <button
               type="button"
               onClick={() => {
-                const trap = firstReadyTrap(plant, Date.now())
+                const trap = firstReadyTrap(plant, gameNow())
                 if (trap) dispatch({ type: 'feedTrap', plantId: plant.id, trapId: trap.id })
               }}
               disabled={ready === 0 || plant.wilted || plant.dormant || plant.dead}
@@ -410,5 +411,31 @@ export function Hud() {
         />
       )}
     </div>
+  )
+}
+
+/**
+ * The in-game date and time. It matches the wall clock until speed mode gives
+ * the game clock its own (much faster) life — then the ⏩ badge shows why.
+ */
+function GameClock() {
+  const { t, i18n } = useTranslation()
+  const time = useGame((s) => s.state.time)
+  const [realNow, setRealNow] = useState(() => Date.now())
+  useEffect(() => {
+    const id = window.setInterval(() => setRealNow(Date.now()), 1000)
+    return () => window.clearInterval(id)
+  }, [])
+  const stamp = new Intl.DateTimeFormat(i18n.language, {
+    day: 'numeric',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(toGameTime(time, realNow))
+  return (
+    <span className="game-clock" title={t('time.clock')}>
+      🕰️ {stamp}
+      {time.scale > 1 && <span className="speed-badge">⏩×{time.scale}</span>}
+    </span>
   )
 }

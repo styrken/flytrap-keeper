@@ -1,7 +1,7 @@
 import type { GameState } from './types'
 
 export const SAVE_KEY = 'flytrap-keeper:save'
-export const SAVE_VERSION = 7
+export const SAVE_VERSION = 8
 
 type RawSave = Record<string, unknown>
 type Migration = (data: RawSave) => RawSave
@@ -57,6 +57,12 @@ const MIGRATIONS: Record<number, Migration> = {
   5: (data) => ({ ...data, minigames: { lastRaindropAt: null } }),
   // v6 -> v7: daily quests — the next tick draws the day's set.
   6: (data) => ({ ...data, quests: { day: '', items: [] } }),
+  // v7 -> v8: the game clock (speed mode) — old saves ran at real time,
+  // so anchoring both clocks at lastTickAt keeps game time ≡ wall clock.
+  7: (data) => {
+    const base = typeof data.lastTickAt === 'number' ? data.lastTickAt : 0
+    return { ...data, time: { scale: 1, realAnchor: base, gameAnchor: base } }
+  },
 }
 
 export function saveToString(state: GameState): string {
@@ -90,6 +96,15 @@ export function loadFromString(raw: string): GameState | null {
 
 function looksLikeGameState(data: RawSave): boolean {
   if (typeof data.lastTickAt !== 'number' || typeof data.rngSeed !== 'number') return false
+  const time = data.time as RawSave | undefined
+  if (typeof time !== 'object' || time === null) return false
+  if (
+    typeof time.scale !== 'number' ||
+    typeof time.realAnchor !== 'number' ||
+    typeof time.gameAnchor !== 'number'
+  ) {
+    return false
+  }
   const weather = data.weather as RawSave | undefined
   if (typeof weather !== 'object' || weather === null) return false
   if (typeof weather.rainBarrel !== 'number') return false

@@ -142,10 +142,15 @@ export function createMemoryDb(): Db {
 }
 
 let singleton: Db | null | undefined
-/** Db from the environment — null when DATABASE_URL is not configured (cloud sync off). */
+/** Db from the environment — null when DATABASE_URL is missing or unusable (cloud sync off). */
 export function getDb(): Db | null {
   if (singleton !== undefined) return singleton
   const url = process.env.DATABASE_URL
-  singleton = url ? createNeonDb(url) : null
+  try {
+    singleton = url ? createNeonDb(url) : null
+  } catch (err) {
+    console.error('[api] database init failed:', err)
+    singleton = null
+  }
   return singleton
 }

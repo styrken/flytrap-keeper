@@ -37,6 +37,16 @@ export function sessionSecret(): string {
   return process.env.SESSION_SECRET || 'dev-secret-change-me'
 }
 
+/** Last-resort guard: any unhandled error becomes a logged JSON 500, never a platform crash. */
+export async function guard(res: ServerResponse, fn: () => void | Promise<void>) {
+  try {
+    await fn()
+  } catch (err) {
+    console.error('[api] unhandled error:', err)
+    if (!res.headersSent) send(res, 500, { error: 'internal' })
+  }
+}
+
 /** Db or a friendly 503 — the game works fine without cloud sync configured. */
 export function requireDb(res: ServerResponse): Db | null {
   const db = getDb()

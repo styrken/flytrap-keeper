@@ -45,7 +45,7 @@ export function Garden() {
       </mesh>
 
       {/* the facade's front face sits at z ≈ -1.02 — hide the house beyond it */}
-      <DollhouseWall behindZ={-1.02}>
+      <DollhouseWall z={-1.02}>
         <House dark={dark} />
       </DollhouseWall>
       <FlowerBed />
@@ -655,25 +655,53 @@ const NIGHT_SKY = new Color('#28324f')
 const RAIN_DROPS = 220
 const RAIN_TOP = 3.6
 
-/** Hand-placed stars over the garden — no randomness, so HMR and tests agree. */
-const STARS: [number, number][] = [
-  [-9.5, 4.9],
-  [-7.2, 3.6],
-  [-5.4, 5.4],
-  [-3.1, 4.2],
-  [-1.2, 5.6],
-  [0.8, 3.9],
-  [2.4, 5.1],
-  [4.4, 4.4],
-  [6.3, 5.5],
-  [8.1, 3.8],
-  [9.6, 4.9],
-  [-8.3, 5.8],
-  [5.3, 3.4],
-  [1.6, 4.6],
+/** The sky drum is centered on the lawn — dress it in cylinder coordinates:
+ * azimuth 0° faces north (toward the house), +90° east, ±180° south. */
+const SKY_CENTER_Z = 2.4
+const onSky = (azDeg: number, y: number, r: number): [number, number, number] => {
+  const az = (azDeg * Math.PI) / 180
+  return [Math.sin(az) * r, y, SKY_CENTER_Z - Math.cos(az) * r]
+}
+const faceCenter = (azDeg: number) => (-azDeg * Math.PI) / 180
+
+/** Cloud banks all the way round the drum — [azimuth°, y, scale]. */
+const CLOUD_BANKS: [number, number, number][] = [
+  [-14, 5.6, 1],
+  [62, 5.0, 0.8],
+  [138, 5.9, 1.1],
+  [-118, 5.2, 0.9],
+  [-64, 6.3, 0.7],
 ]
 
-/** Sky backdrop behind the house, sun/clouds/stars, and rain over the lawn. */
+/** Hand-placed stars around the whole sky — [azimuth°, y]; deterministic, so
+ * HMR and tests agree. */
+const STARS: [number, number][] = [
+  [-38, 5.9],
+  [-29, 4.4],
+  [-21, 6.6],
+  [-12, 5.0],
+  [-4, 6.2],
+  [5, 4.6],
+  [13, 5.7],
+  [24, 4.9],
+  [33, 6.4],
+  [48, 5.2],
+  [69, 6.0],
+  [88, 4.7],
+  [107, 5.8],
+  [128, 4.9],
+  [149, 6.3],
+  [168, 5.1],
+  [-171, 5.9],
+  [-150, 4.6],
+  [-128, 6.1],
+  [-107, 5.0],
+  [-88, 5.9],
+  [-64, 4.8],
+  [-51, 6.5],
+]
+
+/** The sky drum, sun/clouds/stars dressed around it, and rain over the lawn. */
 function GardenWeather() {
   const weather = useSceneState((s) => currentWeather(s, s.lastTickAt))
   const skyMat = useRef<MeshStandardMaterial>(null)
@@ -737,36 +765,38 @@ function GardenWeather() {
     <group>
       {/* the sky: a drum around the whole lawn, so every direction has weather
           now that the camera orbits freely — not just the side with the house */}
-      <mesh position={[0, 0.5, 2.4]}>
+      <mesh position={[0, 0.5, SKY_CENTER_Z]}>
         <cylinderGeometry args={[15.5, 15.5, 15, 14, 1, true]} />
         <meshStandardMaterial ref={skyMat} color={palette.sky} side={BackSide} />
       </mesh>
-      <mesh ref={sun} position={[-4.2, 4.4, -3.5]} rotation-z={0.5}>
-        <boxGeometry args={[0.7, 0.7, 0.06]} />
+      {/* the sun keeps its spot over the house — there's only one of it */}
+      <mesh ref={sun} position={onSky(-35, 6.2, 13.8)} rotation={[0, faceCenter(-35), 0.5]}>
+        <boxGeometry args={[1.3, 1.3, 0.1]} />
         <meshStandardMaterial color={palette.sun} />
       </mesh>
-      <group ref={clouds} position={[2.6, 4.1, -3.5]}>
-        <mesh>
-          <boxGeometry args={[1.5, 0.42, 0.07]} />
-          <meshStandardMaterial color="#f2f4f0" />
-        </mesh>
-        <mesh position={[-2.4, 0.55, 0]}>
-          <boxGeometry args={[1.1, 0.36, 0.07]} />
-          <meshStandardMaterial color="#f2f4f0" />
-        </mesh>
-        <mesh position={[-5.2, -0.4, 0]}>
-          <boxGeometry args={[1.2, 0.4, 0.07]} />
-          <meshStandardMaterial color="#f2f4f0" />
-        </mesh>
-        <mesh position={[3.1, 1.1, 0]}>
-          <boxGeometry args={[0.9, 0.3, 0.07]} />
-          <meshStandardMaterial color="#f2f4f0" />
-        </mesh>
+      {/* cloud banks hang all around the drum, not just over the house */}
+      <group ref={clouds}>
+        {CLOUD_BANKS.map(([az, y, s]) => (
+          <group key={az} position={onSky(az, y, 13.5)} rotation-y={faceCenter(az)} scale={s}>
+            <mesh>
+              <boxGeometry args={[2.6, 0.72, 0.12]} />
+              <meshStandardMaterial color="#f2f4f0" />
+            </mesh>
+            <mesh position={[-2.1, 0.75, 0]}>
+              <boxGeometry args={[1.9, 0.62, 0.12]} />
+              <meshStandardMaterial color="#f2f4f0" />
+            </mesh>
+            <mesh position={[2.6, -0.5, 0]}>
+              <boxGeometry args={[1.6, 0.55, 0.12]} />
+              <meshStandardMaterial color="#f2f4f0" />
+            </mesh>
+          </group>
+        ))}
       </group>
       <group ref={stars} visible={false}>
-        {STARS.map(([x, y], i) => (
-          <mesh key={i} position={[x, y, -3.5]}>
-            <boxGeometry args={[0.05, 0.05, 0.01]} />
+        {STARS.map(([az, y], i) => (
+          <mesh key={i} position={onSky(az, y, 15.0)} rotation-y={faceCenter(az)}>
+            <boxGeometry args={[0.09, 0.09, 0.02]} />
             <meshStandardMaterial color="#fdf6dd" emissive="#f2e6b8" emissiveIntensity={0.9} />
           </mesh>
         ))}

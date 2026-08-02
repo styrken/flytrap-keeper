@@ -7,12 +7,25 @@ import { useFrame } from '@react-three/fiber'
 import { type ReactNode, useRef } from 'react'
 import type { Group } from 'three'
 
-/** Hides its children while the camera is behind the wall plane (z < behindZ). */
-export function DollhouseWall({ behindZ, children }: { behindZ: number; children: ReactNode }) {
+/**
+ * Hides its children while the camera is outside the z = `z` wall plane.
+ * `outside` names the wall's far side: 'north' (hidden while camera z < z —
+ * the window wall, the garden facade) or 'south' (hidden while camera z > z —
+ * the bedroom's fourth wall, on stage only when the camera looks back).
+ */
+export function DollhouseWall({
+  z,
+  outside = 'north',
+  children,
+}: {
+  z: number
+  outside?: 'north' | 'south'
+  children: ReactNode
+}) {
   const group = useRef<Group>(null)
   useFrame(({ camera }) => {
     const g = group.current
-    if (g) g.visible = camera.position.z > behindZ
+    if (g) g.visible = outside === 'north' ? camera.position.z > z : camera.position.z < z
   })
   return <group ref={group}>{children}</group>
 }

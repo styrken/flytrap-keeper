@@ -2,7 +2,7 @@ import { useFrame } from '@react-three/fiber'
 import { useRef } from 'react'
 import type { AmbientLight, DirectionalLight } from 'three'
 import { activePlant, currentWeather } from '../sim'
-import { useGame } from '../store'
+import { gameNow, useGame } from '../store'
 import { daylightFactor } from './daylight'
 
 const WEATHER_DIM = { sun: 1, clouds: 0.78, rain: 0.68 } as const
@@ -15,7 +15,7 @@ export function Lights() {
   const amb = useRef<AmbientLight>(null)
 
   useFrame((_, delta) => {
-    const daylight = daylightFactor(Date.now())
+    const daylight = daylightFactor(gameNow())
     const sunny = placement === 'south-window'
     const dim = WEATHER_DIM[weather]
     const targetDir = (sunny ? 1.4 : 0.8) * dim * (0.25 + 0.75 * daylight)

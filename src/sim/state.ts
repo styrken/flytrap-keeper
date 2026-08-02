@@ -45,6 +45,7 @@ export function createInitialState(now: number, seed: number): GameState {
     updatedAt: now,
     lastTickAt: now,
     rngSeed: seed >>> 0,
+    time: { scale: 1, realAnchor: now, gameAnchor: now },
     plants: [plant],
     activePlantId: plant.id,
     inventory: { dewdrops: 0, items: [] },

@@ -9,16 +9,25 @@ import { MAX_PLANTS, shopItem } from './shop'
 import { SPECIES } from './species'
 import { createPlant } from './state'
 import { tick } from './tick'
+import { TIME_SCALES, toGameTime, withTimeScale } from './time'
 import type { Action, GameState, PlantState } from './types'
 import { clamp, dayKey, HOUR_MS } from './util'
 
 /**
- * Apply a player action at wall-clock `now`. The world is ticked first so the
- * action validates against fresh state. Invalid actions return the ticked
- * state unchanged — the UI may be slightly stale, the sim never is.
+ * Apply a player action at wall-clock `realNow`. The rules run on the game
+ * clock (`now`), which speed mode may run faster than real time. The world is
+ * ticked first so the action validates against fresh state. Invalid actions
+ * return the ticked state unchanged — the UI may be slightly stale, the sim
+ * never is.
  */
-export function apply(state: GameState, action: Action, now: number): GameState {
-  const s = tick(state, now)
+export function apply(state: GameState, action: Action, realNow: number): GameState {
+  const ticked = tick(state, realNow)
+  const next = applyAction(ticked, action, toGameTime(ticked.time, realNow), realNow)
+  // Sim timestamps live on the game clock; "last changed" is a wall-clock concern.
+  return next === ticked ? ticked : { ...next, updatedAt: realNow }
+}
+
+function applyAction(s: GameState, action: Action, now: number, realNow: number): GameState {
   const plant = activeOf(s)
   if (!plant) return s
 
@@ -35,7 +44,7 @@ export function apply(state: GameState, action: Action, now: number): GameState 
           : s.inventory,
       }
       let next = progressQuest(
-        bumpCareStreak(withPlant(paid, { ...plant, water: 100 }, now), now),
+        bumpCareStreak(withPlant(paid, { ...plant, water: 100 }), now),
         'water2',
       )
       if (action.perfect) next = progressQuest(next, 'pour1')
@@ -49,31 +58,27 @@ export function apply(state: GameState, action: Action, now: number): GameState 
         ...s,
         minigames: { lastRaindropAt: now },
         inventory: { ...s.inventory, dewdrops: s.inventory.dewdrops + SIM.RAINDROP_DEWDROPS },
-        updatedAt: now,
       }
     }
     case 'tapWater': {
       if (unavailable(plant) || plant.water >= 100) return s
       const health = clamp(plant.health - SIM.TAP_WATER_HEALTH_PENALTY, SIM.HEALTH_MIN, 100)
       return progressQuest(
-        bumpCareStreak(withPlant(s, { ...plant, water: 100, health }, now), now),
+        bumpCareStreak(withPlant(s, { ...plant, water: 100, health }), now),
         'water2',
       )
     }
     case 'mist': {
       if (unavailable(plant) || !SPECIES[plant.speciesId].needsMisting) return s
       if (plant.humidity >= 100) return s
-      return progressQuest(
-        bumpCareStreak(withPlant(s, { ...plant, humidity: 100 }, now), now),
-        'mist1',
-      )
+      return progressQuest(bumpCareStreak(withPlant(s, { ...plant, humidity: 100 }), now), 'mist1')
     }
     case 'pet': {
       if (plant.dead || plant.dormant) return s
       if (plant.lastPetAt !== null && now - plant.lastPetAt < SIM.PET_COOLDOWN_HOURS * HOUR_MS) {
         return s
       }
-      const petted = withPlant(s, { ...plant, lastPetAt: now }, now)
+      const petted = withPlant(s, { ...plant, lastPetAt: now })
       return progressQuest(
         {
           ...petted,
@@ -89,11 +94,7 @@ export function apply(state: GameState, action: Action, now: number): GameState 
       const target = s.plants.find((candidate) => candidate.id === action.plantId)
       if (!target || target.dead || target.dormant) return s
       if (now < target.nextWeedAt) return s
-      const weeded = withPlant(
-        s,
-        { ...target, nextWeedAt: now + SIM.WEED_RESPAWN_HOURS * HOUR_MS },
-        now,
-      )
+      const weeded = withPlant(s, { ...target, nextWeedAt: now + SIM.WEED_RESPAWN_HOURS * HOUR_MS })
       return progressQuest(
         bumpCareStreak(
           {
@@ -117,7 +118,7 @@ export function apply(state: GameState, action: Action, now: number): GameState 
         return s
       }
       const nutrition = clamp(plant.nutrition + SIM.FEED_PLANT_NUTRITION, 0, 100)
-      return bumpCareStreak(withPlant(s, { ...plant, nutrition, lastFedAt: now }, now), now)
+      return bumpCareStreak(withPlant(s, { ...plant, nutrition, lastFedAt: now }), now)
     }
     case 'feedTrap': {
       const target = s.plants.find((candidate) => candidate.id === action.plantId)
@@ -126,7 +127,7 @@ export function apply(state: GameState, action: Action, now: number): GameState 
       if (!trap || !isTrapReady(trap, now)) return s
       const traps = spendTrapUse(target, trap.id, now, 1)
       const nutrition = clamp(target.nutrition + SIM.HAND_FEED_NUTRITION, 0, 100)
-      return bumpCareStreak(withPlant(s, { ...target, traps, nutrition }, now), now)
+      return bumpCareStreak(withPlant(s, { ...target, traps, nutrition }), now)
     }
     case 'catchInsect': {
       const target = s.plants.find((candidate) => candidate.id === action.plantId)
@@ -138,7 +139,7 @@ export function apply(state: GameState, action: Action, now: number): GameState 
       const digestFactor = action.insect === 'beetle' ? SIM.BEETLE_DIGEST_FACTOR : 1
       const traps = spendTrapUse(target, trap.id, now, digestFactor)
       const nutrition = clamp(target.nutrition + def.nutrition, 0, 100)
-      let next = withPlant(s, { ...target, traps, nutrition }, now)
+      let next = withPlant(s, { ...target, traps, nutrition })
       if (def.dewdrops > 0) {
         next = {
           ...next,
@@ -156,17 +157,17 @@ export function apply(state: GameState, action: Action, now: number): GameState 
     case 'move': {
       if (unavailable(plant) || plant.placement === action.placement) return s
       if (action.placement === 'growlight' && !s.inventory.items.includes('growlight')) return s
-      return withPlant(s, { ...plant, placement: action.placement }, now)
+      return withPlant(s, { ...plant, placement: action.placement })
     }
     case 'rename': {
       const nickname = action.nickname.trim().slice(0, SIM.NICKNAME_MAX_LENGTH)
       if (!nickname || nickname === plant.nickname) return s
-      return withPlant(s, { ...plant, nickname }, now)
+      return withPlant(s, { ...plant, nickname })
     }
     case 'selectPlant': {
       if (s.activePlantId === action.plantId) return s
       if (!s.plants.some((candidate) => candidate.id === action.plantId)) return s
-      return { ...s, activePlantId: action.plantId, updatedAt: now }
+      return { ...s, activePlantId: action.plantId }
     }
     case 'buy': {
       const item = shopItem(action.item)
@@ -180,7 +181,6 @@ export function apply(state: GameState, action: Action, now: number): GameState 
           plants: [...s.plants, sprout],
           activePlantId: sprout.id,
           inventory: { ...s.inventory, dewdrops: s.inventory.dewdrops - item.cost },
-          updatedAt: now,
         }
       }
       if (item.kind === 'unlock' || item.kind === 'deco') {
@@ -191,12 +191,11 @@ export function apply(state: GameState, action: Action, now: number): GameState 
             dewdrops: s.inventory.dewdrops - item.cost,
             items: [...s.inventory.items, item.id],
           },
-          updatedAt: now,
         }
       }
       // pot: a physical repot of the active plant — repeatable per plant
       if (!item.potColor || plant.potColor === item.potColor) return s
-      const repotted = withPlant(s, { ...plant, potColor: item.potColor }, now)
+      const repotted = withPlant(s, { ...plant, potColor: item.potColor })
       return {
         ...repotted,
         inventory: { ...repotted.inventory, dewdrops: repotted.inventory.dewdrops - item.cost },
@@ -206,14 +205,14 @@ export function apply(state: GameState, action: Action, now: number): GameState 
       if (plant.dead || !SPECIES[plant.speciesId].needsDormancy) return s
       if (action.on) {
         if (seasonAt(now) !== 'winter' || plant.dormant) return s
-        return withPlant(s, { ...plant, dormant: true, flowering: null }, now)
+        return withPlant(s, { ...plant, dormant: true, flowering: null })
       }
       if (!plant.dormant) return s
-      return withPlant(s, { ...plant, dormant: false }, now)
+      return withPlant(s, { ...plant, dormant: false })
     }
     case 'cutFlower': {
       if (unavailable(plant) || !plant.flowering || plant.flowering.blooming) return s
-      const next = withPlant(s, { ...plant, flowering: null }, now)
+      const next = withPlant(s, { ...plant, flowering: null })
       return {
         ...next,
         inventory: {
@@ -224,26 +223,31 @@ export function apply(state: GameState, action: Action, now: number): GameState 
     }
     case 'letBloom': {
       if (unavailable(plant) || !plant.flowering || plant.flowering.blooming) return s
-      return withPlant(s, { ...plant, flowering: { startedAt: now, blooming: true } }, now)
+      return withPlant(s, { ...plant, flowering: { startedAt: now, blooming: true } })
     }
     case 'removePlant': {
       const target = s.plants.find((candidate) => candidate.id === action.plantId)
       if (!target || !target.dead || s.plants.length <= 1) return s
       const plants = s.plants.filter((candidate) => candidate.id !== action.plantId)
       const activePlantId = s.activePlantId === action.plantId ? plants[0].id : s.activePlantId
-      return { ...s, plants, activePlantId, updatedAt: now }
+      return { ...s, plants, activePlantId }
+    }
+    case 'setTimeScale': {
+      if (!TIME_SCALES.some((scale) => scale === action.scale)) return s
+      if (s.time.scale === action.scale) return s
+      return { ...s, time: withTimeScale(s.time, action.scale, realNow) }
     }
     case 'setSound': {
       if (s.settings.sound === action.on) return s
-      return { ...s, settings: { ...s.settings, sound: action.on }, updatedAt: now }
+      return { ...s, settings: { ...s.settings, sound: action.on } }
     }
     case 'setLocale': {
       if (s.settings.locale === action.locale) return s
-      return { ...s, settings: { ...s.settings, locale: action.locale }, updatedAt: now }
+      return { ...s, settings: { ...s.settings, locale: action.locale } }
     }
     case 'setHardMode': {
       if (s.settings.hardMode === action.on) return s
-      return { ...s, settings: { ...s.settings, hardMode: action.on }, updatedAt: now }
+      return { ...s, settings: { ...s.settings, hardMode: action.on } }
     }
   }
 }
@@ -265,11 +269,10 @@ function spendTrapUse(plant: PlantState, trapId: string, now: number, digestFact
   )
 }
 
-function withPlant(state: GameState, plant: PlantState, now: number): GameState {
+function withPlant(state: GameState, plant: PlantState): GameState {
   return {
     ...state,
     plants: state.plants.map((candidate) => (candidate.id === plant.id ? plant : candidate)),
-    updatedAt: now,
   }
 }
 

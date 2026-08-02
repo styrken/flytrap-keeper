@@ -5,7 +5,7 @@ import type { Group, InstancedMesh, Mesh, MeshStandardMaterial } from 'three'
 import { Color, Object3D } from 'three'
 import { playCatch, setRainAmbience } from '../audio'
 import { SIM, currentWeather } from '../sim'
-import { useGame } from '../store'
+import { gameNow, useGame } from '../store'
 import { daylightFactor } from './daylight'
 import { palette } from './palette'
 
@@ -42,7 +42,7 @@ export function WeatherSky() {
   }, [weather, soundOn])
 
   useFrame((_, delta) => {
-    const daylight = daylightFactor(Date.now())
+    const daylight = daylightFactor(gameNow())
     const ease = Math.min(1, delta * 2)
 
     if (skyMat.current) {

@@ -1,11 +1,12 @@
 // The room around the windowsill. Static architecture + furniture in <Room />,
 // purchasable decor in <RoomDecor />. Side walls are single-sided planes facing
 // inward, so the camera can orbit outside the room and still see in (dollhouse
-// trick) — only the window wall is solid boxes, since the camera never gets
-// behind it.
+// trick). The window wall needs solid boxes for its reveals, so it plays the
+// trick differently: <DollhouseWall> hides it while the camera is behind it.
 import { useIsVisiting, useSceneState } from '../sceneView'
 import { useGame } from '../store'
 import { daylightFactor } from './daylight'
+import { DollhouseWall } from './dollhouse'
 import { palette } from './palette'
 
 const WALL = '#f2e9da'
@@ -22,23 +23,30 @@ export function Room() {
         <meshStandardMaterial color="#a8804f" />
       </mesh>
 
-      {/* window wall: four segments around the opening */}
-      <mesh position={[-2.525, 0.955, -0.56]}>
-        <boxGeometry args={[2.45, 3.89, 0.12]} />
-        <meshStandardMaterial color={WALL} />
-      </mesh>
-      <mesh position={[2.525, 0.955, -0.56]}>
-        <boxGeometry args={[2.45, 3.89, 0.12]} />
-        <meshStandardMaterial color={WALL} />
-      </mesh>
-      <mesh position={[0, 2.48, -0.56]}>
-        <boxGeometry args={[2.6, 0.84, 0.12]} />
-        <meshStandardMaterial color={WALL} />
-      </mesh>
-      <mesh position={[0, -0.44, -0.56]}>
-        <boxGeometry args={[2.6, 1.1, 0.12]} />
-        <meshStandardMaterial color={WALL} />
-      </mesh>
+      {/* window wall: four segments around the opening, ducking out of sight
+          (skirting included) whenever the camera orbits behind them */}
+      <DollhouseWall behindZ={-0.5}>
+        <mesh position={[-2.525, 0.955, -0.56]}>
+          <boxGeometry args={[2.45, 3.89, 0.12]} />
+          <meshStandardMaterial color={WALL} />
+        </mesh>
+        <mesh position={[2.525, 0.955, -0.56]}>
+          <boxGeometry args={[2.45, 3.89, 0.12]} />
+          <meshStandardMaterial color={WALL} />
+        </mesh>
+        <mesh position={[0, 2.48, -0.56]}>
+          <boxGeometry args={[2.6, 0.84, 0.12]} />
+          <meshStandardMaterial color={WALL} />
+        </mesh>
+        <mesh position={[0, -0.44, -0.56]}>
+          <boxGeometry args={[2.6, 1.1, 0.12]} />
+          <meshStandardMaterial color={WALL} />
+        </mesh>
+        <mesh position={[0, -0.78, -0.49]}>
+          <boxGeometry args={[7.3, 0.22, 0.07]} />
+          <meshStandardMaterial color="#f0e6d4" />
+        </mesh>
+      </DollhouseWall>
 
       {/* side walls: inward-facing planes, invisible from outside */}
       <mesh position={[-3.65, 0.955, 1.655]} rotation-y={Math.PI / 2}>
@@ -50,11 +58,7 @@ export function Room() {
         <meshStandardMaterial color={WALL_SIDE} />
       </mesh>
 
-      {/* skirting boards */}
-      <mesh position={[0, -0.78, -0.49]}>
-        <boxGeometry args={[7.3, 0.22, 0.07]} />
-        <meshStandardMaterial color="#f0e6d4" />
-      </mesh>
+      {/* skirting boards along the side walls */}
       <mesh position={[-3.61, -0.78, 1.65]}>
         <boxGeometry args={[0.07, 0.22, 4.5]} />
         <meshStandardMaterial color="#f0e6d4" />

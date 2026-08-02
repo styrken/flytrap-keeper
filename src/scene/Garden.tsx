@@ -1,10 +1,11 @@
 // The garden: the outdoors around the keeper's house. The facade with the
-// front door and the big window runs along the north edge (the camera's
-// azimuth clamp keeps it on stage, same dollhouse thinking as the bedroom),
-// a picket fence with a gate rings the lawn, and the greenhouse stands in
-// the north-east corner once it is owned. Doors are real: their mats live
-// in playerMovement.ts, so the keeper walks between rooms instead of
-// teleporting. Weather happens to you out here — rain falls on the lawn.
+// front door and the big window runs along the north edge (hidden by
+// <DollhouseWall> while the camera orbits behind it, same trick as the
+// bedroom's window wall), a picket fence with a gate rings the lawn, and the
+// greenhouse stands in the north-east corner once it is owned. Doors are
+// real: their mats live in playerMovement.ts, so the keeper walks between
+// rooms instead of teleporting. Weather happens to you out here — rain falls
+// on the lawn.
 import { useFrame } from '@react-three/fiber'
 import { useMemo, useRef } from 'react'
 import type { Group, InstancedMesh, Mesh, MeshStandardMaterial } from 'three'
@@ -12,6 +13,7 @@ import { Color, DoubleSide, Object3D } from 'three'
 import { currentWeather } from '../sim'
 import { sceneNow, useSceneState } from '../sceneView'
 import { daylightFactor } from './daylight'
+import { DollhouseWall } from './dollhouse'
 import { palette } from './palette'
 import { GoldenDrop } from './WeatherSky'
 
@@ -42,7 +44,10 @@ export function Garden() {
         <meshStandardMaterial color={GRASS} />
       </mesh>
 
-      <House dark={dark} />
+      {/* the facade's front face sits at z ≈ -1.02 — hide the house beyond it */}
+      <DollhouseWall behindZ={-1.02}>
+        <House dark={dark} />
+      </DollhouseWall>
       <FlowerBed />
       <Downspout />
       <Path />

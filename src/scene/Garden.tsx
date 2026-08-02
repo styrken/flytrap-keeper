@@ -9,7 +9,7 @@
 import { useFrame } from '@react-three/fiber'
 import { useMemo, useRef } from 'react'
 import type { Group, InstancedMesh, Mesh, MeshStandardMaterial } from 'three'
-import { Color, DoubleSide, Object3D } from 'three'
+import { BackSide, Color, DoubleSide, Object3D } from 'three'
 import { currentWeather } from '../sim'
 import { sceneNow, useSceneState } from '../sceneView'
 import { daylightFactor } from './daylight'
@@ -735,10 +735,11 @@ function GardenWeather() {
 
   return (
     <group>
-      {/* sky backdrop behind the house and fence */}
-      <mesh position={[0, 1.6, -3.6]}>
-        <planeGeometry args={[26, 9]} />
-        <meshStandardMaterial ref={skyMat} color={palette.sky} />
+      {/* the sky: a drum around the whole lawn, so every direction has weather
+          now that the camera orbits freely — not just the side with the house */}
+      <mesh position={[0, 0.5, 2.4]}>
+        <cylinderGeometry args={[15.5, 15.5, 15, 14, 1, true]} />
+        <meshStandardMaterial ref={skyMat} color={palette.sky} side={BackSide} />
       </mesh>
       <mesh ref={sun} position={[-4.2, 4.4, -3.5]} rotation-z={0.5}>
         <boxGeometry args={[0.7, 0.7, 0.06]} />

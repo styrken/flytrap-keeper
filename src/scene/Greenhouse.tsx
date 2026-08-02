@@ -6,7 +6,7 @@
 import { useFrame } from '@react-three/fiber'
 import { useMemo, useRef } from 'react'
 import type { Group, InstancedMesh, Mesh, MeshStandardMaterial } from 'three'
-import { Color, DoubleSide, Object3D } from 'three'
+import { BackSide, Color, DoubleSide, Object3D } from 'three'
 import { currentWeather } from '../sim'
 import { sceneNow, useSceneState } from '../sceneView'
 import { daylightFactor } from './daylight'
@@ -280,10 +280,11 @@ function GreenhouseWeather() {
 
   return (
     <group>
-      {/* sky backdrop behind the back wall */}
-      <mesh position={[0, 1.6, -2.6]}>
-        <planeGeometry args={[13, 7]} />
-        <meshStandardMaterial ref={skyMat} color={palette.sky} />
+      {/* the sky: a drum around the glass house — weather in every direction,
+          same wrap-around fix as the garden's sky */}
+      <mesh position={[0, 0.5, 1.2]}>
+        <cylinderGeometry args={[15.5, 15.5, 15, 14, 1, true]} />
+        <meshStandardMaterial ref={skyMat} color={palette.sky} side={BackSide} />
       </mesh>
       <mesh ref={sun} position={[-2.4, 3.1, -2.5]} rotation-z={0.5}>
         <boxGeometry args={[0.5, 0.5, 0.06]} />

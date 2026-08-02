@@ -111,4 +111,7 @@ export const SIM = {
   GUEST_COOLDOWN_HOURS: 2,
 
   NICKNAME_MAX_LENGTH: 20,
+
+  /** The diary keeps milestones only — and even those are capped. */
+  JOURNAL_MAX_ENTRIES: 60,
 } as const

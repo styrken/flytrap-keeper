@@ -1,6 +1,7 @@
 import { type AchievementId, award } from './achievements'
 import { SIM } from './config'
 import { INSECTS, isFireflyNight } from './insects'
+import { remember, remembers } from './journal'
 import { progressQuest } from './quests'
 import { seasonAt } from './season'
 import { currentWeather } from './weather'
@@ -235,7 +236,11 @@ function applyAction(s: GameState, action: Action, now: number, realNow: number)
       const digestFactor = action.insect === 'beetle' ? SIM.BEETLE_DIGEST_FACTOR : 1
       const traps = spendTrapUse(target, trap.id, now, digestFactor)
       const nutrition = clamp(target.nutrition + def.nutrition, 0, 100)
-      let next = withPlant(s, { ...target, traps, nutrition })
+      let caught: PlantState = { ...target, traps, nutrition }
+      if (action.insect !== 'beetle' && !remembers(caught, 'firstCatch')) {
+        caught = remember(caught, 'firstCatch', now)
+      }
+      let next = withPlant(s, caught)
       if (def.dewdrops > 0) {
         next = {
           ...next,
@@ -308,7 +313,10 @@ function applyAction(s: GameState, action: Action, now: number, realNow: number)
       if (item.kind === 'accessory') {
         // Dressing up the active plant — repeatable per plant, swaps the old one.
         if (!item.accessoryId || plant.accessory === item.accessoryId || plant.dead) return s
-        const dressed = withPlant(s, { ...plant, accessory: item.accessoryId })
+        const dressed = withPlant(
+          s,
+          remember({ ...plant, accessory: item.accessoryId }, 'dressed', now),
+        )
         return {
           ...dressed,
           inventory: { ...dressed.inventory, dewdrops: dressed.inventory.dewdrops - item.cost },
@@ -316,7 +324,7 @@ function applyAction(s: GameState, action: Action, now: number, realNow: number)
       }
       // pot: a physical repot of the active plant — repeatable per plant
       if (!item.potColor || plant.potColor === item.potColor) return s
-      const repotted = withPlant(s, { ...plant, potColor: item.potColor })
+      const repotted = withPlant(s, remember({ ...plant, potColor: item.potColor }, 'repot', now))
       return {
         ...repotted,
         inventory: { ...repotted.inventory, dewdrops: repotted.inventory.dewdrops - item.cost },
@@ -326,14 +334,14 @@ function applyAction(s: GameState, action: Action, now: number, realNow: number)
       if (plant.dead || !SPECIES[plant.speciesId].needsDormancy) return s
       if (action.on) {
         if (seasonAt(now) !== 'winter' || plant.dormant) return s
-        return withPlant(s, { ...plant, dormant: true, flowering: null })
+        return withPlant(s, remember({ ...plant, dormant: true, flowering: null }, 'sleep', now))
       }
       if (!plant.dormant) return s
-      return withPlant(s, { ...plant, dormant: false })
+      return withPlant(s, remember({ ...plant, dormant: false }, 'wake', now))
     }
     case 'cutFlower': {
       if (unavailable(plant) || !plant.flowering || plant.flowering.blooming) return s
-      const next = withPlant(s, { ...plant, flowering: null })
+      const next = withPlant(s, remember({ ...plant, flowering: null }, 'cut', now))
       return {
         ...next,
         inventory: {

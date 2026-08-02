@@ -301,6 +301,24 @@
     "plant": "Plant the seed 🌱",
     "start": "Let's grow!"
   },
+  "journal": {
+    "open": "Plant diary",
+    "title": "{{name}}'s diary",
+    "planted": "Planted as a tiny seed 🌱",
+    "firstPage": "The diary begins here — earlier adventures live on in fond memory 📖",
+    "stage": "Grew into a {{stage}}!",
+    "firstCatch": "First catch — snap! 🪰",
+    "stalk": "A flower stalk is reaching for the light 🌿",
+    "bloomed": "Stood in full bloom 🌼",
+    "cut": "The stalk was cut — better safe than sorry ✂️",
+    "wilted": "Wilted… hang in there 🥀",
+    "recovered": "Back from the brink 💚",
+    "sleep": "Tucked in for the winter rest 💤",
+    "wake": "Woke up — hello again, world ☀️",
+    "repot": "Moved into a fresh pot 🪴",
+    "dressed": "Got dressed up ✨",
+    "died": "The end of a little life 🪦"
+  },
   "photo": {
     "take": "Take a postcard photo",
     "title": "Postcard",

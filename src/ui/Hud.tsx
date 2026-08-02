@@ -59,6 +59,7 @@ export function Hud() {
   const setShowShop = useGame((s) => s.setShowShop)
   const setShowLexicon = useGame((s) => s.setShowLexicon)
   const setShowQuests = useGame((s) => s.setShowQuests)
+  const setShowJournal = useGame((s) => s.setShowJournal)
   const setStatInfo = useGame((s) => s.setStatInfo)
   const setPhoto = useGame((s) => s.setPhoto)
   const roomView = useGame((s) => s.roomView)
@@ -301,6 +302,15 @@ export function Hud() {
                 onClick={() => setShowLexicon(true)}
               >
                 📖
+              </button>
+              <button
+                type="button"
+                className="icon-btn"
+                aria-label={t('journal.open')}
+                title={t('journal.open')}
+                onClick={() => setShowJournal(true)}
+              >
+                📔
               </button>
               <button
                 type="button"

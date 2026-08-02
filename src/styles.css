@@ -882,6 +882,31 @@ h1 {
   justify-content: flex-end;
 }
 
+.journal-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.journal-list li {
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+  padding: 7px 0;
+  border-bottom: 1px dashed rgba(109, 97, 85, 0.25);
+}
+
+.journal-list li:last-child {
+  border-bottom: none;
+}
+
+.journal-date {
+  flex: none;
+  min-width: 92px;
+  font-size: 0.8rem;
+  color: var(--muted, #6d6155);
+}
+
 .hud-bottom {
   display: flex;
   flex-direction: column;

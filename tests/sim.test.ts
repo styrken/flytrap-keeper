@@ -46,7 +46,14 @@ describe('needs decay', () => {
   it('caps offline simulation: 100 hours away equals 36 hours away', () => {
     const away100 = tick(init(), T0 + h(100))
     const away36 = tick(init(), T0 + h(36))
-    expect(away100.plants).toEqual(away36.plants)
+    // Diary pages carry the replay-window timestamps, so they differ by
+    // design; the cap is about the plants' state being identical.
+    const stripJournal = (plants: typeof away100.plants) =>
+      plants.map((plant) => ({ ...plant, journal: [] }))
+    expect(stripJournal(away100.plants)).toEqual(stripJournal(away36.plants))
+    expect(away100.plants[0].journal.map((e) => e.kind)).toEqual(
+      away36.plants[0].journal.map((e) => e.kind),
+    )
   })
 
   it('resyncs without simulating when the clock goes backwards', () => {

@@ -49,6 +49,31 @@ export interface TrapState {
   witheredAt: number | null
 }
 
+/** The moments a plant's diary remembers — text lives in the locale files. */
+export type JournalKind =
+  | 'planted'
+  | 'firstPage'
+  | 'stage'
+  | 'firstCatch'
+  | 'stalk'
+  | 'bloomed'
+  | 'cut'
+  | 'wilted'
+  | 'recovered'
+  | 'sleep'
+  | 'wake'
+  | 'repot'
+  | 'dressed'
+  | 'died'
+
+export interface JournalEntry {
+  /** Game-clock ms when it happened. */
+  at: number
+  kind: JournalKind
+  /** For 'stage' entries: the stage that was reached. */
+  stage?: number
+}
+
 export interface FloweringState {
   /** When the stalk appeared — or, once blooming, when blooming began. */
   startedAt: number
@@ -88,6 +113,8 @@ export interface PlantState {
   dead: boolean
   /** Hard mode: when health first hit the floor; death after enough hours. */
   criticalSince: number | null
+  /** The diary: milestones only, oldest first, capped. */
+  journal: JournalEntry[]
 }
 
 /**

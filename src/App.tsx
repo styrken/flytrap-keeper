@@ -10,6 +10,7 @@ import { useIsVisiting } from './sceneView'
 import { FriendsDialog } from './ui/FriendsDialog'
 import { Hud } from './ui/Hud'
 import { TouchControls } from './ui/Joystick'
+import { JournalDialog } from './ui/JournalDialog'
 import { LexiconDialog } from './ui/LexiconDialog'
 import { MoveHint } from './ui/MoveHint'
 import { Onboarding } from './ui/Onboarding'
@@ -52,6 +53,7 @@ export default function App() {
       <Onboarding />
       <ShopDialog />
       <QuestsDialog />
+      <JournalDialog />
       <PhotoDialog />
       <StatInfoDialog />
       <LexiconDialog />

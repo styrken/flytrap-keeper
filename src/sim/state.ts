@@ -42,6 +42,7 @@ export function createPlant(
     dormant: false,
     dead: false,
     criticalSince: null,
+    journal: [{ at: now, kind: 'planted' }],
   }
 }
 

@@ -111,8 +111,18 @@ const MIGRATIONS: Record<number, Migration> = {
   },
   // v12 -> v13: butterwort, the plant diary and the arcade. The species alone
   // warrants the bump: older clients must refuse a save that may contain a
-  // pinguicula rather than mis-simulate a species they don't know.
-  12: (data) => data,
+  // pinguicula rather than mis-simulate a species they don't know. Existing
+  // plants open their diary on a fresh first page.
+  12: (data) => {
+    const base = typeof data.lastTickAt === 'number' ? data.lastTickAt : 0
+    return {
+      ...data,
+      plants: ((Array.isArray(data.plants) ? data.plants : []) as RawSave[]).map((plant) => ({
+        ...plant,
+        journal: [{ at: base, kind: 'firstPage' }],
+      })),
+    }
+  },
 }
 
 export function saveToString(state: GameState): string {

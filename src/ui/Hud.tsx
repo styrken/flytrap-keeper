@@ -361,57 +361,71 @@ export function Hud() {
         <div className="actions">
           <button
             type="button"
+            aria-label={t('actions.water')}
+            title={t('actions.water')}
             onClick={() => setShowPour(true)}
             disabled={!needsWater || barrelLow}
           >
-            💧 {t('actions.water')}
+            💧 <span className="act-label">{t('actions.water')}</span>
           </button>
           {weedReady && (
-            <button type="button" onClick={() => dispatch({ type: 'pullWeed', plantId: plant.id })}>
-              🌿 {t('actions.pullWeed')}
+            <button
+              type="button"
+              aria-label={t('actions.pullWeed')}
+              title={t('actions.pullWeed')}
+              onClick={() => dispatch({ type: 'pullWeed', plantId: plant.id })}
+            >
+              🌿 <span className="act-label">{t('actions.pullWeed')}</span>
             </button>
           )}
           {barrelLow && needsWater && (
             <button
               type="button"
               className="warn"
+              aria-label={t('actions.tapWater')}
               title={t('status.tapWaterWarning')}
               onClick={() => {
                 dispatch({ type: 'tapWater' })
                 playSplash()
               }}
             >
-              🚰 {t('actions.tapWater')}
+              🚰 <span className="act-label">{t('actions.tapWater')}</span>
             </button>
           )}
           {species.needsMisting && (
             <button
               type="button"
+              aria-label={t('actions.mist')}
+              title={t('actions.mist')}
               onClick={() => dispatch({ type: 'mist' })}
               disabled={plant.humidity >= 99.5 || plant.dormant || plant.dead}
             >
-              💨 {t('actions.mist')}
+              💨 <span className="act-label">{t('actions.mist')}</span>
             </button>
           )}
           {species.isSnapper ? (
             <button
               type="button"
+              aria-label={t('actions.feed')}
+              title={t('actions.feed')}
               onClick={() => {
                 const trap = firstReadyTrap(plant, gameNow())
                 if (trap) dispatch({ type: 'feedTrap', plantId: plant.id, trapId: trap.id })
               }}
               disabled={ready === 0 || plant.wilted || plant.dormant || plant.dead}
             >
-              🪰 {t('actions.feed')}
+              🪰 <span className="act-label">{t('actions.feed')}</span>
               {ready > 0 && !plant.wilted && <span className="badge">{ready}</span>}
             </button>
           ) : (
             <button
               type="button"
+              aria-label={t('actions.feed')}
+              title={t('actions.feed')}
               onClick={() => dispatch({ type: 'feedPlant' })}
               disabled={!canFeedPlant(plant, now) || plant.dormant || plant.dead}
             >
-              🪰 {t('actions.feed')}
+              🪰 <span className="act-label">{t('actions.feed')}</span>
             </button>
           )}
           <div className="segmented" role="group" aria-label={t('actions.spot')}>

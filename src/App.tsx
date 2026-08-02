@@ -3,6 +3,7 @@ import { Canvas } from '@react-three/fiber'
 import { Suspense } from 'react'
 import { Diorama } from './scene/Diorama'
 import { Lights } from './scene/Lights'
+import { PhotoRig } from './scene/PhotoRig'
 import { Player } from './scene/Player'
 import { FLOOR_Y, HEAD_HEIGHT, SPAWN } from './scene/playerMovement'
 import { useIsVisiting } from './sceneView'
@@ -12,6 +13,7 @@ import { TouchControls } from './ui/Joystick'
 import { LexiconDialog } from './ui/LexiconDialog'
 import { MoveHint } from './ui/MoveHint'
 import { Onboarding } from './ui/Onboarding'
+import { PhotoDialog } from './ui/PhotoDialog'
 import { QuestsDialog } from './ui/QuestsDialog'
 import { ConflictDialog, SettingsDialog } from './ui/SettingsDialog'
 import { ShopDialog } from './ui/ShopDialog'
@@ -29,6 +31,7 @@ export default function App() {
           <Diorama />
         </Suspense>
         <Player />
+        <PhotoRig />
         <OrbitControls
           makeDefault
           target={[SPAWN.x, FLOOR_Y + HEAD_HEIGHT, SPAWN.z]}
@@ -49,6 +52,7 @@ export default function App() {
       <Onboarding />
       <ShopDialog />
       <QuestsDialog />
+      <PhotoDialog />
       <StatInfoDialog />
       <LexiconDialog />
       <FriendsDialog />

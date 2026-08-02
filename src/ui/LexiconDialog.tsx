@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import { SPECIES, type SpeciesId } from '../sim'
+import { CULTIVARS, SPECIES, type SpeciesId } from '../sim'
 import { useGame } from '../store'
 import { FlytrapIcon } from './FlytrapIcon'
 
@@ -19,6 +19,7 @@ export function LexiconDialog() {
   if (!show) return null
 
   const ownedSpecies = new Set(plants.map((plant) => plant.speciesId))
+  const ownedCultivars = CULTIVARS.filter((c) => plants.some((plant) => plant.cultivar === c))
 
   return (
     <div className="dialog-backdrop" onClick={() => setShow(false)}>
@@ -43,6 +44,15 @@ export function LexiconDialog() {
                 {owned && <em className="lexicon-latin"> · {t(`species.${id}.latin`)}</em>}
               </h3>
               <p className="muted">{owned ? t(`species.${id}.facts`) : t('lexicon.locked')}</p>
+              {id === 'dionaea' && ownedCultivars.length > 0 && (
+                <ul className="lexicon-cultivars">
+                  {ownedCultivars.map((c) => (
+                    <li key={c}>
+                      <strong>‘{t(`cultivar.${c}.name`)}’</strong> — {t(`cultivar.${c}.facts`)}
+                    </li>
+                  ))}
+                </ul>
+              )}
             </section>
           )
         })}

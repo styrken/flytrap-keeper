@@ -47,6 +47,8 @@ interface GameStore {
   showQuests: boolean
   /** Stat whose explainer dialog is open — pure view state, never saved. */
   statInfo: StatInfoId | null
+  /** A freshly composed postcard (data URL) awaiting save/share, or null. */
+  photo: string | null
   /** Which room the camera is in — pure view state, never saved. */
   roomView: RoomView
   sync: SyncState
@@ -61,6 +63,7 @@ interface GameStore {
   setShowLexicon: (show: boolean) => void
   setShowQuests: (show: boolean) => void
   setStatInfo: (stat: StatInfoId | null) => void
+  setPhoto: (photo: string | null) => void
   setRoomView: (room: RoomView) => void
   setSync: (sync: SyncState) => void
   /** Replace the whole game state (cloud adopt / file import) and persist it. */
@@ -80,6 +83,7 @@ export const useGame = create<GameStore>()((set, get) => ({
   showLexicon: false,
   showQuests: false,
   statInfo: null,
+  photo: null,
   roomView: 'bedroom',
   sync: { kind: 'unknown' },
   conflict: null,
@@ -113,6 +117,7 @@ export const useGame = create<GameStore>()((set, get) => ({
   setShowLexicon: (show) => set({ showLexicon: show }),
   setShowQuests: (show) => set({ showQuests: show }),
   setStatInfo: (statInfo) => set({ statInfo }),
+  setPhoto: (photo) => set({ photo }),
   setRoomView: (room) => set({ roomView: room }),
   setSync: (sync) => set({ sync }),
   adoptState: (rawState) => {
@@ -140,6 +145,7 @@ export const useGame = create<GameStore>()((set, get) => ({
       showLexicon: false,
       showQuests: false,
       statInfo: null,
+      photo: null,
       roomView: 'bedroom',
       conflict: null,
     })

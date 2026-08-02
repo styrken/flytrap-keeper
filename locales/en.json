@@ -98,7 +98,9 @@
     "wake": "Wake up",
     "cutFlower": "Cut the stalk",
     "letBloom": "Let it bloom",
-    "removePlant": "Clear the pot"
+    "removePlant": "Clear the pot",
+    "letCatIn": "Let it in",
+    "letSpiderStay": "Let it stay"
   },
   "placement": {
     "south-window": "South window",
@@ -127,6 +129,8 @@
     "dailyBonus": "Daily care bonus: +5 dewdrops",
     "dormant": "{{name}} is sleeping through winter. 💤 Sweet dreams until spring.",
     "winterHint": "It's winter — {{name}} would love a long nap. Skipping it wears the plant down.",
+    "catAtWindow": "A soaked little cat is meowing at the window…",
+    "spiderAtCorner": "A little spider is spinning a trial web in the corner…",
     "flowerChoice": "{{name}} is sending up a flower stalk! Cutting it is the safe choice — blooming costs strength but rewards seeds.",
     "blooming": "{{name}} is in bloom 🌼 — beautiful, and a little exhausting.",
     "dead": "💀 {{name}} didn't make it. Hard mode is unforgiving."
@@ -136,6 +140,7 @@
     "pitch": "Earned dewdrops buy new seeds, gear and a little flair.",
     "owned": "Owned",
     "noSpots": "No free spots",
+    "needsGreenhouse": "Needs the greenhouse",
     "items": {
       "seed-drosera": {
         "name": "Sundew seeds",
@@ -149,6 +154,18 @@
         "name": "Trumpet pitcher rhizome",
         "desc": "Sun-hungry trumpets that need a real winter rest."
       },
+      "seed-justina": {
+        "name": "‘Justina Davis’ seeds",
+        "desc": "A rare flytrap that stays entirely green — gentle, sun-proof elegance."
+      },
+      "seed-b52": {
+        "name": "‘B52’ seeds",
+        "desc": "A rare giant flytrap — grows the biggest traps of them all."
+      },
+      "seed-red-dragon": {
+        "name": "‘Red Dragon’ seeds",
+        "desc": "A rare all-red flytrap — Akai Ryū wears autumn colours all year."
+      },
       "growlight": {
         "name": "Grow light",
         "desc": "Perfect light in any weather — a new spot for any plant."
@@ -157,9 +174,17 @@
         "name": "Greenhouse",
         "desc": "A little glass house in the garden — three sunny, humid spots for more plants."
       },
+      "tadpole-jar": {
+        "name": "Tadpole jar",
+        "desc": "A tiny swimmer today, a greenhouse frog in a week. Real frogs ambush insects from pitcher plants!"
+      },
       "gnome": {
         "name": "Windowsill gnome",
         "desc": "Purely decorative. Judges your watering schedule silently."
+      },
+      "bird-feeder": {
+        "name": "Bird feeder",
+        "desc": "A seed tray outside the window. A robin drops by — even in the dead of winter."
       },
       "rug": {
         "name": "Cosy rug",
@@ -183,12 +208,34 @@
       },
       "pot-blue": { "name": "Blue pot", "desc": "Repot the selected plant in calm blue." },
       "pot-mint": { "name": "Mint pot", "desc": "Repot the selected plant in fresh mint." },
-      "pot-plum": { "name": "Plum pot", "desc": "Repot the selected plant in royal plum." }
+      "pot-plum": { "name": "Plum pot", "desc": "Repot the selected plant in royal plum." },
+      "googly-eyes": {
+        "name": "Googly eyes",
+        "desc": "For the selected plant. On a flytrap they ride the snapping jaw. No regrets."
+      },
+      "bow": {
+        "name": "Little bow",
+        "desc": "A neat bow for the selected plant. Dapper — even mid-snap."
+      }
     }
   },
   "lexicon": {
     "title": "Species lexicon",
     "locked": "??? — grow this species to unlock its story."
+  },
+  "cultivar": {
+    "b52": {
+      "name": "B52",
+      "facts": "A celebrated giant among flytraps — its traps grow well past five centimetres, among the largest ever raised. The name was simply the grower's bench label, not the bomber."
+    },
+    "red-dragon": {
+      "name": "Red Dragon",
+      "facts": "An all-red cultivar — 'Akai Ryū' is Japanese for red dragon. The burgundy comes from anthocyanin, the same pigment that reddens autumn leaves, and it deepens in strong light."
+    },
+    "justina": {
+      "name": "Justina Davis",
+      "facts": "Stays entirely green even in blazing sun — a natural variant that makes no red pigment at all. Named after the wife of the colonial governor who wrote the first known description of the Venus flytrap."
+    }
   },
   "quests": {
     "title": "Daily tasks",
@@ -216,7 +263,20 @@
     "green-thumb": "Green thumb",
     "rain-collector": "Rain collector",
     "survivor": "Back from the brink",
-    "in-bloom": "In bloom"
+    "in-bloom": "In bloom",
+    "night-owl": "Night owl",
+    "first-wish": "Wish upon a star",
+    "firefly-night": "Firefly night",
+    "cultivar-collector": "Cultivar collector",
+    "pet-frog": "Metamorphosis!",
+    "pet-cat": "Rainy-day friend",
+    "pet-snail": "World's calmest pet",
+    "pet-spider": "Eight-legged roommate",
+    "ladybird-luck": "A spot of luck",
+    "robin-song": "The robin's song",
+    "safe-landing": "Safe landing",
+    "evening-snuffler": "Evening snuffler",
+    "full-house": "Full house"
   },
   "onboarding": {
     "welcome1": "Flytrap Keeper is a calm, real-time care game. Your carnivorous plant lives on while you're away — drop by a few times a day, tend to it, and watch it grow from seedling to bloom.",
@@ -230,6 +290,13 @@
     "onTheHouse": "on the house",
     "plant": "Plant the seed 🌱",
     "start": "Let's grow!"
+  },
+  "photo": {
+    "take": "Take a postcard photo",
+    "title": "Postcard",
+    "alt": "A postcard photo of your plant room",
+    "save": "Save picture",
+    "share": "Share"
   },
   "pour": {
     "title": "Steady hands…",

@@ -98,7 +98,9 @@
     "wake": "Væk den",
     "cutFlower": "Klip stilken",
     "letBloom": "Lad den blomstre",
-    "removePlant": "Ryd potten"
+    "removePlant": "Ryd potten",
+    "letCatIn": "Luk den ind",
+    "letSpiderStay": "Lad den blive"
   },
   "placement": {
     "south-window": "Sydvindue",
@@ -127,6 +129,8 @@
     "dailyBonus": "Daglig pasningsbonus: +5 dugdråber",
     "dormant": "{{name}} sover vintersøvn. 💤 Sov godt — vi ses til foråret.",
     "winterHint": "Det er vinter — {{name}} trænger til en lang lur. Springes den over, slides planten.",
+    "catAtWindow": "En gennemblødt lille kat mjaver ude ved ruden…",
+    "spiderAtCorner": "En lille edderkop spinder prøve-net i hjørnet…",
     "flowerChoice": "{{name}} skyder en blomsterstilk! At klippe den er det sikre valg — blomstring koster kræfter, men giver frø.",
     "blooming": "{{name}} blomstrer 🌼 — smukt, men lidt udmattende.",
     "dead": "💀 {{name}} klarede den ikke. Hard mode er nådesløs."
@@ -136,6 +140,7 @@
     "pitch": "Optjente dugdråber køber nye frø, udstyr og lidt pynt.",
     "owned": "Ejet",
     "noSpots": "Ingen ledige pladser",
+    "needsGreenhouse": "Kræver drivhuset",
     "items": {
       "seed-drosera": {
         "name": "Soldug-frø",
@@ -149,6 +154,18 @@
         "name": "Trompetkande-rodstok",
         "desc": "Solhungrende trompeter med behov for ægte vinterdvale."
       },
+      "seed-justina": {
+        "name": "‘Justina Davis’-frø",
+        "desc": "En sjælden fluefanger, der forbliver helt grøn — blid, solsikker elegance."
+      },
+      "seed-b52": {
+        "name": "‘B52’-frø",
+        "desc": "En sjælden kæmpe-fluefanger — får de største fælder af dem alle."
+      },
+      "seed-red-dragon": {
+        "name": "‘Red Dragon’-frø",
+        "desc": "En sjælden helrød fluefanger — Akai Ryū bærer efterårsfarver hele året."
+      },
       "growlight": {
         "name": "Growlampe",
         "desc": "Perfekt lys i al slags vejr — en ny plads til enhver plante."
@@ -157,9 +174,17 @@
         "name": "Drivhus",
         "desc": "Et lille glashus i haven — tre solrige, fugtige pladser til flere planter."
       },
+      "tadpole-jar": {
+        "name": "En frø (ikke et frø)",
+        "desc": "En lille svømmer i dag, en drivhus-frø om en uge. Ægte frøer hugger insekter fra kandeplanter!"
+      },
       "gnome": {
         "name": "Vindueskarm-nisse",
         "desc": "Ren pynt. Dømmer lydløst din vandingsrytme."
+      },
+      "bird-feeder": {
+        "name": "Foderbræt",
+        "desc": "Et frøbræt uden for ruden. En rødhals kigger forbi — selv midt om vinteren."
       },
       "rug": {
         "name": "Hyggeligt tæppe",
@@ -186,12 +211,34 @@
       "pot-plum": {
         "name": "Blommefarvet potte",
         "desc": "Ompot den valgte plante i kongelig blomme."
+      },
+      "googly-eyes": {
+        "name": "Rulleøjne",
+        "desc": "Til den valgte plante. På en fluefanger sidder de på selve kæben. Ingen fortrydelse."
+      },
+      "bow": {
+        "name": "Lille sløjfe",
+        "desc": "En fin sløjfe til den valgte plante. Elegant — selv midt i et snap."
       }
     }
   },
   "lexicon": {
     "title": "Artsleksikon",
     "locked": "??? — dyrk arten for at låse dens historie op."
+  },
+  "cultivar": {
+    "b52": {
+      "name": "B52",
+      "facts": "En berømt kæmpe blandt fluefangere — fælderne bliver godt over fem centimeter, blandt de største nogensinde. Navnet var bare gartnerens bakke-mærkat, ikke bombeflyet."
+    },
+    "red-dragon": {
+      "name": "Red Dragon",
+      "facts": "En helrød kultivar — 'Akai Ryū' er japansk for rød drage. Det dybrøde kommer fra anthocyanin, samme pigment som farver efterårsblade, og bliver dybere i stærkt lys."
+    },
+    "justina": {
+      "name": "Justina Davis",
+      "facts": "Forbliver helt grøn selv i bagende sol — en naturlig variant helt uden rødt pigment. Opkaldt efter hustruen til kolonitidens guvernør, der skrev den første kendte beskrivelse af Venusfluefangeren."
+    }
   },
   "quests": {
     "title": "Dagens opgaver",
@@ -219,7 +266,20 @@
     "green-thumb": "Grønne fingre",
     "rain-collector": "Regnsamler",
     "survivor": "Tilbage fra randen",
-    "in-bloom": "I blomst"
+    "in-bloom": "I blomst",
+    "night-owl": "Natteravn",
+    "first-wish": "Ønsk dig noget",
+    "firefly-night": "Ildfluenat",
+    "cultivar-collector": "Kultivar-samler",
+    "pet-frog": "Fuldendt forvandling!",
+    "pet-cat": "Regnvejrsven",
+    "pet-snail": "Verdens roligste kæledyr",
+    "pet-spider": "Bofælle på otte ben",
+    "ladybird-luck": "Lykkebringer",
+    "robin-song": "Rødhalsens sang",
+    "safe-landing": "Sikker landing",
+    "evening-snuffler": "Aftensnuseren",
+    "full-house": "Fuldt hus"
   },
   "onboarding": {
     "welcome1": "Flytrap Keeper er et roligt pasningsspil i realtid. Din kødædende plante lever videre, mens du er væk — kig forbi et par gange om dagen, pas den, og se den vokse fra spire til blomst.",
@@ -233,6 +293,13 @@
     "onTheHouse": "på husets regning",
     "plant": "Plant frøet 🌱",
     "start": "Lad os gro!"
+  },
+  "photo": {
+    "take": "Tag et postkort-foto",
+    "title": "Postkort",
+    "alt": "Et postkort-foto af dit planteværelse",
+    "save": "Gem billede",
+    "share": "Del"
   },
   "pour": {
     "title": "Rolige hænder…",

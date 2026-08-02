@@ -858,6 +858,30 @@ h1 {
   letter-spacing: 0;
 }
 
+.lexicon-cultivars {
+  margin: 8px 0 0;
+  padding-left: 18px;
+  font-size: 0.86rem;
+  color: var(--muted, #6d6155);
+}
+
+.lexicon-cultivars li + li {
+  margin-top: 6px;
+}
+
+.photo-preview {
+  display: block;
+  width: 100%;
+  border-radius: 10px;
+  box-shadow: 0 6px 18px rgba(60, 47, 36, 0.25);
+}
+
+.photo-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
 .hud-bottom {
   display: flex;
   flex-direction: column;

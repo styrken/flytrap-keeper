@@ -88,5 +88,27 @@ export const SIM = {
   QUEST_DEWDROPS: 5,
   QUEST_ALL_BONUS: 10,
 
+  /** Night life: wish on a shooting star, fireflies on some summer nights. */
+  STAR_WISH_DEWDROPS: 3,
+  STAR_WISH_COOLDOWN_SECONDS: 45,
+  FIREFLY_NIGHT_CHANCE: 0.45,
+
+  /** Pets: zero needs by design — company, not chores. */
+  TADPOLE_STAGE_DAYS: [1.5, 3.5, 5.5, 7],
+  CAT_VISIT_CHANCE: 0.4,
+  SNAIL_RESCUE_DEWDROPS: 2,
+  SNAIL_RESCUE_COOLDOWN_HOURS: 4,
+  SNAIL_KEEP_AT: 3,
+  /** Spider season is autumn; a settled spider pays rent in caught bugs. */
+  SPIDER_DAY_CHANCE: 0.5,
+  WEB_LOOT_DEWDROPS: 2,
+  WEB_LOOT_COOLDOWN_HOURS: 12,
+  /** The ladybird is a guest, never a pet — greeting one brings a spot of luck. */
+  LADYBIRD_DEWDROPS: 1,
+  LADYBIRD_COOLDOWN_HOURS: 2,
+  /** More garden guests: the feeder robin, the butterfly, the hedgehog. */
+  GUEST_DEWDROPS: 1,
+  GUEST_COOLDOWN_HOURS: 2,
+
   NICKNAME_MAX_LENGTH: 20,
 } as const

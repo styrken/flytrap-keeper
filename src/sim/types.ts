@@ -1,7 +1,11 @@
 export type SpeciesId = 'dionaea' | 'drosera' | 'nepenthes' | 'sarracenia'
+/** Real Dionaea cultivars — visual rarities of the same species, same care. */
+export type CultivarId = 'b52' | 'red-dragon' | 'justina'
+/** Pure-silliness plant cosmetics. The googly eyes ride the snapping jaw. */
+export type AccessoryId = 'googly-eyes' | 'bow'
 export type PlacementId = 'north-window' | 'south-window' | 'growlight' | 'greenhouse'
 export type WeatherKind = 'sun' | 'clouds' | 'rain'
-export type InsectKind = 'fly' | 'mosquito' | 'spider' | 'beetle'
+export type InsectKind = 'fly' | 'mosquito' | 'spider' | 'beetle' | 'moth'
 export type Season = 'spring' | 'summer' | 'autumn' | 'winter'
 
 export type QuestId = 'water2' | 'catch2' | 'weed2' | 'pet2' | 'pour1' | 'mist1'
@@ -16,6 +20,9 @@ export type ShopItemId =
   | 'seed-drosera'
   | 'seed-nepenthes'
   | 'seed-sarracenia'
+  | 'seed-b52'
+  | 'seed-red-dragon'
+  | 'seed-justina'
   | 'growlight'
   | 'greenhouse'
   | 'gnome'
@@ -27,6 +34,10 @@ export type ShopItemId =
   | 'pot-blue'
   | 'pot-mint'
   | 'pot-plum'
+  | 'googly-eyes'
+  | 'bow'
+  | 'tadpole-jar'
+  | 'bird-feeder'
 
 export interface TrapState {
   id: string
@@ -47,6 +58,8 @@ export interface FloweringState {
 export interface PlantState {
   id: string
   speciesId: SpeciesId
+  /** Cosmetic rarity of the species (dionaea only for now) — care is identical. */
+  cultivar: CultivarId | null
   nickname: string
   water: number
   nutrition: number
@@ -65,6 +78,8 @@ export interface PlantState {
   /** A weed is present in the pot once now >= nextWeedAt; pulling it resets the clock. */
   nextWeedAt: number
   potColor: string | null
+  /** One cosmetic at a time — buying another swaps it (like repotting). */
+  accessory: AccessoryId | null
   flowering: FloweringState | null
   wilted: boolean
   dormant: boolean
@@ -72,6 +87,35 @@ export interface PlantState {
   dead: boolean
   /** Hard mode: when health first hit the floor; death after enough hours. */
   criticalSince: number | null
+}
+
+/**
+ * Pets have no needs — the plants are the ones that need you. These flags
+ * only remember who has moved in and how the frog's metamorphosis is going.
+ */
+export interface PetsState {
+  /** Game-clock ms when the tadpole jar was bought; the frog grows from here. */
+  tadpoleSince: number | null
+  /** The rainy-day cat was let in and now sleeps on the bed. */
+  cat: boolean
+  /** Gentle snail relocations so far — enough of them and it moves in. */
+  snailRescues: number
+  /** The snail lives in a jar on the desk now (air holes included). */
+  snail: boolean
+  /** Last rescue, so back-to-back taps can't farm the little reward. */
+  lastSnailAt: number | null
+  /** The autumn spider accepted a corner tenancy — pays rent in caught bugs. */
+  spider: boolean
+  /** Last time the web's rent was collected. */
+  lastWebLootAt: number | null
+  /** Last ladybird greeting — luck comes at its own gentle pace. */
+  lastLadybirdAt: number | null
+  /** Last robin greeting at the bird feeder. */
+  lastRobinAt: number | null
+  /** Last butterfly greeting — spring and summer's visitor. */
+  lastButterflyAt: number | null
+  /** Last hedgehog greeting on the greenhouse lawn. */
+  lastHedgehogAt: number | null
 }
 
 export interface GameTime {
@@ -95,9 +139,10 @@ export interface GameState {
   activePlantId: string
   inventory: { dewdrops: number; items: string[] }
   weather: { rainBarrel: number }
-  minigames: { lastRaindropAt: number | null }
+  minigames: { lastRaindropAt: number | null; lastWishAt: number | null }
   /** Three daily tasks, redrawn each UTC day. */
   quests: { day: string; items: QuestState[] }
+  pets: PetsState
   /** locale '' means no explicit choice — the UI follows the browser language. */
   settings: { sound: boolean; music: boolean; locale: string; hardMode: boolean }
   /** Distinct real-world days with at least one care action. */
@@ -112,6 +157,16 @@ export type Action =
   | { type: 'pet' }
   | { type: 'pullWeed'; plantId: string }
   | { type: 'catchRaindrop' }
+  | { type: 'wishOnStar' }
+  | { type: 'markFireflies' }
+  | { type: 'letCatIn' }
+  | { type: 'rescueSnail' }
+  | { type: 'adoptSpider' }
+  | { type: 'lootWeb' }
+  | { type: 'greetLadybird' }
+  | { type: 'greetRobin' }
+  | { type: 'greetButterfly' }
+  | { type: 'greetHedgehog' }
   | { type: 'feedTrap'; plantId: string; trapId: string }
   | { type: 'feedPlant' }
   | { type: 'catchInsect'; plantId: string; trapId: string; insect: InsectKind }

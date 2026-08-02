@@ -1,7 +1,7 @@
 import type { GameState } from './types'
 
 export const SAVE_KEY = 'flytrap-keeper:save'
-export const SAVE_VERSION = 9
+export const SAVE_VERSION = 10
 
 type RawSave = Record<string, unknown>
 type Migration = (data: RawSave) => RawSave
@@ -63,10 +63,15 @@ const MIGRATIONS: Record<number, Migration> = {
     const base = typeof data.lastTickAt === 'number' ? data.lastTickAt : 0
     return { ...data, time: { scale: 1, realAnchor: base, gameAnchor: base } }
   },
-  // v8 -> v9: the greenhouse. No new fields — the bump exists so clients
+  // v8 -> v9: calm background music, on by default.
+  8: (data) => {
+    const settings = (data.settings ?? {}) as RawSave
+    return { ...data, settings: { ...settings, music: true } }
+  },
+  // v9 -> v10: the greenhouse. No new fields — the bump exists so clients
   // without the 'greenhouse' placement refuse these saves instead of
   // simulating a plant in a spot they don't know.
-  8: (data) => data,
+  9: (data) => data,
 }
 
 export function saveToString(state: GameState): string {

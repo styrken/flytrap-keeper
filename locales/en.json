@@ -60,6 +60,7 @@
     "spot": "Window spot",
     "rename": "Name your plant",
     "sound": "Toggle sound",
+    "jump": "Hop",
     "pullWeed": "Pull weed",
     "dormancy": "Tuck in for winter",
     "wake": "Wake up",
@@ -207,7 +208,8 @@
     "good": "Nice and steady"
   },
   "scene": {
-    "hintDrag": "Drag to look around",
+    "hintMoveKeys": "Walk with WASD or the arrows, jump with Space — drag to look around",
+    "hintMoveTouch": "Walk with the joystick, jump with the Hop button — drag to look around",
     "hintSnap": "Tap a trap when an insect is close — snap!",
     "hintCare": "Keep it watered and happy — tap a pot to switch plants"
   },
@@ -216,6 +218,8 @@
     "close": "Close",
     "general": "General",
     "sound": "Sound",
+    "music": "Music",
+    "musicMuted": "Music plays once sound is turned on — the sound toggle mutes everything.",
     "on": "On",
     "off": "Off",
     "hardMode": "Hard mode",

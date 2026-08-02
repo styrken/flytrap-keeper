@@ -47,6 +47,10 @@ function SoundSection() {
         {settings.sound ? '🔊' : '🔇'} {t('settings.sound')}:{' '}
         {settings.sound ? t('settings.on') : t('settings.off')}
       </button>
+      <button type="button" onClick={() => dispatch({ type: 'setMusic', on: !settings.music })}>
+        🎵 {t('settings.music')}: {settings.music ? t('settings.on') : t('settings.off')}
+      </button>
+      {!settings.sound && settings.music && <p className="muted">{t('settings.musicMuted')}</p>}
       <div className="dialog-row">
         <button
           type="button"

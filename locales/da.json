@@ -60,6 +60,7 @@
     "spot": "Vinduesplads",
     "rename": "Navngiv din plante",
     "sound": "Lyd til/fra",
+    "jump": "Hop",
     "pullWeed": "Lug ukrudt",
     "dormancy": "Put til vinterdvale",
     "wake": "Væk den",
@@ -210,7 +211,8 @@
     "good": "Roligt og pænt"
   },
   "scene": {
-    "hintDrag": "Træk for at se dig omkring",
+    "hintMoveKeys": "Gå med WASD eller piletasterne, hop med mellemrum — træk for at se dig omkring",
+    "hintMoveTouch": "Gå med joysticket, hop med Hop-knappen — træk for at se dig omkring",
     "hintSnap": "Tap en fælde, når et insekt er tæt på — snap!",
     "hintCare": "Hold den vandet og glad — tap en potte for at skifte plante"
   },
@@ -219,6 +221,8 @@
     "close": "Luk",
     "general": "Generelt",
     "sound": "Lyd",
+    "music": "Musik",
+    "musicMuted": "Musikken spiller, når lyden er slået til — lyd-knappen slår alt fra.",
     "on": "Til",
     "off": "Fra",
     "hardMode": "Hard mode",

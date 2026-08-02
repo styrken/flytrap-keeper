@@ -40,4 +40,19 @@ describe('save/load', () => {
     const ancient = saveToString({ ...state, saveVersion: 0 })
     expect(loadFromString(ancient)).toBeNull()
   })
+
+  it('migrates a v8 save to add the music setting, defaulting on', () => {
+    const state = createInitialState(T0, 42)
+    const v8 = JSON.parse(saveToString(state)) as Record<string, unknown>
+    v8.saveVersion = 8
+    const settings = v8.settings as Record<string, unknown>
+    delete settings.music
+    settings.sound = false
+
+    const loaded = loadFromString(JSON.stringify(v8))
+    expect(loaded).not.toBeNull()
+    expect(loaded!.saveVersion).toBe(SAVE_VERSION)
+    expect(loaded!.settings.music).toBe(true)
+    expect(loaded!.settings.sound).toBe(false)
+  })
 })

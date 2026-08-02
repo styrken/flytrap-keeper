@@ -15,7 +15,7 @@ Et hyggeligt **3D-browserspil**, hvor du plejer og passer dine egne kødædende 
 
 ## 2. Navn
 
-**Besluttet: Flytrap Keeper.** Beskrivende, søgevenligt og skalerer til flere arter ("keeper of carnivorous plants"). Valgfri undertitel til titelskærmen: *— a Venus flytrap tale*.
+**Besluttet: Flytrap Keeper.** Beskrivende, søgevenligt og skalerer til flere arter ("keeper of carnivorous plants"). Valgfri undertitel til titelskærmen: _— a Venus flytrap tale_.
 
 ## 3. Core loop
 
@@ -29,14 +29,14 @@ Et hyggeligt **3D-browserspil**, hvor du plejer og passer dine egne kødædende 
 
 ### 4.1 Plantens tilstand
 
-| Stat | Skala | Ændres af |
-|---|---|---|
-| Vand | 0-100 | Falder over tid; fyldes ved vanding (kræver regnvand fra tønden) |
-| Næring | 0-100 | Falder langsomt; fyldes ved fangst af insekter |
-| Lys | placering | Afgøres af placering (nordvindue / sydvindue / growlampe) vs. artens behov |
-| Sundhed | 0-100 | Afledt: falder når behov forsømmes, heler når planten trives |
-| Vækst (XP) | akkumuleres | Optjenes pr. time hvor behovene er dækket; låser næste stadie op |
-| Humør | udtryk | Ren feedback (glad-vip, slatten, "sulten" fælde-gab) — ingen skjult mekanik |
+| Stat       | Skala       | Ændres af                                                                   |
+| ---------- | ----------- | --------------------------------------------------------------------------- |
+| Vand       | 0-100       | Falder over tid; fyldes ved vanding (kræver regnvand fra tønden)            |
+| Næring     | 0-100       | Falder langsomt; fyldes ved fangst af insekter                              |
+| Lys        | placering   | Afgøres af placering (nordvindue / sydvindue / growlampe) vs. artens behov  |
+| Sundhed    | 0-100       | Afledt: falder når behov forsømmes, heler når planten trives                |
+| Vækst (XP) | akkumuleres | Optjenes pr. time hvor behovene er dækket; låser næste stadie op            |
+| Humør      | udtryk      | Ren feedback (glad-vip, slatten, "sulten" fælde-gab) — ingen skjult mekanik |
 
 Vigtig botanisk detalje der giver godt gameplay: planterne **overlever fint uden insekter** (de laver fotosyntese) — fodring giver bonusvækst og dugdråber, men er aldrig et pligtløb. Vand og lys er derimod livsnødvendige.
 
@@ -55,7 +55,7 @@ Vigtig botanisk detalje der giver godt gameplay: planterne **overlever fint uden
 ### 4.4 Minispil: "Catch the fly" (i 3D)
 
 - En flue flyver ind i dioramaet i buede baner, summer rundt og lander af og til nær en fælde.
-- Spilleren klikker/tapper fælden i det rigtige øjeblik → *snap!* (fælde-animation). For tidligt/sent → fluen undslipper.
+- Spilleren klikker/tapper fælden i det rigtige øjeblik → _snap!_ (fælde-animation). For tidligt/sent → fluen undslipper.
 - Forskellige byttedyr: flue (standard), myg (lille), edderkop (stor bonus) — og **biller, der er for store** og skader fælden, hvis man snapper efter dem.
 - Belønning: næring + dugdråber. Naturligt loft via fordøjelsestiden (ingen grinding).
 
@@ -69,7 +69,7 @@ Vigtig botanisk detalje der giver godt gameplay: planterne **overlever fint uden
 ### 4.6 Vejr og årstider
 
 - Simpelt indbygget vejr (sol/overskyet/regn) — regn ses på ruden og fylder tønden; solrige dage øger lysudbyttet. Blød dag/nat-belysning i scenen.
-- **Vinterdvale** (fase 5): Venusfluefanger og trompetkande *skal* i dvale om vinteren. I dvale sover planten (= indbygget feriemode); springes dvalen over, starter planten svækket i foråret. Tropiske arter (kandebærer) er immune — variation mellem arterne.
+- **Vinterdvale** (fase 5): Venusfluefanger og trompetkande _skal_ i dvale om vinteren. I dvale sover planten (= indbygget feriemode); springes dvalen over, starter planten svækket i foråret. Tropiske arter (kandebærer) er immune — variation mellem arterne.
 
 ### 4.7 Visnen frem for død
 
@@ -80,13 +80,13 @@ Vigtig botanisk detalje der giver godt gameplay: planterne **overlever fint uden
 
 Hver art har sin egen pasningsprofil, 3D-modelsæt og leksikontekst med ægte fakta.
 
-| Art | Latin | Profil | Fase |
-|---|---|---|---|
-| Venus flytrap | *Dionaea muscipula* | Starterplante. Fælde-mekanik, meget lys, dvale | 1 |
-| Sundew | *Drosera capensis* | Tilgivende; klistrede blade fanger selv små insekter passivt | 4 |
-| Tropical pitcher | *Nepenthes* | Tropisk: kræver dis/luftfugtighed (ny handling), ingen dvale | 4 |
-| Trumpet pitcher | *Sarracenia* | Ekstra lyskrævende + dvale; store flotte kander | 4 |
-| Butterwort | *Pinguicula* | Anderledes vandingsrytme; bonusart | Backlog |
+| Art              | Latin               | Profil                                                       | Fase    |
+| ---------------- | ------------------- | ------------------------------------------------------------ | ------- |
+| Venus flytrap    | _Dionaea muscipula_ | Starterplante. Fælde-mekanik, meget lys, dvale               | 1       |
+| Sundew           | _Drosera capensis_  | Tilgivende; klistrede blade fanger selv små insekter passivt | 4       |
+| Tropical pitcher | _Nepenthes_         | Tropisk: kræver dis/luftfugtighed (ny handling), ingen dvale | 4       |
+| Trumpet pitcher  | _Sarracenia_        | Ekstra lyskrævende + dvale; store flotte kander              | 4       |
+| Butterwort       | _Pinguicula_        | Anderledes vandingsrytme; bonusart                           | Backlog |
 
 ## 6. Progression og belønning
 
@@ -100,7 +100,7 @@ Hver art har sin egen pasningsprofil, 3D-modelsæt og leksikontekst med ægte fa
 
 - **Scene:** Én diorama — vindueskarm med potte, vindue (vejr/dagslys udenfor), regnvandstønde og vandkande. Senere drivhuset som udvidet scene.
 - **Kamera:** Fast, indbydende vinkel med begrænset fri rotation/zoom (orbit med stramme grænser, pinch på mobil). Ingen fri navigation — det er en diorama, ikke en verden.
-- **Kunststil:** **Blocky/chunky 3D à la Roblox/Minecraft** — modeller bygget af simple klodser og cylindre med flade farver, chunky proportioner og flat shading i en varm, blød palette. Bevidst valgt fordi stilen er charmerende *og* meget billig at producere: ingen teksturmaling, ingen skulptering — og en stor klodset fluefanger-kæbe er sjov i sig selv. Props (potte, tønde, vindueskarm, pynt) kan laves som voxel-modeller i MagicaVoxel for ekstra Minecraft-vibe.
+- **Kunststil:** **Blocky/chunky 3D à la Roblox/Minecraft** — modeller bygget af simple klodser og cylindre med flade farver, chunky proportioner og flat shading i en varm, blød palette. Bevidst valgt fordi stilen er charmerende _og_ meget billig at producere: ingen teksturmaling, ingen skulptering — og en stor klodset fluefanger-kæbe er sjov i sig selv. Props (potte, tønde, vindueskarm, pynt) kan laves som voxel-modeller i MagicaVoxel for ekstra Minecraft-vibe.
 - **Interaktion:** Klik/tap direkte på tingene via raycasting — vandkanden for at vande, fælden for at snappe, planten for at flytte den. Store hit-områder på touch.
 - **Animation:** Klods-stilen gør animation enkel: fælde-snap er en hængsel-rotation af overkæben, humør er poseringer/vip af hele planten, dertil blad-svaj, flue-flyvebaner og simple regn-partikler. Alt organisk sker i 3D; HUD er almindelig DOM ovenpå.
 - **Performance-budget:** Klods-geometri er naturligt let: < 50k triangler, 1-2 dynamiske lyskilder + ambient, mål 60 fps på desktop og 30-60 på midrange-mobil. Testes på telefon fra fase 0.
@@ -114,7 +114,7 @@ Hver art har sin egen pasningsprofil, 3D-modelsæt og leksikontekst med ægte fa
 
 ## 9. Gemning og konto (ingen mail)
 
-**Princip: local-first.** Spillet virker fuldt ud uden konto — alt gemmes i `localStorage` med versionsnummer og migrationsfunktioner. Kontoen er et *tilbud* om at sikre og flytte sin progression, aldrig en mur før spillet.
+**Princip: local-first.** Spillet virker fuldt ud uden konto — alt gemmes i `localStorage` med versionsnummer og migrationsfunktioner. Kontoen er et _tilbud_ om at sikre og flytte sin progression, aldrig en mur før spillet.
 
 ### 9.1 Kontomodel: brugernavn + kodeord, ingen mail
 
@@ -163,50 +163,57 @@ Al spillogik ligger i `src/sim/` som **rene funktioner uden DOM- eller Three.js-
 - Seedet RNG → deterministisk og testbar ("simulér 7 dages pasning" som unit test).
 - Alle balance-tal (forfaldsrater, XP-tærskler, priser) samles i `sim/config.ts`, så tuning er ét sted.
 
-3D-laget er *ren visning*: det læser state og afspiller animationer — det ejer aldrig sandheden. Skulle vi en dag skifte renderer (eller lave 2D-udgave til svage enheder), overlever hele spillet.
+3D-laget er _ren visning_: det læser state og afspiller animationer — det ejer aldrig sandheden. Skulle vi en dag skifte renderer (eller lave 2D-udgave til svage enheder), overlever hele spillet.
 
 ### 11.3 Datamodel (udkast)
 
 ```ts
-type SpeciesId = 'dionaea' | 'drosera' | 'nepenthes' | 'sarracenia';
-type PlacementId = 'north-window' | 'south-window' | 'growlight';
+type SpeciesId = 'dionaea' | 'drosera' | 'nepenthes' | 'sarracenia'
+type PlacementId = 'north-window' | 'south-window' | 'growlight'
 
 interface SpeciesDef {
-  id: SpeciesId;
+  id: SpeciesId
   care: {
-    waterDecayPerHour: number;
-    nutritionDecayPerHour: number;
-    idealLight: PlacementId[];
-    needsDormancy: boolean;
-    needsMisting: boolean;          // tropical pitcher
-  };
-  stages: { xpThreshold: number; trapCount: number }[];
-  modelSet: string;                 // reference til artens 3D-kit
+    waterDecayPerHour: number
+    nutritionDecayPerHour: number
+    idealLight: PlacementId[]
+    needsDormancy: boolean
+    needsMisting: boolean // tropical pitcher
+  }
+  stages: { xpThreshold: number; trapCount: number }[]
+  modelSet: string // reference til artens 3D-kit
 }
 
-interface TrapState { usesLeft: number; digestingUntil: number | null }
+interface TrapState {
+  usesLeft: number
+  digestingUntil: number | null
+}
 
 interface PlantState {
-  id: string;
-  speciesId: SpeciesId;
-  nickname: string;
-  water: number; nutrition: number; health: number;   // 0-100
-  xp: number; stage: number;
-  placement: PlacementId;
-  traps: TrapState[];
-  dormant: boolean; wilted: boolean;
+  id: string
+  speciesId: SpeciesId
+  nickname: string
+  water: number
+  nutrition: number
+  health: number // 0-100
+  xp: number
+  stage: number
+  placement: PlacementId
+  traps: TrapState[]
+  dormant: boolean
+  wilted: boolean
 }
 
 interface GameState {
-  saveVersion: number;              // til save-migrationer
-  updatedAt: number;                // til sky-synk (last-write-wins)
-  lastTickAt: number;               // epoch ms — grundlag for offline catch-up
-  rngSeed: number;
-  plants: PlantState[];
-  inventory: { dewdrops: number; items: string[] };
-  weather: { current: 'sun' | 'clouds' | 'rain'; rainBarrel: number };
-  achievements: string[];
-  settings: { sound: boolean; locale: string };
+  saveVersion: number // til save-migrationer
+  updatedAt: number // til sky-synk (last-write-wins)
+  lastTickAt: number // epoch ms — grundlag for offline catch-up
+  rngSeed: number
+  plants: PlantState[]
+  inventory: { dewdrops: number; items: string[] }
+  weather: { current: 'sun' | 'clouds' | 'rain'; rainBarrel: number }
+  achievements: string[]
+  settings: { sound: boolean; locale: string }
 }
 ```
 
@@ -221,10 +228,10 @@ Sprog-note: al kode, kommentarer og strenge i koden er på engelsk; artsnavne o.
 
 ### 11.5 3D-indholdspipeline — klodser gør det billigt
 
-- **Primitiver i kode frem for modelfiler:** Klods-stilen betyder, at planterne kan *bygges programmatisk* af bokse og cylindre — en fælde er to kasser med et hængsel, snap-animationen er en rotation. Hver art er et *kit* (potte, jord, roset-base, fælde/blad-modul, blomsterstilk), og vækst = kode der tilføjer/skalerer moduler. Ingen modelfil-eksplosion, glidende vækst, og fælder kan instanceres.
+- **Primitiver i kode frem for modelfiler:** Klods-stilen betyder, at planterne kan _bygges programmatisk_ af bokse og cylindre — en fælde er to kasser med et hængsel, snap-animationen er en rotation. Hver art er et _kit_ (potte, jord, roset-base, fælde/blad-modul, blomsterstilk), og vækst = kode der tilføjer/skalerer moduler. Ingen modelfil-eksplosion, glidende vækst, og fælder kan instanceres.
 - **Voxel-props i MagicaVoxel:** Potte, tønde, vindueskarm og pynt modelleres hurtigt som voxels og eksporteres til GLB — gratis værktøj, meget begyndervenligt, rammer Minecraft-æstetikken direkte.
 - **Blender som eskalering:** Kun hvis noget kræver mere (fx blomsten) — eksporteret som Draco-komprimeret GLB via `useGLTF`.
-- **Placeholder-først:** Fase 0-1 bygges med rå primitiver i de rigtige farver — som i klods-stilen allerede *ligner* næsten-færdig grafik. Polering er at justere proportioner og palette, ikke at lave alt om.
+- **Placeholder-først:** Fase 0-1 bygges med rå primitiver i de rigtige farver — som i klods-stilen allerede _ligner_ næsten-færdig grafik. Polering er at justere proportioner og palette, ikke at lave alt om.
 
 ### 11.6 Mappestruktur
 
@@ -254,15 +261,18 @@ plantespil/
 Estimaterne er kalendertid i hobbytempo (aftener/weekender). 3D koster lidt ekstra fundament i fase 0-1, men klods-stilen holder prisen nede — placeholders og færdig grafik er næsten samme ting.
 
 ### Fase 0 — Fundament (~2 dage)
-- [ ] Vite + React + TS-skelet, ESLint + Prettier, Vitest
-- [ ] R3F-scene: klods-potte + placeholder-plante på vindueskarm, orbit med grænser, kører på telefon
-- [ ] Voxel-pipeline bevist: én MagicaVoxel-prop eksporteret til GLB og indlæst
-- [ ] i18next sat op med `locales/en.json` — første streng går gennem `t()`
-- [ ] Vercel koblet på repoet: preview pr. PR + produktion på `main`
-- [ ] GitHub Actions (typecheck/lint/test) + README med "sådan kører du det lokalt"
+
+- [x] Vite + React + TS-skelet, ESLint + Prettier, Vitest
+- [x] R3F-scene: klods-potte + placeholder-plante på vindueskarm, orbit med grænser, kører på telefon
+- [x] GLB-pipeline bevist: vandkande-prop genereret som GLB (`npm run generate:props`) og indlæst via `useGLTF` — MagicaVoxel-eksporter kan afløse 1:1 i `public/models/`
+- [x] i18next sat op med `locales/en.json` — al UI-tekst går gennem `t()`
+- [ ] Vercel koblet på repoet: preview pr. PR + produktion (manuel engangs-import på vercel.com — se README)
+- [x] GitHub Actions (typecheck/lint/test/build) + README med "sådan kører du det lokalt"
 
 ### Fase 1 — MVP: "Én plante lever" (2-3 uger)
-*Mål: En Venus flytrap i 3D man reelt kan passe over flere dage — og som gemmes lokalt.*
+
+_Mål: En Venus flytrap i 3D man reelt kan passe over flere dage — og som gemmes lokalt._
+
 - [ ] Sim-kerne: `GameState`, `tick`, offline catch-up, seedet RNG
 - [ ] Stats (vand/næring/sundhed) + placeringer og lys
 - [ ] Handlinger via raycast + HUD: vand, fodr (klik på fælde), flyt placering
@@ -276,6 +286,7 @@ Estimaterne er kalendertid i hobbytempo (aftener/weekender). 3D koster lidt ekst
 **Definition of done:** Kan spilles på telefon og desktop; en uges simuleret pasning opfører sig korrekt; visnen kan altid vendes; kører flydende på midrange-mobil.
 
 ### Fase 2 — Spilfølelse (~2 uger)
+
 - [ ] "Catch the fly": flue med 3D-flyvebane, landing, timing-snap med hængsel-animation
 - [ ] Insekttyper med forskellig værdi + biller der skader fælden
 - [ ] Vejrsystem + regnvandstønde i scenen (vand bliver en ressource; postevands-dilemmaet)
@@ -285,6 +296,7 @@ Estimaterne er kalendertid i hobbytempo (aftener/weekender). 3D koster lidt ekst
 - [ ] Venus flytrap-kit v1: proportioner, palette og voxel-props poleres
 
 ### Fase 3 — Konto og sky-synk (~1 uge)
+
 - [ ] `api/`: Vercel functions + Postgres (Neon) — register/login/save/delete, scrypt, rate limiting
 - [ ] Konto-UI: opret (brugernavn + kodeord, gendannelseskode vises én gang), login, log ud, slet konto
 - [ ] Synk-lag i klienten: last-write-wins på `updatedAt`, konflikt-dialog ved stor divergens
@@ -292,6 +304,7 @@ Estimaterne er kalendertid i hobbytempo (aftener/weekender). 3D koster lidt ekst
 - [ ] Eksport/import af save som fil (kontofri backup)
 
 ### Fase 4 — Samling og progression (2-3 uger)
+
 - [ ] Dugdråber som valuta (pasning, fangster, milepæle)
 - [ ] Butik: frø, potter, growlampe, dekorationer
 - [ ] Sundew, tropical pitcher (dis-handling) og trumpet pitcher med egne profiler og kits
@@ -299,6 +312,7 @@ Estimaterne er kalendertid i hobbytempo (aftener/weekender). 3D koster lidt ekst
 - [ ] Artsleksikon med fakta der låses op
 
 ### Fase 5 — Sæsoner og dybde (2-3 uger)
+
 - [ ] Årstider + vinterdvale (dvale = feriemode; skippes den, svækkes planten)
 - [ ] Blomstrings-dilemmaet: klip stilken eller høst frø
 - [ ] Frø → nye planter eller dugdråber
@@ -307,22 +321,23 @@ Estimaterne er kalendertid i hobbytempo (aftener/weekender). 3D koster lidt ekst
 - [ ] Polering: overgange, tilgængelighed, ydelsesgennemgang
 
 ### Backlog (senere, efter lyst)
+
 Passkeys (WebAuthn) · PWA + påmindelser ("Your plant is thirsty 🌱") · rigtige vejrdata via API · daglige opgaver · dele/forære frø til venner · butterwort som art nr. 5 · flere sprog.
 
 ## 13. Risici og modtræk
 
-| Risiko | Modtræk |
-|---|---|
-| 3D-indhold æder tiden | Klods-stilen er valgt netop derfor: primitiver i kode + voxel-props i MagicaVoxel — placeholders *er* næsten den færdige stil |
-| Ydelse på mobil (WebGL) | Klods-geometri er let (< 50k tris, 1-2 lys), instancing af fælder, test på rigtig telefon i hver fase |
-| Touch-interaktion i 3D er upræcis | Store hit-områder, alle handlinger findes også som HUD-knapper |
-| Scope creep — spillet vokser vildere end planterne | Faserne er værdisluser: hver fase er et spilbart spil. Backloggen er en parkeringsplads, ikke en forpligtelse |
-| Glemt kodeord uden mail = mistet konto | Gendannelseskode ved oprettelse + tydelig advarsel; eksport/import som sidste udvej; passkeys senere |
-| Synk-konflikter mellem enheder | Last-write-wins + konflikt-dialog kun ved stor divergens; lokal backup røres aldrig |
-| Balancering (rater føles forkerte) | Alle tal i én config-fil; testscenarier simulerer dage på millisekunder |
-| Offline-forfald frustrerer | Loftet forfald, visnen i stedet for død, dvale som feriemode |
-| Browser-throttling af timere | Catch-up ved load/`visibilitychange` er kilden til sandhed — aldrig `setInterval`-akkumulering |
-| Save-format knækker ved nye features | `saveVersion` + migrationsfunktioner fra første save — gælder også blob'en i skyen |
+| Risiko                                             | Modtræk                                                                                                                       |
+| -------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| 3D-indhold æder tiden                              | Klods-stilen er valgt netop derfor: primitiver i kode + voxel-props i MagicaVoxel — placeholders _er_ næsten den færdige stil |
+| Ydelse på mobil (WebGL)                            | Klods-geometri er let (< 50k tris, 1-2 lys), instancing af fælder, test på rigtig telefon i hver fase                         |
+| Touch-interaktion i 3D er upræcis                  | Store hit-områder, alle handlinger findes også som HUD-knapper                                                                |
+| Scope creep — spillet vokser vildere end planterne | Faserne er værdisluser: hver fase er et spilbart spil. Backloggen er en parkeringsplads, ikke en forpligtelse                 |
+| Glemt kodeord uden mail = mistet konto             | Gendannelseskode ved oprettelse + tydelig advarsel; eksport/import som sidste udvej; passkeys senere                          |
+| Synk-konflikter mellem enheder                     | Last-write-wins + konflikt-dialog kun ved stor divergens; lokal backup røres aldrig                                           |
+| Balancering (rater føles forkerte)                 | Alle tal i én config-fil; testscenarier simulerer dage på millisekunder                                                       |
+| Offline-forfald frustrerer                         | Loftet forfald, visnen i stedet for død, dvale som feriemode                                                                  |
+| Browser-throttling af timere                       | Catch-up ved load/`visibilitychange` er kilden til sandhed — aldrig `setInterval`-akkumulering                                |
+| Save-format knækker ved nye features               | `saveVersion` + migrationsfunktioner fra første save — gælder også blob'en i skyen                                            |
 
 ## 14. Afgrænsning (bevidst fravalgt)
 

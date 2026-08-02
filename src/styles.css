@@ -1,0 +1,90 @@
+:root {
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+  background: #ead9c2;
+  overflow: hidden;
+}
+
+.app {
+  position: fixed;
+  inset: 0;
+}
+
+.app canvas {
+  display: block;
+  touch-action: none;
+}
+
+.hud {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: calc(env(safe-area-inset-top, 0px) + 16px) 20px
+    calc(env(safe-area-inset-bottom, 0px) + 18px);
+  pointer-events: none;
+  color: #3a2d21;
+}
+
+.hud-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(1.3rem, 3.5vw, 2rem);
+  letter-spacing: 0.02em;
+}
+
+.tagline {
+  margin: 2px 0 0;
+  font-size: 0.85rem;
+  opacity: 0.65;
+  font-style: italic;
+}
+
+.chip {
+  background: rgba(58, 45, 33, 0.14);
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.hint {
+  align-self: center;
+  margin: 0;
+  max-width: 90%;
+  text-align: center;
+  background: rgba(255, 252, 245, 0.72);
+  backdrop-filter: blur(6px);
+  border-radius: 999px;
+  padding: 8px 18px;
+  font-size: 0.9rem;
+  box-shadow: 0 2px 12px rgba(58, 45, 33, 0.12);
+}

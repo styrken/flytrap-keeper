@@ -1,0 +1,11 @@
+{
+  "app": {
+    "title": "Flytrap Keeper",
+    "tagline": "a Venus flytrap tale",
+    "stage": "pre-alpha"
+  },
+  "scene": {
+    "hintDrag": "Drag to look around",
+    "hintSnap": "Tap a trap — it loves a little attention"
+  }
+}

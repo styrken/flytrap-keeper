@@ -407,7 +407,7 @@ h1 {
   font-size: 0.95rem;
 }
 
-.onboarding-name input {
+.onboarding-card input {
   font: inherit;
   padding: 10px 12px;
   border-radius: 12px;
@@ -415,7 +415,7 @@ h1 {
   background: #fff;
 }
 
-.onboarding-name input:focus {
+.onboarding-card input:focus {
   outline: none;
   border-color: #58b862;
 }
@@ -635,7 +635,8 @@ h1 {
 }
 
 .dialog-section button,
-.dialog-card .dialog-row button {
+.dialog-card .dialog-row button,
+.onboarding-card .dialog-row button {
   min-height: 44px;
   padding: 0 16px;
   border: none;
@@ -647,7 +648,8 @@ h1 {
   cursor: pointer;
 }
 
-.dialog-section button.primary {
+.dialog-section button.primary,
+.onboarding-card button.primary {
   background: #58b862;
   color: #fffcf5;
 }
@@ -657,7 +659,8 @@ h1 {
   color: #fffcf5;
 }
 
-.dialog-section button.linklike {
+.dialog-section button.linklike,
+.onboarding-card button.linklike {
   background: transparent;
   min-height: 0;
   padding: 0;
@@ -666,7 +669,16 @@ h1 {
   align-self: flex-start;
 }
 
-.dialog-section button:disabled {
+.onboarding-card button.linklike {
+  align-self: center;
+  border: none;
+  font: inherit;
+  color: #3a2d21;
+  cursor: pointer;
+}
+
+.dialog-section button:disabled,
+.onboarding-card button:disabled {
   opacity: 0.5;
   cursor: default;
 }

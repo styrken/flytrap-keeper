@@ -301,7 +301,11 @@
     "packetDesc": "The classic. Snappy jaws, a big appetite, and a love of bright light.",
     "onTheHouse": "on the house",
     "plant": "Plant the seed 🌱",
-    "start": "Let's grow!"
+    "start": "Let's grow!",
+    "getStarted": "Let's get started",
+    "accountTitle": "Keep your garden in the cloud?",
+    "accountPitch": "A free account — just a username and password, no email — backs up your garden so you can play on any device. Played before? Sign in and pick up where you left off.",
+    "accountSkip": "Skip for now — you can always do this in Settings"
   },
   "journal": {
     "open": "Plant diary",

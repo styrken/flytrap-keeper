@@ -304,7 +304,11 @@
     "packetDesc": "Klassikeren. Smækkæber, stor appetit og kærlighed til skarpt lys.",
     "onTheHouse": "på husets regning",
     "plant": "Plant frøet 🌱",
-    "start": "Lad os gro!"
+    "start": "Lad os gro!",
+    "getStarted": "Lad os komme i gang",
+    "accountTitle": "Skal din have med i skyen?",
+    "accountPitch": "En gratis konto — bare brugernavn og kodeord, ingen mail — sikrer din have, så du kan spille på alle enheder. Har du spillet før? Log ind og fortsæt, hvor du slap.",
+    "accountSkip": "Spring over — du kan altid gøre det under Indstillinger"
   },
   "journal": {
     "open": "Plantedagbog",

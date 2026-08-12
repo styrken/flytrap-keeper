@@ -2,7 +2,7 @@ import { type AchievementId, award } from './achievements'
 import { SIM } from './config'
 import { INSECTS, isFireflyNight } from './insects'
 import { remember, remembers } from './journal'
-import { progressQuest } from './quests'
+import { progressQuest, progressWeekly } from './quests'
 import { seasonAt } from './season'
 import { currentWeather } from './weather'
 import { catAtWindow, hasFullHouse, spiderAtCorner, webLootReady } from './pets'
@@ -46,11 +46,13 @@ function applyAction(s: GameState, action: Action, now: number, realNow: number)
           ? { ...s.inventory, dewdrops: s.inventory.dewdrops + SIM.POUR_PERFECT_DEWDROPS }
           : s.inventory,
       }
-      let next = progressQuest(
-        bumpCareStreak(withPlant(paid, { ...plant, water: 100 }), now),
-        'water2',
+      let next = progressWeekly(
+        progressQuest(bumpCareStreak(withPlant(paid, { ...plant, water: 100 }), now), 'water2'),
+        'waterWeek',
       )
-      if (action.perfect) next = progressQuest(next, 'pour1')
+      if (action.perfect) {
+        next = progressWeekly(progressQuest(next, 'pour1'), 'pourWeek')
+      }
       return next
     }
     case 'catchRaindrop': {
@@ -113,7 +115,7 @@ function applyAction(s: GameState, action: Action, now: number, realNow: number)
         pets: { ...s.pets, lastLadybirdAt: now },
         inventory: { ...s.inventory, dewdrops: s.inventory.dewdrops + SIM.LADYBIRD_DEWDROPS },
       }
-      return award(greeted, 'ladybird-luck')
+      return progressWeekly(award(greeted, 'ladybird-luck'), 'greetWeek')
     }
     case 'greetRobin': {
       // No feeder, no robin — it has standards.
@@ -192,16 +194,20 @@ function applyAction(s: GameState, action: Action, now: number, realNow: number)
         next = award(next, 'pet-snail')
         if (hasFullHouse(next, now)) next = award(next, 'full-house')
       }
-      return next
+      // A gentle rescue is a garden hello too.
+      return progressWeekly(next, 'greetWeek')
     }
     case 'tapWater': {
       if (unavailable(plant) || plant.water >= 100) return s
       // Butterworts grow on limestone in the wild — tap water is fine by them.
       const penalty = SPECIES[plant.speciesId].limeTolerant ? 0 : SIM.TAP_WATER_HEALTH_PENALTY
       const health = clamp(plant.health - penalty, SIM.HEALTH_MIN, 100)
-      return progressQuest(
-        bumpCareStreak(withPlant(s, { ...plant, water: 100, health }), now),
-        'water2',
+      return progressWeekly(
+        progressQuest(
+          bumpCareStreak(withPlant(s, { ...plant, water: 100, health }), now),
+          'water2',
+        ),
+        'waterWeek',
       )
     }
     case 'mist': {
@@ -215,15 +221,18 @@ function applyAction(s: GameState, action: Action, now: number, realNow: number)
         return s
       }
       const petted = withPlant(s, { ...plant, lastPetAt: now })
-      return progressQuest(
-        {
-          ...petted,
-          inventory: {
-            ...petted.inventory,
-            dewdrops: petted.inventory.dewdrops + SIM.PET_DEWDROPS,
+      return progressWeekly(
+        progressQuest(
+          {
+            ...petted,
+            inventory: {
+              ...petted.inventory,
+              dewdrops: petted.inventory.dewdrops + SIM.PET_DEWDROPS,
+            },
           },
-        },
-        'pet2',
+          'pet2',
+        ),
+        'petWeek',
       )
     }
     case 'pullWeed': {
@@ -231,18 +240,21 @@ function applyAction(s: GameState, action: Action, now: number, realNow: number)
       if (!target || target.dead || target.dormant) return s
       if (now < target.nextWeedAt) return s
       const weeded = withPlant(s, { ...target, nextWeedAt: now + SIM.WEED_RESPAWN_HOURS * HOUR_MS })
-      return progressQuest(
-        bumpCareStreak(
-          {
-            ...weeded,
-            inventory: {
-              ...weeded.inventory,
-              dewdrops: weeded.inventory.dewdrops + SIM.WEED_DEWDROPS,
+      return progressWeekly(
+        progressQuest(
+          bumpCareStreak(
+            {
+              ...weeded,
+              inventory: {
+                ...weeded.inventory,
+                dewdrops: weeded.inventory.dewdrops + SIM.WEED_DEWDROPS,
+              },
             },
-          },
-          now,
+            now,
+          ),
+          'weed2',
         ),
-        'weed2',
+        'weedWeek',
       )
     }
     case 'feedPlant': {
@@ -290,6 +302,7 @@ function applyAction(s: GameState, action: Action, now: number, realNow: number)
       else {
         next = award(next, 'first-catch')
         next = progressQuest(next, 'catch2')
+        next = progressWeekly(next, 'catchWeek')
       }
       if (action.insect === 'spider') next = award(next, 'spider-snack')
       if (action.insect === 'moth') next = award(next, 'night-owl')
@@ -488,7 +501,7 @@ function greetGuest(
     pets: { ...s.pets, [field]: now },
     inventory: { ...s.inventory, dewdrops: s.inventory.dewdrops + SIM.GUEST_DEWDROPS },
   }
-  return award(greeted, achievement)
+  return progressWeekly(award(greeted, achievement), 'greetWeek')
 }
 
 function withPlant(state: GameState, plant: PlantState): GameState {

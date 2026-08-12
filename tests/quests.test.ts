@@ -2,16 +2,19 @@ import { describe, expect, it } from 'vitest'
 import {
   QUEST_DEFS,
   SIM,
+  WEEKLY_QUEST_DEFS,
   apply,
   createInitialState,
   createPlant,
   dayKey,
   drawQuests,
+  drawWeeklyQuests,
   loadFromString,
   saveToString,
   tick,
+  weekKey,
 } from '../src/sim'
-import type { GameState, QuestState } from '../src/sim'
+import type { GameState, QuestState, WeeklyQuestState } from '../src/sim'
 
 const T0 = 1_700_000_000_000
 // Progression tests need headroom before UTC midnight resets the quests.
@@ -20,7 +23,8 @@ const h = (n: number) => n * 3_600_000
 
 const withQuests = (items: QuestState[]): GameState => {
   const s = createInitialState(TQ, 42)
-  return { ...s, quests: { day: dayKey(TQ), items } }
+  // Weekly slate blanked too, so weekly pay can't sneak into daily sums.
+  return { ...s, quests: { ...s.quests, day: dayKey(TQ), items, weekItems: [] } }
 }
 
 describe('daily quest draw', () => {
@@ -143,6 +147,102 @@ describe('the catch quest fits the garden', () => {
   })
 })
 
+describe('weekly quests', () => {
+  const withWeekly = (weekItems: WeeklyQuestState[]): GameState => {
+    const s = createInitialState(TQ, 42)
+    return { ...s, quests: { ...s.quests, items: [], week: weekKey(TQ), weekItems } }
+  }
+
+  it('weeks are Monday-aligned in UTC', () => {
+    const monday = Date.UTC(2023, 10, 13) // Mon 13 Nov 2023
+    expect(weekKey(monday)).toBe('2023-11-13')
+    expect(weekKey(monday + h(24 * 6 + 23))).toBe('2023-11-13') // Sunday night, same week
+    expect(weekKey(monday + h(24 * 7))).toBe('2023-11-20') // next Monday, new week
+  })
+
+  it('draws two distinct weekly quests, deterministically', () => {
+    const plants = createInitialState(T0, 42).plants
+    const a = drawWeeklyQuests(42, T0, plants)
+    expect(a).toEqual(drawWeeklyQuests(42, T0, plants))
+    expect(a.weekItems).toHaveLength(2)
+    expect(new Set(a.weekItems.map((q) => q.id)).size).toBe(2)
+    expect(a.week).toBe(weekKey(T0))
+  })
+
+  it('keeps the weekly catch quest away from one-trap sprouts', () => {
+    const sprout = createInitialState(T0, 42).plants
+    expect(sprout[0].traps).toHaveLength(1)
+    for (let week = 0; week < 30; week++) {
+      const drawn = drawWeeklyQuests(42, T0 + h(24 * 7 * week), sprout)
+      expect(drawn.weekItems.some((q) => q.id === 'catchWeek')).toBe(false)
+    }
+  })
+
+  it('pays per weekly quest and a bonus when both are done', () => {
+    let state = withWeekly([
+      { id: 'waterWeek', target: 2, progress: 0 },
+      { id: 'petWeek', target: 1, progress: 0 },
+    ])
+
+    state = apply(state, { type: 'pet' }, TQ)
+    let expected = SIM.PET_DEWDROPS + SIM.QUEST_WEEK_DEWDROPS
+    expect(state.inventory.dewdrops).toBe(expected)
+
+    state = apply(state, { type: 'tapWater' }, TQ)
+    expected += SIM.DAILY_CARE_DEWDROPS // first care action of the day
+    expect(state.inventory.dewdrops).toBe(expected)
+
+    state = apply(state, { type: 'tapWater' }, TQ + h(2))
+    expected += SIM.QUEST_WEEK_DEWDROPS + SIM.QUEST_WEEK_ALL_BONUS
+    expect(state.inventory.dewdrops).toBe(expected)
+    expect(state.quests.weekItems.every((q) => q.progress >= q.target)).toBe(true)
+  })
+
+  it('greeting garden friends fills the greet quest', () => {
+    let state = withWeekly([{ id: 'greetWeek', target: 2, progress: 0 }])
+    state = apply(state, { type: 'greetLadybird' }, TQ)
+    expect(state.quests.weekItems[0].progress).toBe(1)
+    state = apply(state, { type: 'rescueSnail' }, TQ)
+    expect(state.quests.weekItems[0].progress).toBe(2)
+    expect(state.quests.weekItems[0].progress).toBe(state.quests.weekItems[0].target)
+  })
+
+  it('a new week redraws the slate; the same week leaves progress alone', () => {
+    const state = createInitialState(TQ, 42)
+    const sameWeek = tick(state, TQ + h(24)) // Wednesday -> Thursday
+    expect(sameWeek.quests.week).toBe(state.quests.week)
+    const nextWeek = tick(state, TQ + h(24 * 8))
+    expect(nextWeek.quests.week).not.toBe(state.quests.week)
+    expect(nextWeek.quests.weekItems.every((q) => q.progress === 0)).toBe(true)
+    expect(nextWeek.quests.weekItems).toHaveLength(2)
+  })
+
+  it('weekly targets are chunkier than the dailies', () => {
+    for (const [id, target] of Object.entries(WEEKLY_QUEST_DEFS)) {
+      expect(target, id).toBeGreaterThanOrEqual(3)
+    }
+  })
+})
+
+describe('save migration v16 -> v17 (weekly quests)', () => {
+  it('adds an empty weekly slate that the next tick fills', () => {
+    const state = createInitialState(T0, 42)
+    const v16 = JSON.parse(saveToString(state)) as Record<string, unknown>
+    v16.saveVersion = 16
+    const quests = v16.quests as Record<string, unknown>
+    delete quests.week
+    delete quests.weekItems
+
+    const loaded = loadFromString(JSON.stringify(v16))
+    expect(loaded).not.toBeNull()
+    expect(loaded!.quests.week).toBe('')
+    expect(loaded!.quests.weekItems).toEqual([])
+    const ticked = tick(loaded!, T0 + 60_000)
+    expect(ticked.quests.week).toBe(weekKey(T0))
+    expect(ticked.quests.weekItems).toHaveLength(2)
+  })
+})
+
 describe('save migration v6 -> v7', () => {
   it('adds an empty quest slate that the next tick fills', () => {
     const state = createInitialState(T0, 42)
@@ -152,9 +252,10 @@ describe('save migration v6 -> v7', () => {
 
     const loaded = loadFromString(JSON.stringify(v6))
     expect(loaded).not.toBeNull()
-    expect(loaded!.quests).toEqual({ day: '', items: [] })
+    expect(loaded!.quests).toEqual({ day: '', items: [], week: '', weekItems: [] })
     const ticked = tick(loaded!, T0 + 60_000)
     expect(ticked.quests.items).toHaveLength(3)
     expect(ticked.quests.day).toBe(dayKey(T0))
+    expect(ticked.quests.weekItems).toHaveLength(2)
   })
 })

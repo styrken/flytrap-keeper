@@ -218,6 +218,10 @@
         "name": "Bird feeder",
         "desc": "A seed tray outside the window. A robin drops by — even in the dead of winter."
       },
+      "trampoline": {
+        "name": "Garden trampoline",
+        "desc": "A big trampoline for the lawn. Hop on and time your bounces on landing — higher and higher it goes!"
+      },
       "rug": {
         "name": "Cosy rug",
         "desc": "Ties the whole room together."
@@ -284,6 +288,20 @@
       "pet2": "Pet your plants {{target}} times",
       "pour1": "Make a perfect pour",
       "mist1": "Mist the tropical pitcher"
+    },
+    "weeklyTitle": "This week's tasks",
+    "weekReset": "New weekly tasks on Monday",
+    "weekBonusRow": "Both done: +{{n}} bonus",
+    "weekBonusDone": "The whole week done — what a keeper! 🎉",
+    "weekDone": "Weekly task complete: +{{n}} dewdrops",
+    "weekAllDone": "All weekly tasks done! +{{n}} bonus",
+    "weekly": {
+      "waterWeek": "Water your plants {{target}} times",
+      "catchWeek": "Catch {{target}} insects",
+      "weedWeek": "Pull {{target}} weeds",
+      "petWeek": "Pet your plants {{target}} times",
+      "pourWeek": "Make {{target}} perfect pours",
+      "greetWeek": "Greet {{target}} garden friends"
     }
   },
   "achievements": {

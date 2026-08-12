@@ -218,6 +218,10 @@
         "name": "Foderbræt",
         "desc": "Et frøbræt uden for ruden. En rødhals kigger forbi — selv midt om vinteren."
       },
+      "trampoline": {
+        "name": "Havetrampolin",
+        "desc": "En stor trampolin til plænen. Hop op på den, og tim dine hop i landingen — så går det højere og højere!"
+      },
       "rug": {
         "name": "Hyggeligt tæppe",
         "desc": "Binder hele værelset sammen."
@@ -287,6 +291,20 @@
       "pet2": "Kæl for dine planter {{target}} gange",
       "pour1": "Lav en perfekt hældning",
       "mist1": "Dis kandebæreren"
+    },
+    "weeklyTitle": "Ugens opgaver",
+    "weekReset": "Nye ugeopgaver mandag",
+    "weekBonusRow": "Begge klaret: +{{n}} bonus",
+    "weekBonusDone": "Hele ugen klaret — sikke en passer! 🎉",
+    "weekDone": "Ugeopgave klaret: +{{n}} dugdråber",
+    "weekAllDone": "Alle ugens opgaver klaret! +{{n}} bonus",
+    "weekly": {
+      "waterWeek": "Vand dine planter {{target}} gange",
+      "catchWeek": "Fang {{target}} insekter",
+      "weedWeek": "Lug {{target}} ukrudt",
+      "petWeek": "Kæl for dine planter {{target}} gange",
+      "pourWeek": "Lav {{target}} perfekte hældninger",
+      "greetWeek": "Hils på {{target}} havedyr"
     }
   },
   "achievements": {

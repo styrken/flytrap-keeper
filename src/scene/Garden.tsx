@@ -60,8 +60,53 @@ export function Garden() {
       <LawnTufts />
       <Sunflowers />
       {items.includes('greenhouse') && <GardenGreenhouse />}
+      {items.includes('trampoline') && <GardenTrampoline />}
 
       <GardenWeather />
+    </group>
+  )
+}
+
+/**
+ * The bought trampoline on the west lawn. Its collider lives in
+ * playerMovement.ts (id 'trampoline'): jump on and every landing springs
+ * back — time your hops to go higher and higher.
+ */
+function GardenTrampoline() {
+  const RIM_SEGMENTS = 12
+  return (
+    <group position={[-4.2, 0, 4.5]}>
+      {/* the springy mat — top face right at the collider height */}
+      <mesh position={[0, -0.63, 0]}>
+        <cylinderGeometry args={[0.66, 0.66, 0.04, 12]} />
+        <meshStandardMaterial color="#3c4450" flatShading />
+      </mesh>
+      {/* padded rim, as chunky segments around the edge */}
+      {Array.from({ length: RIM_SEGMENTS }, (_, i) => {
+        const angle = (i * Math.PI * 2) / RIM_SEGMENTS
+        return (
+          <mesh
+            key={i}
+            position={[Math.cos(angle) * 0.68, -0.6, Math.sin(angle) * 0.68]}
+            rotation-y={-angle}
+          >
+            <boxGeometry args={[0.18, 0.06, 0.38]} />
+            <meshStandardMaterial color="#4c7ec9" />
+          </mesh>
+        )
+      })}
+      {/* four splayed legs down to the lawn */}
+      {[0.25, 0.75, 1.25, 1.75].map((turn) => {
+        const angle = turn * Math.PI
+        return (
+          <group key={turn} position={[Math.cos(angle) * 0.58, -0.755, Math.sin(angle) * 0.58]}>
+            <mesh rotation-z={Math.cos(angle) * 0.18} rotation-x={-Math.sin(angle) * 0.18}>
+              <boxGeometry args={[0.06, 0.27, 0.06]} />
+              <meshStandardMaterial color="#8da3ad" />
+            </mesh>
+          </group>
+        )
+      })}
     </group>
   )
 }

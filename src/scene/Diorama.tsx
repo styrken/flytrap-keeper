@@ -58,7 +58,9 @@ export function Diorama() {
         <PlantPot key={plant.id} plant={plant} slot={slot} />
       ))}
       <Pets room={room} />
-      {!visiting && room !== 'garden' && <Insects key={room} room={room} />}
+      {/* Insects visit every room now: ambient guests need an open trap, but
+          a released fly pack buzzes wherever the keeper opens it. */}
+      {!visiting && <Insects key={room} room={room} />}
     </group>
   )
 }

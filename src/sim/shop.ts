@@ -3,7 +3,8 @@ import type { AccessoryId, CultivarId, GameState, PlantState, ShopItemId, Specie
 export interface ShopItem {
   id: ShopItemId
   cost: number
-  kind: 'seed' | 'unlock' | 'deco' | 'pot' | 'accessory'
+  /** consumable: buy as often as you like — each purchase adds one to stock. */
+  kind: 'seed' | 'unlock' | 'deco' | 'pot' | 'accessory' | 'consumable'
   speciesId?: SpeciesId
   /** Seed of a named rarity — same species, its own look. */
   cultivarId?: CultivarId
@@ -44,6 +45,7 @@ export const SHOP_ITEMS: ShopItem[] = [
     speciesId: 'dionaea',
     cultivarId: 'red-dragon',
   },
+  { id: 'fly-pack', cost: 8, kind: 'consumable' },
   { id: 'growlight', cost: 150, kind: 'unlock' },
   { id: 'greenhouse', cost: 250, kind: 'unlock' },
   { id: 'tadpole-jar', cost: 60, kind: 'unlock' },

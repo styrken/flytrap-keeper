@@ -26,7 +26,7 @@ const init = (dewdrops = 0, items: string[] = []): GameState => {
   return {
     ...s,
     quests: { ...s.quests, items: [] },
-    inventory: { dewdrops, items },
+    inventory: { dewdrops, items, flyPacks: 0 },
   }
 }
 
@@ -237,7 +237,7 @@ describe('the garden guests: robin, butterfly, hedgehog', () => {
     // no feeder, no robin
     expect(apply(init(), { type: 'greetRobin' }, T0).inventory.dewdrops).toBe(0)
 
-    let state = { ...init(), inventory: { dewdrops: 0, items: ['bird-feeder'] } }
+    let state = { ...init(), inventory: { dewdrops: 0, items: ['bird-feeder'], flyPacks: 0 } }
     state = apply(state, { type: 'greetRobin' }, T0)
     expect(state.inventory.dewdrops).toBe(SIM.GUEST_DEWDROPS + SIM.ACHIEVEMENT_DEWDROPS)
     expect(state.achievements).toContain('robin-song')

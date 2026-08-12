@@ -121,4 +121,7 @@ export const SIM = {
   ARCADE_SCORE_PER_DEWDROP: 5,
   ARCADE_DAILY_CAP: 10,
   ARCADE_HIGHSCORE_AT: 25,
+
+  /** The fly pack: a buyable box of flies, released wherever you stand. */
+  FLY_PACK_FLIES: 3,
 } as const

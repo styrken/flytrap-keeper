@@ -10,7 +10,7 @@ const init = (items: string[] = ['computer']): GameState => {
   return {
     ...s,
     quests: { ...s.quests, items: [] },
-    inventory: { dewdrops: 0, items },
+    inventory: { dewdrops: 0, items, flyPacks: 0 },
   }
 }
 

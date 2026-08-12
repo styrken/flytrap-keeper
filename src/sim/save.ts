@@ -1,7 +1,7 @@
 import type { GameState } from './types'
 
 export const SAVE_KEY = 'flytrap-keeper:save'
-export const SAVE_VERSION = 14
+export const SAVE_VERSION = 15
 
 type RawSave = Record<string, unknown>
 type Migration = (data: RawSave) => RawSave
@@ -133,6 +133,11 @@ const MIGRATIONS: Record<number, Migration> = {
       lastFloweringEndedAt: null,
     })),
   }),
+  // v14 -> v15: the fly pack — the shop's first consumable. Nothing in stock yet.
+  14: (data) => {
+    const inventory = (data.inventory ?? {}) as RawSave
+    return { ...data, inventory: { ...inventory, flyPacks: 0 } }
+  },
 }
 
 export function saveToString(state: GameState): string {

@@ -105,7 +105,8 @@
     "letBloom": "Let it bloom",
     "removePlant": "Clear the pot",
     "letCatIn": "Let it in",
-    "letSpiderStay": "Let it stay"
+    "letSpiderStay": "Let it stay",
+    "releaseFlies": "Release flies"
   },
   "placement": {
     "south-window": "South window",
@@ -175,6 +176,10 @@
       "seed-red-dragon": {
         "name": "‘Red Dragon’ seeds",
         "desc": "A rare all-red flytrap — Akai Ryū wears autumn colours all year."
+      },
+      "fly-pack": {
+        "name": "Fly pack",
+        "desc": "A buzzing little box. Set the flies free wherever you like \u2014 right in front of a hungry trap works too."
       },
       "growlight": {
         "name": "Grow light",

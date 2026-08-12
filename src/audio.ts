@@ -75,6 +75,10 @@ export const playSnuffle = () => {
   blip(180, 120, 0.09, 'sawtooth', 0.04)
   window.setTimeout(() => blip(200, 130, 0.11, 'sawtooth', 0.04), 130)
 }
+export const playBuzz = () => {
+  blip(230, 210, 0.16, 'sawtooth', 0.045)
+  window.setTimeout(() => blip(250, 200, 0.2, 'sawtooth', 0.04), 170)
+}
 export const playSplash = () => blip(700, 200, 0.2, 'triangle', 0.1)
 export const playToast = () => {
   blip(880, 1320, 0.16, 'sine', 0.1)

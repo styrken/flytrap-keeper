@@ -42,12 +42,14 @@ export function Pets({ room }: { room: RoomView }) {
     )
   }
   if (room === 'garden') {
-    // The lawn has its own life: the night hedgehog, ladybirds patrolling the
-    // flower bed, and rain-day snails out on the grass.
+    // The lawn has its own life: the night hedgehog, the ladybirds patrolling
+    // the flower bed (their one and only home — none indoors), and rain-day
+    // snails out on the grass.
     return (
       <group>
         <Hedgehog />
-        <Ladybird stroll={GARDEN_LADYBIRD_STROLL} />
+        <Ladybird stroll={FLOWER_LADYBIRD_STROLL} />
+        <Ladybird stroll={EDGE_LADYBIRD_STROLL} />
         <GardenSnail lane={0} />
         <GardenSnail lane={1} />
       </group>
@@ -61,7 +63,6 @@ export function Pets({ room }: { room: RoomView }) {
       <SillSnail />
       {pets.snail && <SnailJar />}
       <CornerSpider />
-      <Ladybird />
       {items.includes('bird-feeder') && <BirdFeeder />}
       <Butterfly />
     </group>
@@ -820,34 +821,34 @@ interface LadybirdStroll {
   speed: number
 }
 
-/** The sill stroll — the original beat, kept exactly as it always was. */
-const SILL_LADYBIRD_STROLL: LadybirdStroll = {
-  xFrom: -1.55,
-  xTo: 1.55,
-  y: 0.075,
-  z: 0.3,
-  scale: 1,
-  speed: 0.045,
-}
-
-/** Outdoors it patrols the flower bed under the big window — aphid country. */
-const GARDEN_LADYBIRD_STROLL: LadybirdStroll = {
+/** Among the flowers on the bed under the big window — aphid country. */
+const FLOWER_LADYBIRD_STROLL: LadybirdStroll = {
   xFrom: -3.5,
   xTo: -1.3,
   y: -0.53,
-  z: -0.72,
+  z: -0.74,
   scale: 1.7,
   speed: 0.06,
 }
 
+/** Along the front edge of the same bed — its own pace, its own errands. */
+const EDGE_LADYBIRD_STROLL: LadybirdStroll = {
+  xFrom: -3.4,
+  xTo: -1.4,
+  y: -0.53,
+  z: -0.62,
+  scale: 1.7,
+  speed: 0.045,
+}
+
 /**
- * The guest that is never a pet: a ladybird lands for a short stroll — on the
- * sill, or outside along the flower bed (never in winter — they hibernate).
- * Greeting it with a tap brings a spot of luck before it flies off. The traps
- * never get a say: gardeners' best friend, and famously terrible-tasting
- * anyway.
+ * The guest that is never a pet: a ladybird out in the garden, strolling the
+ * flower bed (never in winter — they hibernate, and never indoors — the
+ * garden is their home). Greeting it with a tap brings a spot of luck before
+ * it flies off. The traps never get a say: gardeners' best friend, and
+ * famously terrible-tasting anyway.
  */
-function Ladybird({ stroll = SILL_LADYBIRD_STROLL }: { stroll?: LadybirdStroll }) {
+function Ladybird({ stroll }: { stroll: LadybirdStroll }) {
   const rewardDispatch = useRewardDispatch()
   const visiting = useIsVisiting()
   const winter = useSceneState((s) => seasonAt(s.lastTickAt) === 'winter')

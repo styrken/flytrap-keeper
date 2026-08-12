@@ -47,6 +47,15 @@ export const STEP_UP = 0.08
 export const BED_BOUNCE_MIN_SPEED = 1.2
 const BED_BOUNCE_RESTITUTION = 0.42
 
+/** The garden trampoline: every landing bounces (gently decaying), and a
+ * jump pressed while standing or landing on it pumps higher and higher,
+ * up to a cap of about three room-heights of air. */
+export const TRAMPOLINE_TOP = 0.28
+export const TRAMPOLINE_MIN_BOUNCE_SPEED = 0.8
+export const TRAMPOLINE_RESTITUTION = 0.82
+export const TRAMPOLINE_BOOST = 1.22
+export const TRAMPOLINE_MAX_VELOCITY = 5.4
+
 /** Sentinel height for pure obstacles (sill, lamp…) with no walkable top. */
 export const WALL = Number.POSITIVE_INFINITY
 
@@ -137,6 +146,17 @@ const GARDEN_GREENHOUSE: Collider = {
   height: WALL,
 }
 
+/** The bought trampoline on the west lawn — jump on, then bounce away.
+ * The box sits inside the round mat, so the springy part is what you land on. */
+const GARDEN_TRAMPOLINE: Collider = {
+  id: 'trampoline',
+  minX: -4.82,
+  maxX: -3.58,
+  minZ: 3.88,
+  maxZ: 5.12,
+  height: TRAMPOLINE_TOP,
+}
+
 /** Decor that becomes solid once it actually stands in the room. */
 const LAMP: Collider = {
   id: 'lamp',
@@ -161,6 +181,7 @@ export function roomColliders(items: readonly string[], room: PlayerRoom = 'bedr
   if (room === 'garden') {
     const colliders = [...GARDEN_FURNITURE]
     if (items.includes('greenhouse')) colliders.push(GARDEN_GREENHOUSE)
+    if (items.includes('trampoline')) colliders.push(GARDEN_TRAMPOLINE)
     return colliders
   }
   const colliders = [...FURNITURE]
@@ -335,7 +356,8 @@ export function stepVertical(
 
   if (state.grounded) {
     if (jump) {
-      vy = JUMP_VELOCITY
+      // A standing jump off the trampoline already springs extra high.
+      vy = ground.id === 'trampoline' ? JUMP_VELOCITY * TRAMPOLINE_BOOST : JUMP_VELOCITY
     } else if (y <= ground.height + 1e-4) {
       return { y: ground.height, vy: 0, grounded: true } // follow small steps
     }
@@ -346,6 +368,20 @@ export function stepVertical(
   y += vy * dt
 
   if (vy <= 0 && y <= ground.height) {
+    if (ground.id === 'trampoline') {
+      // A jump timed with the landing pumps the bounce higher (up to the
+      // cap); otherwise the mat returns most of the fall on its own.
+      if (jump) {
+        const pumped = Math.min(
+          Math.max(JUMP_VELOCITY, -vy) * TRAMPOLINE_BOOST,
+          TRAMPOLINE_MAX_VELOCITY,
+        )
+        return { y: ground.height, vy: pumped, grounded: false }
+      }
+      if (vy < -TRAMPOLINE_MIN_BOUNCE_SPEED) {
+        return { y: ground.height, vy: -vy * TRAMPOLINE_RESTITUTION, grounded: false }
+      }
+    }
     if (ground.id === 'bed' && vy < -BED_BOUNCE_MIN_SPEED) {
       return { y: ground.height, vy: -vy * BED_BOUNCE_RESTITUTION, grounded: false }
     }

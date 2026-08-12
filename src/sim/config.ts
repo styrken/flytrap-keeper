@@ -89,6 +89,9 @@ export const SIM = {
   /** Daily quests: three per day, paid on completion, bonus for the full set. */
   QUEST_DEWDROPS: 5,
   QUEST_ALL_BONUS: 10,
+  /** Weekly quests: two per week (Mondays, UTC), chunkier goals and pay. */
+  QUEST_WEEK_DEWDROPS: 15,
+  QUEST_WEEK_ALL_BONUS: 20,
 
   /** Night life: wish on a shooting star (every wish pays — stars are rare
    * enough on their own), fireflies on some summer nights. */

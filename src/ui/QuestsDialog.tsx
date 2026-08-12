@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { SIM, type QuestId } from '../sim'
+import { SIM, type QuestId, type WeeklyQuestId } from '../sim'
 import { useGame } from '../store'
 
 const QUEST_ICON: Record<QuestId, string> = {
@@ -11,6 +11,15 @@ const QUEST_ICON: Record<QuestId, string> = {
   mist1: '💨',
 }
 
+const WEEKLY_ICON: Record<WeeklyQuestId, string> = {
+  waterWeek: '💧',
+  catchWeek: '🪰',
+  weedWeek: '🌿',
+  petWeek: '💚',
+  pourWeek: '✨',
+  greetWeek: '🐞',
+}
+
 export function QuestsDialog() {
   const { t } = useTranslation()
   const show = useGame((s) => s.showQuests)
@@ -19,6 +28,8 @@ export function QuestsDialog() {
   if (!show) return null
 
   const allDone = quests.items.length > 0 && quests.items.every((q) => q.progress >= q.target)
+  const weekAllDone =
+    quests.weekItems.length > 0 && quests.weekItems.every((q) => q.progress >= q.target)
 
   return (
     <div className="dialog-backdrop" onClick={() => setShow(false)}>
@@ -56,6 +67,34 @@ export function QuestsDialog() {
         <p className="muted">
           {allDone ? t('quests.bonusDone') : t('quests.bonusRow', { n: SIM.QUEST_ALL_BONUS })} ·{' '}
           {t('quests.reset')}
+        </p>
+        <header className="dialog-head">
+          <h2>🗓️ {t('quests.weeklyTitle')}</h2>
+        </header>
+        <div className="shop-list">
+          {quests.weekItems.map((quest) => {
+            const done = quest.progress >= quest.target
+            return (
+              <div key={quest.id} className={`shop-item quest-row${done ? ' done' : ''}`}>
+                <div className="shop-item-text">
+                  <strong>
+                    {WEEKLY_ICON[quest.id]}{' '}
+                    {t(`quests.weekly.${quest.id}`, { target: quest.target })}
+                  </strong>
+                  <span className="muted">
+                    {done ? '✅' : `${quest.progress}/${quest.target}`} · +{SIM.QUEST_WEEK_DEWDROPS}{' '}
+                    🫧
+                  </span>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+        <p className="muted">
+          {weekAllDone
+            ? t('quests.weekBonusDone')
+            : t('quests.weekBonusRow', { n: SIM.QUEST_WEEK_ALL_BONUS })}{' '}
+          · {t('quests.weekReset')}
         </p>
       </div>
     </div>

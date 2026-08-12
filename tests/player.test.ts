@@ -8,6 +8,8 @@ import {
   type PlayerRoom,
   ROOM_BOUNDS,
   SPAWN,
+  TRAMPOLINE_MAX_VELOCITY,
+  TRAMPOLINE_TOP,
   type VerticalState,
   doorwayAt,
   groundAt,
@@ -206,6 +208,46 @@ describe('jumping', () => {
     expect(bounced).toBe(false)
     expect(state).toEqual({ y: 0, vy: 0, grounded: true })
   })
+
+  describe('the garden trampoline', () => {
+    const TRAMP = { height: TRAMPOLINE_TOP, id: 'trampoline' }
+
+    it('stands solid on the lawn only once it is owned — and a jump reaches it', () => {
+      expect(roomColliders([], 'garden').some((c) => c.id === 'trampoline')).toBe(false)
+      const owned = roomColliders(['trampoline'], 'garden')
+      expect(collider('trampoline', owned).height).toBe(TRAMPOLINE_TOP)
+      const apex = (JUMP_VELOCITY * JUMP_VELOCITY) / (2 * GRAVITY)
+      expect(apex).toBeGreaterThan(TRAMPOLINE_TOP + 0.05)
+    })
+
+    it('every landing bounces back up on its own, then gently settles', () => {
+      const { state, bounced } = simulate({ y: 1.3, vy: 0, grounded: false }, TRAMP, 12)
+      expect(bounced).toBe(true)
+      expect(state).toEqual({ y: TRAMPOLINE_TOP, vy: 0, grounded: true })
+    })
+
+    it('a standing jump on the mat springs higher than a floor jump', () => {
+      const onTramp = stepVertical({ y: TRAMPOLINE_TOP, vy: 0, grounded: true }, TRAMP, true, DT)
+      const onFloor = stepVertical({ y: 0, vy: 0, grounded: true }, FLOOR, true, DT)
+      expect(onTramp.vy).toBeGreaterThan(onFloor.vy)
+    })
+
+    it('timed jumps pump higher and higher — up to the cap, never past it', () => {
+      let s: VerticalState = { y: TRAMPOLINE_TOP, vy: 0, grounded: true }
+      let peak = 0
+      let fastest = 0
+      for (let t = 0; t < 14; t += DT) {
+        s = stepVertical(s, TRAMP, true, DT) // the hop button, mashed with joy
+        peak = Math.max(peak, s.y)
+        fastest = Math.max(fastest, s.vy)
+      }
+      const capApex =
+        TRAMPOLINE_TOP + (TRAMPOLINE_MAX_VELOCITY * TRAMPOLINE_MAX_VELOCITY) / (2 * GRAVITY)
+      expect(peak).toBeGreaterThan(TRAMPOLINE_TOP + 1.4) // way above any furniture
+      expect(peak).toBeLessThanOrEqual(capApex + 0.05)
+      expect(fastest).toBeLessThanOrEqual(TRAMPOLINE_MAX_VELOCITY)
+    })
+  })
 })
 
 describe('greenhouse movement', () => {
@@ -291,7 +333,7 @@ describe('garden movement', () => {
 })
 
 describe('doorways', () => {
-  const ALL_ITEMS = ['lamp', 'computer', 'greenhouse']
+  const ALL_ITEMS = ['lamp', 'computer', 'greenhouse', 'trampoline']
   const ROOMS: PlayerRoom[] = ['bedroom', 'garden', 'greenhouse']
 
   it('walking into the bedroom door steps out into the garden', () => {

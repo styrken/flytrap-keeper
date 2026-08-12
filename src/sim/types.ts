@@ -18,6 +18,16 @@ export interface QuestState {
   progress: number
 }
 
+/** The weekly slate: chunkier goals that reset every (UTC) Monday. */
+export type WeeklyQuestId =
+  'waterWeek' | 'catchWeek' | 'weedWeek' | 'petWeek' | 'pourWeek' | 'greetWeek'
+
+export interface WeeklyQuestState {
+  id: WeeklyQuestId
+  target: number
+  progress: number
+}
+
 export type ShopItemId =
   | 'seed-drosera'
   | 'seed-nepenthes'
@@ -45,6 +55,7 @@ export type ShopItemId =
   | 'mosquito-pack'
   | 'moth-pack'
   | 'spider-pack'
+  | 'trampoline'
 
 export interface TrapState {
   id: string
@@ -177,8 +188,8 @@ export interface GameState {
   inventory: { dewdrops: number; items: string[]; packs: Record<PackKind, number> }
   weather: { rainBarrel: number }
   minigames: { lastRaindropAt: number | null; lastWishAt: number | null }
-  /** Three daily tasks, redrawn each UTC day. */
-  quests: { day: string; items: QuestState[] }
+  /** Three daily tasks (redrawn each UTC day) and two weekly ones (Mondays). */
+  quests: { day: string; items: QuestState[]; week: string; weekItems: WeeklyQuestState[] }
   pets: PetsState
   /** The desk computer's arcade: best score ever, and today's payout so far. */
   arcade: { best: number; day: string; paidToday: number }

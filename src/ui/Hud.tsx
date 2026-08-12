@@ -118,6 +118,28 @@ export function Hud() {
     }
   }, [questsKey, questsDoneCount, questsTotal, state.quests.day, t])
 
+  const weekDoneCount = state.quests.weekItems.filter((q) => q.progress >= q.target).length
+  const weekTotal = state.quests.weekItems.length
+  const weekToastKey = `${state.quests.week}:${weekDoneCount}`
+  const prevWeekKey = useRef<string | null>(null)
+  useEffect(() => {
+    const prev = prevWeekKey.current
+    prevWeekKey.current = weekToastKey
+    if (prev === null) return
+    const [prevWeek, prevDone] = prev.split(':')
+    if (prevWeek !== state.quests.week) return
+    if (weekDoneCount > Number(prevDone)) {
+      setToast(
+        weekDoneCount === weekTotal
+          ? `🎉 ${t('quests.weekAllDone', { n: SIM.QUEST_WEEK_ALL_BONUS })}`
+          : `🗓️ ${t('quests.weekDone', { n: SIM.QUEST_WEEK_DEWDROPS })}`,
+      )
+      playToast()
+      const timer = window.setTimeout(() => setToast(null), 3500)
+      return () => window.clearTimeout(timer)
+    }
+  }, [weekToastKey, weekDoneCount, weekTotal, state.quests.week, t])
+
   const careDays = state.careStreak.days
   useEffect(() => {
     if (prevCareDays.current !== null && careDays > prevCareDays.current) {

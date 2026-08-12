@@ -2,7 +2,7 @@ import { award } from './achievements'
 import { SIM } from './config'
 import { remember } from './journal'
 import { frogStage, hasFullHouse } from './pets'
-import { drawQuests } from './quests'
+import { drawQuests, drawWeeklyQuests, weekKey } from './quests'
 import { seasonAt } from './season'
 import { SPECIES } from './species'
 import { freshTrap } from './state'
@@ -88,9 +88,15 @@ export function tick(state: GameState, realNow: number): GameState {
     if (hasFullHouse(next, now)) next = award(next, 'full-house')
   }
 
-  // A new day brings three fresh quests.
+  // A new day brings three fresh quests; a new week brings its pair too.
   if (dayKey(now) !== next.quests.day) {
-    next = { ...next, quests: drawQuests(next.rngSeed, now, next.plants) }
+    next = { ...next, quests: { ...next.quests, ...drawQuests(next.rngSeed, now, next.plants) } }
+  }
+  if (weekKey(now) !== next.quests.week) {
+    next = {
+      ...next,
+      quests: { ...next.quests, ...drawWeeklyQuests(next.rngSeed, now, next.plants) },
+    }
   }
 
   return next

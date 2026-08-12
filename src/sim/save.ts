@@ -1,7 +1,7 @@
 import type { GameState } from './types'
 
 export const SAVE_KEY = 'flytrap-keeper:save'
-export const SAVE_VERSION = 15
+export const SAVE_VERSION = 16
 
 type RawSave = Record<string, unknown>
 type Migration = (data: RawSave) => RawSave
@@ -137,6 +137,23 @@ const MIGRATIONS: Record<number, Migration> = {
   14: (data) => {
     const inventory = (data.inventory ?? {}) as RawSave
     return { ...data, inventory: { ...inventory, flyPacks: 0 } }
+  },
+  // v15 -> v16: one fly pack grew into a whole shelf of insect packs — the
+  // lone flyPacks counter moves into the per-kind record.
+  15: (data) => {
+    const { flyPacks, ...inventory } = (data.inventory ?? {}) as RawSave
+    return {
+      ...data,
+      inventory: {
+        ...inventory,
+        packs: {
+          fly: typeof flyPacks === 'number' ? flyPacks : 0,
+          mosquito: 0,
+          moth: 0,
+          spider: 0,
+        },
+      },
+    }
   },
 }
 

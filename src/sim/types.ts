@@ -6,6 +6,8 @@ export type AccessoryId = 'googly-eyes' | 'bow'
 export type PlacementId = 'north-window' | 'south-window' | 'growlight' | 'greenhouse'
 export type WeatherKind = 'sun' | 'clouds' | 'rain'
 export type InsectKind = 'fly' | 'mosquito' | 'spider' | 'beetle' | 'moth'
+/** Insects the shop dares to box up — beetles are strictly not for sale. */
+export type PackKind = 'fly' | 'mosquito' | 'moth' | 'spider'
 export type Season = 'spring' | 'summer' | 'autumn' | 'winter'
 
 export type QuestId = 'water2' | 'catch2' | 'weed2' | 'pet2' | 'pour1' | 'mist1'
@@ -40,6 +42,9 @@ export type ShopItemId =
   | 'tadpole-jar'
   | 'bird-feeder'
   | 'fly-pack'
+  | 'mosquito-pack'
+  | 'moth-pack'
+  | 'spider-pack'
 
 export interface TrapState {
   id: string
@@ -168,8 +173,8 @@ export interface GameState {
   time: GameTime
   plants: PlantState[]
   activePlantId: string
-  /** flyPacks: bought-but-unreleased boxes of flies (the one consumable). */
-  inventory: { dewdrops: number; items: string[]; flyPacks: number }
+  /** packs: bought-but-unreleased boxes of insects, counted per kind. */
+  inventory: { dewdrops: number; items: string[]; packs: Record<PackKind, number> }
   weather: { rainBarrel: number }
   minigames: { lastRaindropAt: number | null; lastWishAt: number | null }
   /** Three daily tasks, redrawn each UTC day. */
@@ -202,7 +207,7 @@ export type Action =
   | { type: 'greetButterfly' }
   | { type: 'greetHedgehog' }
   | { type: 'arcadeScore'; score: number }
-  | { type: 'releaseFlies' }
+  | { type: 'releasePack'; insect: PackKind }
   | { type: 'feedTrap'; plantId: string; trapId: string }
   | { type: 'feedPlant' }
   | { type: 'catchInsect'; plantId: string; trapId: string; insect: InsectKind }

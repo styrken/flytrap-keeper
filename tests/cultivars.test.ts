@@ -54,7 +54,14 @@ describe('cultivar seeds', () => {
 
   it('growing all three cultivars awards the collector — the greenhouse makes room', () => {
     // sill holds 3; the starter plant + 3 cultivars needs the greenhouse bench
-    let state = { ...init(2000), inventory: { dewdrops: 2000, items: ['greenhouse'], flyPacks: 0 } }
+    let state = {
+      ...init(2000),
+      inventory: {
+        dewdrops: 2000,
+        items: ['greenhouse'],
+        packs: { fly: 0, mosquito: 0, moth: 0, spider: 0 },
+      },
+    }
     for (const id of CULTIVAR_SEEDS.slice(0, 2)) {
       state = apply(state, { type: 'buy', item: id }, T0)
       expect(state.achievements).not.toContain('cultivar-collector')

@@ -10,7 +10,7 @@ const init = (dewdrops = 0, items: string[] = []): GameState => {
   return {
     ...s,
     quests: { ...s.quests, items: [] },
-    inventory: { dewdrops, items, flyPacks: 0 },
+    inventory: { dewdrops, items, packs: { fly: 0, mosquito: 0, moth: 0, spider: 0 } },
   }
 }
 
@@ -62,7 +62,14 @@ describe('butterwort', () => {
       'seed-sarracenia',
       'seed-pinguicula',
     ]
-    let state = { ...init(2000), inventory: { dewdrops: 2000, items: ['greenhouse'], flyPacks: 0 } }
+    let state = {
+      ...init(2000),
+      inventory: {
+        dewdrops: 2000,
+        items: ['greenhouse'],
+        packs: { fly: 0, mosquito: 0, moth: 0, spider: 0 },
+      },
+    }
     for (const seed of seeds.slice(0, 3)) {
       state = apply(state, { type: 'buy', item: seed }, T0)
       expect(state.achievements).not.toContain('full-collection')

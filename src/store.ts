@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import {
   type Action,
   type GameState,
+  type InsectKind,
   SAVE_KEY,
   apply,
   createInitialState,
@@ -53,8 +54,8 @@ interface GameStore {
   photo: string | null
   /** Which room the camera is in — pure view state, never saved. */
   roomView: RoomView
-  /** Flies from an opened pack still waiting to buzz in — view state only. */
-  flyQueue: number
+  /** Insects from opened packs still waiting to buzz in — view state only. */
+  releaseQueue: InsectKind[]
   sync: SyncState
   /** A cloud save awaiting a keep-local-or-take-cloud decision. */
   conflict: CloudSave | null
@@ -71,10 +72,10 @@ interface GameStore {
   setStatInfo: (stat: StatInfoId | null) => void
   setPhoto: (photo: string | null) => void
   setRoomView: (room: RoomView) => void
-  /** Queue flies from a just-opened pack for the insect choreography. */
-  queueFlies: (count: number) => void
-  /** Take one queued fly (true if one was left) — the spawn loop's side. */
-  takeQueuedFly: () => boolean
+  /** Queue insects from a just-opened pack for the visit choreography. */
+  queueInsects: (kind: InsectKind, count: number) => void
+  /** Take the next queued insect (null if none) — the spawn loop's side. */
+  takeQueuedInsect: () => InsectKind | null
   setSync: (sync: SyncState) => void
   /** Replace the whole game state (cloud adopt / file import) and persist it. */
   adoptState: (state: GameState) => void
@@ -97,7 +98,7 @@ export const useGame = create<GameStore>()((set, get) => ({
   statInfo: null,
   photo: null,
   roomView: 'bedroom',
-  flyQueue: 0,
+  releaseQueue: [],
   sync: { kind: 'unknown' },
   conflict: null,
   dispatch: (action) => {
@@ -134,11 +135,13 @@ export const useGame = create<GameStore>()((set, get) => ({
   setStatInfo: (statInfo) => set({ statInfo }),
   setPhoto: (photo) => set({ photo }),
   setRoomView: (room) => set({ roomView: room }),
-  queueFlies: (count) => set((s) => ({ flyQueue: s.flyQueue + count })),
-  takeQueuedFly: () => {
-    if (get().flyQueue <= 0) return false
-    set((s) => ({ flyQueue: s.flyQueue - 1 }))
-    return true
+  queueInsects: (kind, count) =>
+    set((s) => ({ releaseQueue: [...s.releaseQueue, ...Array<InsectKind>(count).fill(kind)] })),
+  takeQueuedInsect: () => {
+    const [next, ...rest] = get().releaseQueue
+    if (next === undefined) return null
+    set({ releaseQueue: rest })
+    return next
   },
   setSync: (sync) => set({ sync }),
   adoptState: (rawState) => {
@@ -171,7 +174,7 @@ export const useGame = create<GameStore>()((set, get) => ({
       statInfo: null,
       photo: null,
       roomView: 'bedroom',
-      flyQueue: 0,
+      releaseQueue: [],
       conflict: null,
     })
     persist(state)

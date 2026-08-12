@@ -253,7 +253,7 @@ describe('minigames', () => {
     expect(plain.inventory.dewdrops).toBe(SIM.DAILY_CARE_DEWDROPS)
   })
 
-  it('golden raindrops only fall in the rain, with a cooldown', async () => {
+  it('golden raindrops only fall in the rain — and every catch pays', async () => {
     const { weatherAt, weatherPeriodMs } = await import('../src/sim')
     const findPeriod = (wanted: string) => {
       for (let t = T0; t < T0 + h(24 * 30); t += weatherPeriodMs()) {
@@ -272,10 +272,9 @@ describe('minigames', () => {
     expect(caught.inventory.dewdrops).toBe(SIM.RAINDROP_DEWDROPS)
     expect(caught.minigames.lastRaindropAt).toBe(rainy)
 
-    const tooSoon = apply(caught, { type: 'catchRaindrop' }, rainy + 3000)
-    expect(tooSoon.inventory.dewdrops).toBe(SIM.RAINDROP_DEWDROPS)
-    const later = apply(caught, { type: 'catchRaindrop' }, rainy + 9000)
-    expect(later.inventory.dewdrops).toBe(SIM.RAINDROP_DEWDROPS * 2)
+    // two quick drops back to back both pay — the rain sets the pace
+    const nextDrop = apply(caught, { type: 'catchRaindrop' }, rainy + 3000)
+    expect(nextDrop.inventory.dewdrops).toBe(SIM.RAINDROP_DEWDROPS * 2)
   })
 })
 

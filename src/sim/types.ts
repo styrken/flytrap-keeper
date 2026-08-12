@@ -39,6 +39,7 @@ export type ShopItemId =
   | 'bow'
   | 'tadpole-jar'
   | 'bird-feeder'
+  | 'fly-pack'
 
 export interface TrapState {
   id: string
@@ -167,7 +168,8 @@ export interface GameState {
   time: GameTime
   plants: PlantState[]
   activePlantId: string
-  inventory: { dewdrops: number; items: string[] }
+  /** flyPacks: bought-but-unreleased boxes of flies (the one consumable). */
+  inventory: { dewdrops: number; items: string[]; flyPacks: number }
   weather: { rainBarrel: number }
   minigames: { lastRaindropAt: number | null; lastWishAt: number | null }
   /** Three daily tasks, redrawn each UTC day. */
@@ -200,6 +202,7 @@ export type Action =
   | { type: 'greetButterfly' }
   | { type: 'greetHedgehog' }
   | { type: 'arcadeScore'; score: number }
+  | { type: 'releaseFlies' }
   | { type: 'feedTrap'; plantId: string; trapId: string }
   | { type: 'feedPlant' }
   | { type: 'catchInsect'; plantId: string; trapId: string; insect: InsectKind }

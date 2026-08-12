@@ -105,7 +105,8 @@
     "letBloom": "Lad den blomstre",
     "removePlant": "Ryd potten",
     "letCatIn": "Luk den ind",
-    "letSpiderStay": "Lad den blive"
+    "letSpiderStay": "Lad den blive",
+    "releaseFlies": "Slip fluer fri"
   },
   "placement": {
     "south-window": "Sydvindue",
@@ -175,6 +176,10 @@
       "seed-red-dragon": {
         "name": "‘Red Dragon’-frø",
         "desc": "En sjælden helrød fluefanger — Akai Ryū bærer efterårsfarver hele året."
+      },
+      "fly-pack": {
+        "name": "Fluepakke",
+        "desc": "En lille summende æske. Slip fluerne fri, hvor du har lyst — også lige foran en sulten fælde."
       },
       "growlight": {
         "name": "Growlampe",

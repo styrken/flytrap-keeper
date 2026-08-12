@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { playSplash, playToast } from '../audio'
+import { playBuzz, playSplash, playToast } from '../audio'
 import { photoBus } from '../scene/photoBus'
 import { roomOfPlant } from '../scene/plantLayout'
 import {
@@ -66,6 +66,7 @@ export function Hud() {
   const setRoomView = useGame((s) => s.setRoomView)
   const setShowFriends = useSocial((s) => s.setShowFriends)
   const friendsPip = useFriendsPip()
+  const queueFlies = useGame((s) => s.queueFlies)
   const plant = activePlant(state)
   const [editingName, setEditingName] = useState(false)
   const renameCancelled = useRef(false)
@@ -500,6 +501,25 @@ export function Hud() {
               disabled={plant.humidity >= 99.5 || plant.dormant || plant.dead}
             >
               💨 <span className="act-label">{t('actions.mist')}</span>
+            </button>
+          )}
+          {state.inventory.flyPacks > 0 && (
+            <button
+              type="button"
+              aria-label={t('actions.releaseFlies')}
+              title={t('actions.releaseFlies')}
+              onClick={() => {
+                // Only send flies into the room if the sim really opened a pack.
+                const before = useGame.getState().state.inventory.flyPacks
+                dispatch({ type: 'releaseFlies' })
+                if (useGame.getState().state.inventory.flyPacks < before) {
+                  queueFlies(SIM.FLY_PACK_FLIES)
+                  playBuzz()
+                }
+              }}
+            >
+              📦 <span className="act-label">{t('actions.releaseFlies')}</span>
+              <span className="badge">{state.inventory.flyPacks}</span>
             </button>
           )}
           {species.isSnapper ? (

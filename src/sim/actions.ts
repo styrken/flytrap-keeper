@@ -148,6 +148,16 @@ function applyAction(s: GameState, action: Action, now: number, realNow: number)
       if (score >= SIM.ARCADE_HIGHSCORE_AT) next = award(next, 'high-score')
       return next
     }
+    case 'releaseFlies': {
+      // Open a pack and set the flies free. The sim only guards the stock —
+      // where they buzz off to is the view's story (whichever room you stand
+      // in), and any that tempt a trap are caught through catchInsect as usual.
+      if (s.inventory.flyPacks <= 0) return s
+      return {
+        ...s,
+        inventory: { ...s.inventory, flyPacks: s.inventory.flyPacks - 1 },
+      }
+    }
     case 'rescueSnail': {
       if (s.pets.snail) return s
       const last = s.pets.lastSnailAt
@@ -291,6 +301,17 @@ function applyAction(s: GameState, action: Action, now: number, realNow: number)
     case 'buy': {
       const item = shopItem(action.item)
       if (!item || s.inventory.dewdrops < item.cost) return s
+      if (item.kind === 'consumable') {
+        // The one restockable: each purchase adds a pack to the shelf.
+        return {
+          ...s,
+          inventory: {
+            ...s.inventory,
+            dewdrops: s.inventory.dewdrops - item.cost,
+            flyPacks: s.inventory.flyPacks + 1,
+          },
+        }
+      }
       if (item.kind === 'seed') {
         if (s.plants.length >= plantCapacity(s) || !item.speciesId) return s
         const id = `p${s.plants.map((p) => p.id).reduce((max, pid) => Math.max(max, Number(pid.slice(1)) || 0), 0) + 1}`
@@ -318,6 +339,7 @@ function applyAction(s: GameState, action: Action, now: number, realNow: number)
         const bought: GameState = {
           ...s,
           inventory: {
+            ...s.inventory,
             dewdrops: s.inventory.dewdrops - item.cost,
             items: [...s.inventory.items, item.id],
           },

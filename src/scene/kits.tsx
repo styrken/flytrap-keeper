@@ -5,7 +5,7 @@ import { useMemo, useRef } from 'react'
 import type { Group } from 'three'
 import { playSnap, playTease } from '../audio'
 import { type CultivarId, type PlantState, type TrapState, isTrapReady } from '../sim'
-import { sceneNow, useIsVisiting, useSceneDispatch } from '../sceneView'
+import { sceneNow, useIsVisiting, useRewardDispatch } from '../sceneView'
 import { insectBus } from './insectBus'
 import { palette } from './palette'
 import { STAGE_SCALE, STEM_LAYOUT } from './plantLayout'
@@ -142,7 +142,7 @@ function Trap({
   plant: PlantState
   position: [number, number, number]
 }) {
-  const dispatch = useSceneDispatch()
+  const rewardDispatch = useRewardDispatch()
   const visiting = useIsVisiting()
   const root = useRef<Group>(null)
   const upper = useRef<Group>(null)
@@ -200,13 +200,13 @@ function Trap({
         e.stopPropagation()
         const presence = insectBus.presence
         if (presence && presence.plantId === plant.id && presence.trapIndex === index) {
-          dispatch({
+          const gained = rewardDispatch({
             type: 'catchInsect',
             plantId: plant.id,
             trapId: trap.id,
             insect: presence.kind,
           })
-          insectBus.onCaught?.()
+          insectBus.onCaught?.(gained)
           playSnap()
         } else {
           teaseRequest.current = true

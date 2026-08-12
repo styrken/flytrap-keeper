@@ -25,6 +25,26 @@ export function useSceneDispatch(): (action: Action) => void {
 }
 
 /**
+ * Dispatch that reports how many dewdrops the action actually paid out.
+ * The sim silently pays nothing while a reward is on cooldown, so any float
+ * label promising bubbles must ask this instead of quoting the config —
+ * otherwise it promises drops the counter never receives. Always 0 while
+ * visiting (dispatch is a no-op in someone else's room).
+ */
+export function useRewardDispatch(): (action: Action) => number {
+  const visiting = useIsVisiting()
+  const dispatch = useGame((s) => s.dispatch)
+  if (visiting) return zeroReward
+  return (action: Action) => {
+    const before = useGame.getState().state.inventory.dewdrops
+    dispatch(action)
+    return useGame.getState().state.inventory.dewdrops - before
+  }
+}
+
+const zeroReward = () => 0
+
+/**
  * Game-clock "now" of the displayed garden (non-hook, safe in useFrame):
  * the visited garden runs on its owner's clock, speed mode and all.
  */

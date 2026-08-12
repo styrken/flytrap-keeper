@@ -100,7 +100,7 @@ export function Insects({ room }: { room: RoomView }) {
 
   // The traps report a successful snap through the bus.
   useEffect(() => {
-    insectBus.onCaught = () => {
+    insectBus.onCaught = (gained) => {
       const presence = insectBus.presence
       if (!presence || presence.slot === null || presence.trapIndex === null) return
       const state = useGame.getState().state
@@ -109,10 +109,12 @@ export function Insects({ room }: { room: RoomView }) {
       if (presence.kind === 'beetle') {
         playOuch()
         addLabel('💥', point)
-      } else {
+      } else if (gained > 0) {
+        // Every accepted catch pays at least one dewdrop, so `gained` doubles
+        // as the "did the sim take it?" signal — the label shows real numbers.
         playCatch()
         const def = INSECTS[presence.kind]
-        addLabel(`+${def.nutrition} 🪰  +${def.dewdrops} 🫧`, point)
+        addLabel(`+${def.nutrition} 🪰  +${gained} 🫧`, point)
       }
       setVisit(null)
     }

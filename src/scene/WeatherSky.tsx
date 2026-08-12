@@ -4,8 +4,14 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import type { Group, InstancedMesh, Mesh, MeshStandardMaterial } from 'three'
 import { Color, Object3D } from 'three'
 import { playCatch, playToast, setRainAmbience } from '../audio'
-import { SIM, currentWeather, isFireflyNight } from '../sim'
-import { sceneNow, useIsVisiting, useSceneDispatch, useSceneState } from '../sceneView'
+import { currentWeather, isFireflyNight } from '../sim'
+import {
+  sceneNow,
+  useIsVisiting,
+  useRewardDispatch,
+  useSceneDispatch,
+  useSceneState,
+} from '../sceneView'
 import { useGame } from '../store'
 import { daylightFactor } from './daylight'
 import { palette } from './palette'
@@ -211,7 +217,7 @@ function Stars() {
  * the sim bounds how often a wish can pay out.
  */
 function ShootingStar() {
-  const dispatch = useSceneDispatch()
+  const rewardDispatch = useRewardDispatch()
   const visiting = useIsVisiting()
   const reduceMotion = useMemo(
     () => window.matchMedia('(prefers-reduced-motion: reduce)').matches,
@@ -219,7 +225,7 @@ function ShootingStar() {
   )
   const active = !visiting && !reduceMotion
   const [star, setStar] = useState<{ id: number; x0: number; y0: number } | null>(null)
-  const [label, setLabel] = useState<{ x: number; y: number } | null>(null)
+  const [label, setLabel] = useState<{ x: number; y: number; gained: number } | null>(null)
   const group = useRef<Group>(null)
   const age = useRef(0)
 
@@ -258,11 +264,12 @@ function ShootingStar() {
           position={[star.x0, star.y0, -0.455]}
           onPointerDown={(e) => {
             e.stopPropagation()
-            dispatch({ type: 'wishOnStar' })
+            const gained = rewardDispatch({ type: 'wishOnStar' })
             playToast()
             setLabel({
               x: group.current?.position.x ?? star.x0,
               y: group.current?.position.y ?? star.y0,
+              gained,
             })
             setStar(null)
           }}
@@ -291,7 +298,7 @@ function ShootingStar() {
       )}
       {label && (
         <Html position={[label.x, label.y + 0.12, -0.455]} center zIndexRange={[10, 0]}>
-          <div className="float-label">🌠 +{SIM.STAR_WISH_DEWDROPS} 🫧</div>
+          <div className="float-label">{label.gained > 0 ? `🌠 +${label.gained} 🫧` : '🌠 ✨'}</div>
         </Html>
       )}
     </group>
@@ -367,7 +374,7 @@ export interface DropArea {
  * greenhouse roof vent. Guests don't get to catch them.
  */
 export function GoldenDrop({ area }: { area: DropArea }) {
-  const dispatch = useSceneDispatch()
+  const rewardDispatch = useRewardDispatch()
   const visiting = useIsVisiting()
   const weather = useSceneState((s) => currentWeather(s, s.lastTickAt))
   const reduceMotion = useMemo(
@@ -376,7 +383,7 @@ export function GoldenDrop({ area }: { area: DropArea }) {
   )
   const raining = weather === 'rain' && !reduceMotion && !visiting
   const [drop, setDrop] = useState<{ id: number; x: number } | null>(null)
-  const [label, setLabel] = useState<{ x: number; y: number } | null>(null)
+  const [label, setLabel] = useState<{ x: number; y: number; gained: number } | null>(null)
   const group = useRef<Group>(null)
   const y = useRef(area.yTop)
 
@@ -417,9 +424,9 @@ export function GoldenDrop({ area }: { area: DropArea }) {
           position={[drop.x, area.yTop, area.z]}
           onPointerDown={(e) => {
             e.stopPropagation()
-            dispatch({ type: 'catchRaindrop' })
+            const gained = rewardDispatch({ type: 'catchRaindrop' })
             playCatch()
-            setLabel({ x: drop.x, y: y.current })
+            setLabel({ x: drop.x, y: y.current, gained })
             setDrop(null)
           }}
           onPointerOver={() => {
@@ -442,7 +449,7 @@ export function GoldenDrop({ area }: { area: DropArea }) {
       )}
       {label && (
         <Html position={[label.x, label.y + 0.1, area.z]} center zIndexRange={[10, 0]}>
-          <div className="float-label">+{SIM.RAINDROP_DEWDROPS} 🫧</div>
+          <div className="float-label">{label.gained > 0 ? `+${label.gained} 🫧` : '💧'}</div>
         </Html>
       )}
     </group>

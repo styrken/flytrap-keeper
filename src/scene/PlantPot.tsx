@@ -3,8 +3,8 @@ import { useFrame } from '@react-three/fiber'
 import { useRef, useState } from 'react'
 import type { Group } from 'three'
 import { playCatch, playPet } from '../audio'
-import { type PlantState, SIM, hasWeed } from '../sim'
-import { useIsVisiting, useSceneDispatch, useSceneState } from '../sceneView'
+import { type PlantState, hasWeed } from '../sim'
+import { useIsVisiting, useRewardDispatch, useSceneDispatch, useSceneState } from '../sceneView'
 import { useGame } from '../store'
 import { PlantKit } from './kits'
 import { palette } from './palette'
@@ -14,6 +14,7 @@ export function PlantPot({ plant, slot }: { plant: PlantState; slot: number }) {
   const isActive = useSceneState((s) => s.activePlantId === plant.id)
   const visiting = useIsVisiting()
   const dispatch = useSceneDispatch()
+  const rewardDispatch = useRewardDispatch()
   const position = POT_SLOTS[slot] ?? POT_SLOTS[0]
   const potColor = plant.potColor ?? palette.pot
   const rimColor = plant.potColor ?? palette.potRim
@@ -57,11 +58,12 @@ export function PlantPot({ plant, slot }: { plant: PlantState; slot: number }) {
           return
         }
         if (plant.dead) return
-        // A little affection: always a wiggle, sometimes a dewdrop (sim decides).
-        dispatch({ type: 'pet' })
+        // A little affection: always a wiggle, sometimes a dewdrop (sim
+        // decides) — and the label only mentions bubbles it actually paid.
+        const gained = rewardDispatch({ type: 'pet' })
         pulseRequest.current = true
         playPet()
-        popLabel('💚')
+        popLabel(gained > 0 ? `💚 +${gained} 🫧` : '💚')
       }}
       onPointerOver={() => {
         if (!plant.dead && !visiting) document.body.style.cursor = 'pointer'
@@ -105,9 +107,9 @@ export function PlantPot({ plant, slot }: { plant: PlantState; slot: number }) {
           onPointerDown={(e) => {
             if (visiting) return
             e.stopPropagation()
-            dispatch({ type: 'pullWeed', plantId: plant.id })
+            const gained = rewardDispatch({ type: 'pullWeed', plantId: plant.id })
             playCatch()
-            popLabel(`+${SIM.WEED_DEWDROPS} 🫧`)
+            popLabel(gained > 0 ? `+${gained} 🫧` : '🌿')
           }}
           onPointerOver={() => {
             if (!visiting) document.body.style.cursor = 'pointer'

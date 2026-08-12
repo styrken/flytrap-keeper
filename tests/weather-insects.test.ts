@@ -39,6 +39,16 @@ describe('weather', () => {
     expect(kinds.size).toBe(3)
   })
 
+  it('rains about three periods in ten — often enough to catch one live', () => {
+    let rain = 0
+    const periods = 4000
+    for (let period = 0; period < periods; period++) {
+      if (weatherAt(42, T0 + period * weatherPeriodMs()) === 'rain') rain++
+    }
+    expect(rain / periods).toBeGreaterThan(0.26)
+    expect(rain / periods).toBeLessThan(0.34)
+  })
+
   it('fills the rain barrel while it rains — also during offline catch-up', () => {
     const rainStart = findPeriod(42, T0, 'rain')
     const state = { ...init(), lastTickAt: rainStart, updatedAt: rainStart }
@@ -158,6 +168,9 @@ describe('achievements', () => {
     )
     const dewdrops = state.inventory.dewdrops
     state = tick(state, T0 + h(SIM.DIGEST_HOURS + 1))
+    // That tick crossed UTC midnight and drew the new day's quests — blank
+    // them again so quest pay stays out of this achievement-focused sum.
+    state = { ...state, quests: { ...state.quests, items: [] } }
     state = apply(
       state,
       { type: 'catchInsect', plantId: 'p1', trapId: 't1', insect: 'fly' },

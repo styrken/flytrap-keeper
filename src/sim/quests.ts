@@ -16,15 +16,21 @@ export const QUEST_DEFS: Record<QuestId, number> = {
 
 /**
  * Three quests per UTC day, drawn deterministically from (seed, day) so every
- * device agrees. mist1 only enters the pool when a living tropical pitcher
- * is on the sill.
+ * device agrees. The pool only offers what the garden can actually deliver:
+ * mist1 needs a living tropical pitcher, and catch2 needs an awake snapper —
+ * with a target no higher than its trap count, so a one-trap sprout gets
+ * "catch 1" instead of a quest that digestion makes impossible to finish.
  */
 export function drawQuests(
   rngSeed: number,
   now: number,
   plants: PlantState[],
 ): { day: string; items: QuestState[] } {
-  const pool: QuestId[] = ['water2', 'catch2', 'weed2', 'pet2', 'pour1']
+  const pool: QuestId[] = ['water2', 'weed2', 'pet2', 'pour1']
+  const snapperTraps = plants
+    .filter((p) => SPECIES[p.speciesId].isSnapper && !p.dead && !p.dormant)
+    .reduce((sum, p) => sum + p.traps.length, 0)
+  if (snapperTraps > 0) pool.push('catch2')
   if (plants.some((p) => SPECIES[p.speciesId].needsMisting && !p.dead)) pool.push('mist1')
 
   const dayNumber = Math.floor(now / DAY_MS)
@@ -36,7 +42,11 @@ export function drawQuests(
 
   return {
     day: dayKey(now),
-    items: pool.slice(0, 3).map((id) => ({ id, target: QUEST_DEFS[id], progress: 0 })),
+    items: pool.slice(0, 3).map((id) => ({
+      id,
+      target: id === 'catch2' ? Math.min(QUEST_DEFS.catch2, snapperTraps) : QUEST_DEFS[id],
+      progress: 0,
+    })),
   }
 }
 

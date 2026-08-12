@@ -257,6 +257,7 @@
     "items": {
       "water2": "Water your plants {{target}} times",
       "catch2": "Catch {{target}} insects",
+      "catch2_one": "Catch 1 insect",
       "weed2": "Pull {{target}} weeds",
       "pet2": "Pet your plants {{target}} times",
       "pour1": "Make a perfect pour",

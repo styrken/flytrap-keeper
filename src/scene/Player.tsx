@@ -35,7 +35,6 @@ const AVATAR_SCALE = 1.6
 /** What the follow logic needs from OrbitControls (set via makeDefault). */
 interface FollowControls {
   target: Vector3
-  update: () => void
 }
 
 const UP = new Vector3(0, 1, 0)
@@ -111,6 +110,11 @@ export function Player() {
     targetYaw.current = spawn.yaw
   }, [room, visitingAt])
 
+  // Priority -2: everything here (movement + the camera-follow shift) lands
+  // BEFORE drei's own OrbitControls.update() at -1. That makes the controls'
+  // damped rotation the one and only camera update per frame — walking while
+  // dragging to look around used to apply two competing updates per frame,
+  // which read as stutter.
   useFrame((_, delta) => {
     const g = root.current
     if (!g) return
@@ -208,6 +212,7 @@ export function Player() {
 
     // The camera tags along: shift target and camera by the same eased delta,
     // so the player's chosen orbit angle and zoom are preserved while walking.
+    // No controls.update() here — drei runs it right after this callback.
     if (controls) {
       camTarget.set(pos.current.x, FLOOR_Y + after.y + HEAD_HEIGHT, pos.current.z)
       camShift
@@ -216,9 +221,8 @@ export function Player() {
         .multiplyScalar(Math.min(1, dt * 8))
       controls.target.add(camShift)
       camera.position.add(camShift)
-      controls.update()
     }
-  })
+  }, -2)
 
   return (
     <>

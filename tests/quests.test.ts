@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  QUEST_DEFS,
   SIM,
   apply,
   createInitialState,
@@ -101,6 +102,44 @@ describe('quest progression and rewards', () => {
       TQ + h(SIM.DIGEST_HOURS * SIM.BEETLE_DIGEST_FACTOR + 1),
     )
     expect(state.quests.items[0].progress).toBe(1)
+  })
+})
+
+describe('the catch quest fits the garden', () => {
+  const drawnCatchQuest = (plants: GameState['plants']) => {
+    for (let day = 0; day < 90; day++) {
+      const quest = drawQuests(42, T0 + h(24 * day), plants).items.find((q) => q.id === 'catch2')
+      if (quest) return quest
+    }
+    return null
+  }
+
+  it('caps the target at the snapper trap count — a one-trap sprout gets "catch 1"', () => {
+    const sprout = createInitialState(T0, 42).plants
+    expect(sprout[0].traps).toHaveLength(1)
+    const quest = drawnCatchQuest(sprout)
+    expect(quest).not.toBeNull()
+    expect(quest!.target).toBe(1)
+  })
+
+  it('asks for the full two once the plant has traps to spare', () => {
+    const plant = createPlant('p1', 'dionaea', T0)
+    plant.traps = [
+      { id: 't1', usesLeft: 3, digestingUntil: null, witheredAt: null },
+      { id: 't2', usesLeft: 3, digestingUntil: null, witheredAt: null },
+    ]
+    const quest = drawnCatchQuest([plant])
+    expect(quest).not.toBeNull()
+    expect(quest!.target).toBe(QUEST_DEFS.catch2)
+  })
+
+  it('never offers catching while every snapper sleeps or is gone', () => {
+    const dormant = { ...createPlant('p1', 'dionaea', T0), dormant: true }
+    const dead = { ...createPlant('p2', 'dionaea', T0), dead: true }
+    for (let day = 0; day < 90; day++) {
+      const items = drawQuests(42, T0 + h(24 * day), [dormant, dead]).items
+      expect(items.some((q) => q.id === 'catch2')).toBe(false)
+    }
   })
 })
 

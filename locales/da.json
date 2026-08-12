@@ -260,6 +260,7 @@
     "items": {
       "water2": "Vand dine planter {{target}} gange",
       "catch2": "Fang {{target}} insekter",
+      "catch2_one": "Fang 1 insekt",
       "weed2": "Lug {{target}} ukrudt",
       "pet2": "Kæl for dine planter {{target}} gange",
       "pour1": "Lav en perfekt hældning",

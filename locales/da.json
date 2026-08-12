@@ -106,7 +106,12 @@
     "removePlant": "Ryd potten",
     "letCatIn": "Luk den ind",
     "letSpiderStay": "Lad den blive",
-    "releaseFlies": "Slip fluer fri"
+    "release": {
+      "fly": "Slip fluer fri",
+      "mosquito": "Slip myg fri",
+      "moth": "Slip natsværmere fri",
+      "spider": "Slip edderkopper fri"
+    }
   },
   "placement": {
     "south-window": "Sydvindue",
@@ -177,9 +182,21 @@
         "name": "‘Red Dragon’-frø",
         "desc": "En sjælden helrød fluefanger — Akai Ryū bærer efterårsfarver hele året."
       },
+      "mosquito-pack": {
+        "name": "Myggepakke",
+        "desc": "Den billige æske: små stik af næring. Fælderne siger aldrig nej tak."
+      },
       "fly-pack": {
         "name": "Fluepakke",
         "desc": "En lille summende æske. Slip fluerne fri, hvor du har lyst — også lige foran en sulten fælde."
+      },
+      "moth-pack": {
+        "name": "Natsværmerpakke",
+        "desc": "Bløde vinger i en æske. Kan slippes fri nat og dag — fælder kender ikke til sengetider."
+      },
+      "spider-pack": {
+        "name": "Edderkoppepakke",
+        "desc": "Luksusæsken: otte ben og masser af næring. Fluefangerens livret."
       },
       "growlight": {
         "name": "Growlampe",

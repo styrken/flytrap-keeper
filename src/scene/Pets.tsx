@@ -597,13 +597,14 @@ function GardenSnail({ lane }: { lane: number }) {
 
   useEffect(() => {
     if (!active || crawling) return
-    // Staggered per lane, so the two never march in step.
+    // Staggered per lane, so the two never march in step — and unhurried,
+    // since every rescue now pays: the pace lives here, in the spawn timer.
     const timer = window.setTimeout(
       () => {
         x.current = fromX
         setCrawling(true)
       },
-      6_000 + lane * 7_000 + Math.random() * 14_000,
+      14_000 + lane * 9_000 + Math.random() * 22_000,
     )
     return () => window.clearTimeout(timer)
   }, [active, crawling, fromX, lane])

@@ -1,4 +1,12 @@
-import type { AccessoryId, CultivarId, GameState, PlantState, ShopItemId, SpeciesId } from './types'
+import type {
+  AccessoryId,
+  CultivarId,
+  GameState,
+  PackKind,
+  PlantState,
+  ShopItemId,
+  SpeciesId,
+} from './types'
 
 export interface ShopItem {
   id: ShopItemId
@@ -11,7 +19,12 @@ export interface ShopItem {
   potColor?: string
   /** Cosmetic for the selected plant — repeatable per plant, like pots. */
   accessoryId?: AccessoryId
+  /** What buzzes inside a consumable pack. */
+  packInsect?: PackKind
 }
+
+/** Shelf order of the insect packs — cheap and small to deluxe. */
+export const PACK_KINDS: PackKind[] = ['mosquito', 'fly', 'moth', 'spider']
 
 /** Pots on the windowsill. */
 export const MAX_PLANTS = 3
@@ -45,7 +58,10 @@ export const SHOP_ITEMS: ShopItem[] = [
     speciesId: 'dionaea',
     cultivarId: 'red-dragon',
   },
-  { id: 'fly-pack', cost: 8, kind: 'consumable' },
+  { id: 'mosquito-pack', cost: 4, kind: 'consumable', packInsect: 'mosquito' },
+  { id: 'fly-pack', cost: 8, kind: 'consumable', packInsect: 'fly' },
+  { id: 'moth-pack', cost: 12, kind: 'consumable', packInsect: 'moth' },
+  { id: 'spider-pack', cost: 18, kind: 'consumable', packInsect: 'spider' },
   { id: 'growlight', cost: 150, kind: 'unlock' },
   { id: 'greenhouse', cost: 250, kind: 'unlock' },
   { id: 'tadpole-jar', cost: 60, kind: 'unlock' },

@@ -57,7 +57,7 @@ export function createInitialState(now: number, seed: number): GameState {
     time: { scale: 1, realAnchor: now, gameAnchor: now },
     plants: [plant],
     activePlantId: plant.id,
-    inventory: { dewdrops: 0, items: [], flyPacks: 0 },
+    inventory: { dewdrops: 0, items: [], packs: { fly: 0, mosquito: 0, moth: 0, spider: 0 } },
     weather: { rainBarrel: SIM.BARREL_INITIAL },
     minigames: { lastRaindropAt: null, lastWishAt: null },
     quests: drawQuests(seed >>> 0, now, [plant]),

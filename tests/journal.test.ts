@@ -19,7 +19,7 @@ const init = (dewdrops = 0, items: string[] = []): GameState => {
   return {
     ...s,
     quests: { ...s.quests, items: [] },
-    inventory: { dewdrops, items, flyPacks: 0 },
+    inventory: { dewdrops, items, packs: { fly: 0, mosquito: 0, moth: 0, spider: 0 } },
   }
 }
 

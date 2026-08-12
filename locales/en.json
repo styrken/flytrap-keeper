@@ -106,7 +106,12 @@
     "removePlant": "Clear the pot",
     "letCatIn": "Let it in",
     "letSpiderStay": "Let it stay",
-    "releaseFlies": "Release flies"
+    "release": {
+      "fly": "Release flies",
+      "mosquito": "Release mosquitoes",
+      "moth": "Release moths",
+      "spider": "Release spiders"
+    }
   },
   "placement": {
     "south-window": "South window",
@@ -177,9 +182,21 @@
         "name": "‘Red Dragon’ seeds",
         "desc": "A rare all-red flytrap — Akai Ryū wears autumn colours all year."
       },
+      "mosquito-pack": {
+        "name": "Mosquito pack",
+        "desc": "The budget box: tiny bites of nutrition. Traps never say no thanks."
+      },
       "fly-pack": {
         "name": "Fly pack",
         "desc": "A buzzing little box. Set the flies free wherever you like \u2014 right in front of a hungry trap works too."
+      },
+      "moth-pack": {
+        "name": "Moth pack",
+        "desc": "Soft wings in a box. Release them night or day — traps know nothing of bedtimes."
+      },
+      "spider-pack": {
+        "name": "Spider pack",
+        "desc": "The deluxe box: eight legs and plenty of nutrition. A flytrap’s favourite dinner."
       },
       "growlight": {
         "name": "Grow light",

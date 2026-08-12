@@ -58,17 +58,13 @@ describe('moths', () => {
 })
 
 describe('wishing on a star', () => {
-  it('pays dewdrops, awards the first wish, and cools down', () => {
+  it('every wish pays — the sky already rations the stars', () => {
     let state = apply(init(), { type: 'wishOnStar' }, T0)
     expect(state.inventory.dewdrops).toBe(SIM.STAR_WISH_DEWDROPS + SIM.ACHIEVEMENT_DEWDROPS)
     expect(state.achievements).toContain('first-wish')
 
-    // a second wish inside the cooldown is politely ignored
-    const tooSoon = apply(state, { type: 'wishOnStar' }, T0 + 1_000)
-    expect(tooSoon.inventory.dewdrops).toBe(state.inventory.dewdrops)
-
-    // after the cooldown it pays again — but the achievement stays unique
-    state = apply(state, { type: 'wishOnStar' }, T0 + SIM.STAR_WISH_COOLDOWN_SECONDS * 1000 + 500)
+    // a second star seconds later grants a second wish — achievement stays unique
+    state = apply(state, { type: 'wishOnStar' }, T0 + 1_000)
     expect(state.inventory.dewdrops).toBe(2 * SIM.STAR_WISH_DEWDROPS + SIM.ACHIEVEMENT_DEWDROPS)
     expect(state.achievements.filter((a) => a === 'first-wish')).toHaveLength(1)
   })

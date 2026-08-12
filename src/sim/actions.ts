@@ -54,9 +54,10 @@ function applyAction(s: GameState, action: Action, now: number, realNow: number)
       return next
     }
     case 'catchRaindrop': {
+      // Every golden drop caught is a golden drop paid — the rain itself
+      // decides how often one falls, so no cooldown gets between a catch
+      // and its reward.
       if (currentWeather(s, now) !== 'rain') return s
-      const last = s.minigames.lastRaindropAt
-      if (last !== null && now - last < SIM.RAINDROP_COOLDOWN_SECONDS * 1000) return s
       return {
         ...s,
         minigames: { ...s.minigames, lastRaindropAt: now },
@@ -64,9 +65,7 @@ function applyAction(s: GameState, action: Action, now: number, realNow: number)
       }
     }
     case 'wishOnStar': {
-      // The sky decides when a star streaks by; the sim just bounds the pace.
-      const last = s.minigames.lastWishAt
-      if (last !== null && now - last < SIM.STAR_WISH_COOLDOWN_SECONDS * 1000) return s
+      // The sky decides when a star streaks by — and every wish on one pays.
       const wished: GameState = {
         ...s,
         minigames: { ...s.minigames, lastWishAt: now },
@@ -105,10 +104,10 @@ function applyAction(s: GameState, action: Action, now: number, realNow: number)
       }
     }
     case 'greetLadybird': {
-      // Ladybirds hibernate through winter — and luck keeps a gentle pace.
+      // Ladybirds hibernate through winter; the rest of the year every
+      // greeting brings its spot of luck — the strolls' own slow rhythm
+      // is all the pacing luck needs.
       if (seasonOf(now) === 'winter') return s
-      const last = s.pets.lastLadybirdAt
-      if (last !== null && now - last < SIM.LADYBIRD_COOLDOWN_HOURS * HOUR_MS) return s
       const greeted: GameState = {
         ...s,
         pets: { ...s.pets, lastLadybirdAt: now },
@@ -148,27 +147,40 @@ function applyAction(s: GameState, action: Action, now: number, realNow: number)
       if (score >= SIM.ARCADE_HIGHSCORE_AT) next = award(next, 'high-score')
       return next
     }
-    case 'releaseFlies': {
-      // Open a pack and set the flies free. The sim only guards the stock —
+    case 'releasePack': {
+      // Open a pack and set its insects free. The sim only guards the stock —
       // where they buzz off to is the view's story (whichever room you stand
       // in), and any that tempt a trap are caught through catchInsect as usual.
-      if (s.inventory.flyPacks <= 0) return s
+      const count = s.inventory.packs[action.insect]
+      if (!count || count <= 0) return s
       return {
         ...s,
-        inventory: { ...s.inventory, flyPacks: s.inventory.flyPacks - 1 },
+        inventory: {
+          ...s.inventory,
+          packs: { ...s.inventory.packs, [action.insect]: count - 1 },
+        },
       }
     }
     case 'rescueSnail': {
-      if (s.pets.snail) return s
-      const last = s.pets.lastSnailAt
-      if (last !== null && now - last < SIM.SNAIL_RESCUE_COOLDOWN_HOURS * HOUR_MS) return s
-      const snailRescues = s.pets.snailRescues + 1
-      // The third gentle relocation earns its trust — it moves into a jar.
-      const keep = snailRescues >= SIM.SNAIL_KEEP_AT
+      // Lifting a snail out of harm's way always pays — the garden crawls
+      // with them when it rains. Only the jar-adoption count keeps its gentle
+      // pace: one counted rescue per cooldown, until the snail moves in
+      // (the third counted relocation earns its trust).
+      const counted =
+        !s.pets.snail &&
+        (s.pets.lastSnailAt === null ||
+          now - s.pets.lastSnailAt >= SIM.SNAIL_RESCUE_COOLDOWN_HOURS * HOUR_MS)
+      const snailRescues = s.pets.snailRescues + (counted ? 1 : 0)
+      const keep = s.pets.snail || (counted && snailRescues >= SIM.SNAIL_KEEP_AT)
       let next: GameState = bumpCareStreak(
         {
           ...s,
-          pets: { ...s.pets, snailRescues, lastSnailAt: now, snail: keep },
+          pets: {
+            ...s.pets,
+            snailRescues,
+            lastSnailAt: counted ? now : s.pets.lastSnailAt,
+            snail: keep,
+          },
           inventory: {
             ...s.inventory,
             dewdrops: s.inventory.dewdrops + SIM.SNAIL_RESCUE_DEWDROPS,
@@ -176,7 +188,7 @@ function applyAction(s: GameState, action: Action, now: number, realNow: number)
         },
         now,
       )
-      if (keep) {
+      if (keep && !s.pets.snail) {
         next = award(next, 'pet-snail')
         if (hasFullHouse(next, now)) next = award(next, 'full-house')
       }
@@ -302,13 +314,17 @@ function applyAction(s: GameState, action: Action, now: number, realNow: number)
       const item = shopItem(action.item)
       if (!item || s.inventory.dewdrops < item.cost) return s
       if (item.kind === 'consumable') {
-        // The one restockable: each purchase adds a pack to the shelf.
+        // The restockables: each purchase adds one pack of its kind.
+        if (!item.packInsect) return s
         return {
           ...s,
           inventory: {
             ...s.inventory,
             dewdrops: s.inventory.dewdrops - item.cost,
-            flyPacks: s.inventory.flyPacks + 1,
+            packs: {
+              ...s.inventory.packs,
+              [item.packInsect]: s.inventory.packs[item.packInsect] + 1,
+            },
           },
         }
       }
@@ -456,15 +472,17 @@ function spendTrapUse(plant: PlantState, trapId: string, now: number, digestFact
   )
 }
 
-/** Shared shape of every garden-guest hello: a dewdrop on a gentle cooldown. */
+/**
+ * Shared shape of every garden-guest hello: always a dewdrop — greeting a
+ * friend should never feel like a shrug. The guests' unhurried visiting
+ * rhythm is pacing enough; the timestamp is a diary note, not a paywall.
+ */
 function greetGuest(
   s: GameState,
   now: number,
   field: 'lastRobinAt' | 'lastButterflyAt' | 'lastHedgehogAt',
   achievement: AchievementId,
 ): GameState {
-  const last = s.pets[field]
-  if (last !== null && now - last < SIM.GUEST_COOLDOWN_HOURS * HOUR_MS) return s
   const greeted: GameState = {
     ...s,
     pets: { ...s.pets, [field]: now },

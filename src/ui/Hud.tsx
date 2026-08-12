@@ -5,6 +5,8 @@ import { photoBus } from '../scene/photoBus'
 import { roomOfPlant } from '../scene/plantLayout'
 import {
   HOUR_MS,
+  PACK_KINDS,
+  type PackKind,
   SIM,
   activePlant,
   canFeedPlant,
@@ -50,6 +52,12 @@ const SPECIES_ICON = {
   sarracenia: '🎺',
   pinguicula: '🌸',
 } as const
+const PACK_ICON: Record<PackKind, string> = {
+  fly: '🪰',
+  mosquito: '🦟',
+  moth: '🌙',
+  spider: '🕷️',
+}
 
 export function Hud() {
   const { t, i18n } = useTranslation()
@@ -66,7 +74,7 @@ export function Hud() {
   const setRoomView = useGame((s) => s.setRoomView)
   const setShowFriends = useSocial((s) => s.setShowFriends)
   const friendsPip = useFriendsPip()
-  const queueFlies = useGame((s) => s.queueFlies)
+  const queueInsects = useGame((s) => s.queueInsects)
   const plant = activePlant(state)
   const [editingName, setEditingName] = useState(false)
   const renameCancelled = useRef(false)
@@ -503,25 +511,26 @@ export function Hud() {
               💨 <span className="act-label">{t('actions.mist')}</span>
             </button>
           )}
-          {state.inventory.flyPacks > 0 && (
+          {PACK_KINDS.filter((kind) => state.inventory.packs[kind] > 0).map((kind) => (
             <button
+              key={kind}
               type="button"
-              aria-label={t('actions.releaseFlies')}
-              title={t('actions.releaseFlies')}
+              aria-label={t(`actions.release.${kind}`)}
+              title={t(`actions.release.${kind}`)}
               onClick={() => {
-                // Only send flies into the room if the sim really opened a pack.
-                const before = useGame.getState().state.inventory.flyPacks
-                dispatch({ type: 'releaseFlies' })
-                if (useGame.getState().state.inventory.flyPacks < before) {
-                  queueFlies(SIM.FLY_PACK_FLIES)
+                // Only send insects into the room if the sim really opened a pack.
+                const before = useGame.getState().state.inventory.packs[kind]
+                dispatch({ type: 'releasePack', insect: kind })
+                if (useGame.getState().state.inventory.packs[kind] < before) {
+                  queueInsects(kind, SIM.PACK_INSECTS)
                   playBuzz()
                 }
               }}
             >
-              📦 <span className="act-label">{t('actions.releaseFlies')}</span>
-              <span className="badge">{state.inventory.flyPacks}</span>
+              📦{PACK_ICON[kind]} <span className="act-label">{t(`actions.release.${kind}`)}</span>
+              <span className="badge">{state.inventory.packs[kind]}</span>
             </button>
-          )}
+          ))}
           {species.isSnapper ? (
             <button
               type="button"

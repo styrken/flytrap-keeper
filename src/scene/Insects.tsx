@@ -76,18 +76,19 @@ export function Insects({ room }: { room: RoomView }) {
   }
 
   // Spawn loop: one visiting insect at a time, with pauses between visits.
-  // Flies from an opened pack skip the queue-of-life: they arrive right away,
-  // back to back, in whichever room the keeper stands — even the garden,
-  // where there are no traps and they simply buzz about and move on.
-  const flyQueue = useGame((s) => s.flyQueue)
+  // Insects from an opened pack skip the queue-of-life: they arrive right
+  // away, back to back, in whichever room the keeper stands — even the
+  // garden, where there are no traps and they simply buzz about and move on.
+  const releaseQueue = useGame((s) => s.releaseQueue)
   useEffect(() => {
     if (visit) return
-    const releasing = flyQueue > 0
+    const releasing = releaseQueue.length > 0
     const delay = releasing ? 700 : firstSpawn.current ? 8_000 : 22_000 + Math.random() * 48_000
     firstSpawn.current = false
     const trySpawn = () => {
-      if (useGame.getState().takeQueuedFly()) {
-        setVisit({ id: Date.now(), kind: 'fly' })
+      const released = useGame.getState().takeQueuedInsect()
+      if (released) {
+        setVisit({ id: Date.now(), kind: released })
         return
       }
       if (document.visibilityState !== 'visible' || snapperTargets(room).length === 0) {
@@ -105,7 +106,7 @@ export function Insects({ room }: { room: RoomView }) {
       timers.current.forEach((t) => window.clearTimeout(t))
       timers.current = []
     }
-  }, [visit, room, flyQueue])
+  }, [visit, room, releaseQueue])
 
   // The traps report a successful snap through the bus.
   useEffect(() => {
@@ -228,7 +229,9 @@ function InsectVisit({
         insectBus.presence.slot = null
       }
       if (approach.current && t >= approach.current.until) approach.current = null
-      const lampy = kind === 'moth' && room === 'bedroom'
+      // Only orbit the lamp corner when the lamp is actually there and lit —
+      // a day-released moth roams the sill like everyone else.
+      const lampy = kind === 'moth' && mothsAbout(room)
       const roam = lampy ? LAMP_ROAM : ROAM_CENTER
       const radius = lampy ? 0.32 : 0.85
       target.current.set(

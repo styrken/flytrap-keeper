@@ -26,7 +26,7 @@ const init = (dewdrops = 0, items: string[] = []): GameState => {
   return {
     ...s,
     quests: { ...s.quests, items: [] },
-    inventory: { dewdrops, items, flyPacks: 0 },
+    inventory: { dewdrops, items, packs: { fly: 0, mosquito: 0, moth: 0, spider: 0 } },
   }
 }
 
@@ -109,7 +109,7 @@ describe('the rainy-day cat', () => {
 })
 
 describe('the snail', () => {
-  it('rescues pay a little, respect the cooldown, and the third moves it in', () => {
+  it('every rescue pays; the adoption count keeps its own gentle pace', () => {
     let state = init()
     state = apply(state, { type: 'rescueSnail' }, T0)
     expect(state.pets.snailRescues).toBe(1)
@@ -117,9 +117,10 @@ describe('the snail', () => {
     // rescue + the day's first care action bonus
     expect(state.inventory.dewdrops).toBe(SIM.SNAIL_RESCUE_DEWDROPS + SIM.DAILY_CARE_DEWDROPS)
 
-    // too soon — the sim shrugs
+    // too soon to count toward the jar — but the rescue itself still pays
     const tooSoon = apply(state, { type: 'rescueSnail' }, T0 + h(1))
     expect(tooSoon.pets.snailRescues).toBe(1)
+    expect(tooSoon.inventory.dewdrops - state.inventory.dewdrops).toBe(SIM.SNAIL_RESCUE_DEWDROPS)
 
     state = apply(state, { type: 'rescueSnail' }, T0 + h(SIM.SNAIL_RESCUE_COOLDOWN_HOURS) + 1000)
     state = apply(
@@ -131,9 +132,14 @@ describe('the snail', () => {
     expect(state.pets.snail).toBe(true)
     expect(state.achievements).toContain('pet-snail')
 
-    // once kept, there is nothing left to rescue
-    const after = apply(state, { type: 'rescueSnail' }, T0 + d(1))
+    // once kept, the count is done — garden rescues still pay their thanks
+    const before = tick(state, T0 + d(1))
+    const after = apply(before, { type: 'rescueSnail' }, T0 + d(1))
     expect(after.pets.snailRescues).toBe(3)
+    expect(after.pets.snail).toBe(true)
+    expect(after.inventory.dewdrops - before.inventory.dewdrops).toBeGreaterThanOrEqual(
+      SIM.SNAIL_RESCUE_DEWDROPS,
+    )
   })
 })
 
@@ -188,19 +194,15 @@ describe('the corner spider', () => {
 })
 
 describe('the ladybird', () => {
-  it('greeting pays a spot of luck on a cooldown — and never in winter', () => {
+  it('every greeting pays its spot of luck — but never in winter', () => {
     const state = apply(init(), { type: 'greetLadybird' }, T0) // November: autumn
     expect(state.inventory.dewdrops).toBe(SIM.LADYBIRD_DEWDROPS + SIM.ACHIEVEMENT_DEWDROPS)
     expect(state.achievements).toContain('ladybird-luck')
 
-    // frozen-instant deltas, so tick-time achievements can't skew the counts
-    const tooSoon = tick(state, T0 + h(1))
-    expect(apply(tooSoon, { type: 'greetLadybird' }, T0 + h(1))).toBe(tooSoon)
-
-    const at = T0 + h(SIM.LADYBIRD_COOLDOWN_HOURS) + 1000
-    const rested = tick(state, at)
-    const greeted = apply(rested, { type: 'greetLadybird' }, at)
-    expect(greeted.inventory.dewdrops - rested.inventory.dewdrops).toBe(SIM.LADYBIRD_DEWDROPS)
+    // the very next stroll pays too — no cooldown between lucky meetings
+    const soon = tick(state, T0 + h(1))
+    const greeted = apply(soon, { type: 'greetLadybird' }, T0 + h(1))
+    expect(greeted.inventory.dewdrops - soon.inventory.dewdrops).toBe(SIM.LADYBIRD_DEWDROPS)
     expect(greeted.achievements.filter((a) => a === 'ladybird-luck')).toHaveLength(1)
 
     const midwinter = tick(init(), Date.UTC(2024, 0, 10))
@@ -233,22 +235,31 @@ describe('the garden guests: robin, butterfly, hedgehog', () => {
   const JULY = Date.UTC(2024, 6, 10, 12)
   const JANUARY = Date.UTC(2024, 0, 10, 12)
 
-  it('the robin only visits a bought feeder, and sings on a cooldown', () => {
+  it('the robin only visits a bought feeder, and every song pays', () => {
     // no feeder, no robin
     expect(apply(init(), { type: 'greetRobin' }, T0).inventory.dewdrops).toBe(0)
 
-    let state = { ...init(), inventory: { dewdrops: 0, items: ['bird-feeder'], flyPacks: 0 } }
+    let state = {
+      ...init(),
+      inventory: {
+        dewdrops: 0,
+        items: ['bird-feeder'],
+        packs: { fly: 0, mosquito: 0, moth: 0, spider: 0 },
+      },
+    }
     state = apply(state, { type: 'greetRobin' }, T0)
     expect(state.inventory.dewdrops).toBe(SIM.GUEST_DEWDROPS + SIM.ACHIEVEMENT_DEWDROPS)
     expect(state.achievements).toContain('robin-song')
 
-    const tooSoon = tick(state, T0 + h(1))
-    expect(apply(tooSoon, { type: 'greetRobin' }, T0 + h(1))).toBe(tooSoon)
+    // back at the tray an hour later — greeted and paid again
+    const soon = tick(state, T0 + h(1))
+    const greeted = apply(soon, { type: 'greetRobin' }, T0 + h(1))
+    expect(greeted.inventory.dewdrops - soon.inventory.dewdrops).toBe(SIM.GUEST_DEWDROPS)
 
     // the robin visits in the dead of winter too — no hibernation here
     const winter = tick(state, JANUARY)
-    const greeted = apply(winter, { type: 'greetRobin' }, JANUARY)
-    expect(greeted.inventory.dewdrops - winter.inventory.dewdrops).toBe(SIM.GUEST_DEWDROPS)
+    const paid = apply(winter, { type: 'greetRobin' }, JANUARY)
+    expect(paid.inventory.dewdrops - winter.inventory.dewdrops).toBe(SIM.GUEST_DEWDROPS)
   })
 
   it('the butterfly is a spring/summer guest with a safe landing', () => {
@@ -262,8 +273,10 @@ describe('the garden guests: robin, butterfly, hedgehog', () => {
     )
     expect(greeted.achievements).toContain('safe-landing')
 
-    const tooSoon = tick(greeted, JULY + h(1))
-    expect(apply(tooSoon, { type: 'greetButterfly' }, JULY + h(1))).toBe(tooSoon)
+    // it flutters back within the hour — and the greeting pays again
+    const soon = tick(greeted, JULY + h(1))
+    const again = apply(soon, { type: 'greetButterfly' }, JULY + h(1))
+    expect(again.inventory.dewdrops - soon.inventory.dewdrops).toBe(SIM.GUEST_DEWDROPS)
   })
 
   it('the hedgehog snuffles three seasons and hibernates through winter', () => {

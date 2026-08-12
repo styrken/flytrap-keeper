@@ -81,21 +81,22 @@ export const SIM = {
   /** The first care action of each (UTC) day pays a check-in bonus. */
   DAILY_CARE_DEWDROPS: 5,
 
-  /** Minigames: a perfect pour when watering, golden drops while it rains. */
+  /** Minigames: a perfect pour when watering, golden drops while it rains.
+   * Every caught drop pays — the rain sets the pace, not a cooldown. */
   POUR_PERFECT_DEWDROPS: 2,
   RAINDROP_DEWDROPS: 1,
-  RAINDROP_COOLDOWN_SECONDS: 8,
 
   /** Daily quests: three per day, paid on completion, bonus for the full set. */
   QUEST_DEWDROPS: 5,
   QUEST_ALL_BONUS: 10,
 
-  /** Night life: wish on a shooting star, fireflies on some summer nights. */
+  /** Night life: wish on a shooting star (every wish pays — stars are rare
+   * enough on their own), fireflies on some summer nights. */
   STAR_WISH_DEWDROPS: 3,
-  STAR_WISH_COOLDOWN_SECONDS: 45,
   FIREFLY_NIGHT_CHANCE: 0.45,
 
-  /** Pets: zero needs by design — company, not chores. */
+  /** Pets: zero needs by design — company, not chores. Every rescue pays;
+   * the cooldown only paces how fast the jar-adoption count climbs. */
   TADPOLE_STAGE_DAYS: [1.5, 3.5, 5.5, 7],
   CAT_VISIT_CHANCE: 0.4,
   SNAIL_RESCUE_DEWDROPS: 2,
@@ -105,12 +106,11 @@ export const SIM = {
   SPIDER_DAY_CHANCE: 0.5,
   WEB_LOOT_DEWDROPS: 2,
   WEB_LOOT_COOLDOWN_HOURS: 12,
-  /** The ladybird is a guest, never a pet — greeting one brings a spot of luck. */
+  /** The ladybird is a guest, never a pet — every greeting brings luck. */
   LADYBIRD_DEWDROPS: 1,
-  LADYBIRD_COOLDOWN_HOURS: 2,
-  /** More garden guests: the feeder robin, the butterfly, the hedgehog. */
+  /** More garden guests: the feeder robin, the butterfly, the hedgehog —
+   * greeting always pays; their visiting rhythm is pacing enough. */
   GUEST_DEWDROPS: 1,
-  GUEST_COOLDOWN_HOURS: 2,
 
   NICKNAME_MAX_LENGTH: 20,
 
@@ -122,6 +122,6 @@ export const SIM = {
   ARCADE_DAILY_CAP: 10,
   ARCADE_HIGHSCORE_AT: 25,
 
-  /** The fly pack: a buyable box of flies, released wherever you stand. */
-  FLY_PACK_FLIES: 3,
+  /** Insect packs: buyable boxes of bugs, released wherever you stand. */
+  PACK_INSECTS: 3,
 } as const

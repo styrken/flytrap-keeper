@@ -65,6 +65,10 @@ export function createInitialState(now: number, seed: number): GameState {
       ...drawWeeklyQuests(seed >>> 0, now, [plant]),
     },
     arcade: { best: 0, day: '', paidToday: 0 },
+    luck: {
+      day: '',
+      paid: { raindrop: 0, star: 0, snail: 0, ladybird: 0, robin: 0, butterfly: 0, hedgehog: 0 },
+    },
     pets: {
       tadpoleSince: null,
       cat: false,

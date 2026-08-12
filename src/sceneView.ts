@@ -2,7 +2,7 @@
 // friend's. Scene components read state through these hooks instead of
 // useGame directly, so a visit swaps the whole diorama without touching the
 // real save. While visiting, dispatch is a no-op: look, don't touch.
-import { type Action, type GameState, toGameTime } from './sim'
+import { type Action, type GameState, type LuckSourceId, luckLeft, toGameTime } from './sim'
 import { useSocial } from './socialStore'
 import { gameNow, useGame } from './store'
 
@@ -43,6 +43,22 @@ export function useRewardDispatch(): (action: Action) => number {
 }
 
 const zeroReward = () => 0
+
+/** What's left in a luck source's daily jar — read right after a dispatch. */
+export function luckLeftNow(source: LuckSourceId): number {
+  return luckLeft(useGame.getState().state, source, gameNow())
+}
+
+/**
+ * The float label for a luck-jar reward: real numbers while the jar pays, a
+ * countdown (⏳) as it runs low, and a little moon when today's jar is empty
+ * — see you tomorrow. `affection` is the no-pay/no-jar fallback face.
+ */
+export function luckLabel(icon: string, gained: number, left: number, affection = '💚'): string {
+  if (gained > 0) return left <= 2 ? `${icon} +${gained} 🫧 · ⏳${left}` : `${icon} +${gained} 🫧`
+  if (left <= 0) return `${icon} 🌙`
+  return `${icon} ${affection}`
+}
 
 /**
  * Game-clock "now" of the displayed garden (non-hook, safe in useFrame):

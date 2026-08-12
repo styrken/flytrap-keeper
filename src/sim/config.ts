@@ -133,4 +133,19 @@ export const SIM = {
 
   /** Insect packs: buyable boxes of bugs, released wherever you stand. */
   PACK_INSECTS: 3,
+
+  /** Daily luck jars: each little friend pays out at most this many times a
+   * day. The jar visibly counts down and refills at midnight with the
+   * quests — generous enough that normal play rarely notices, small enough
+   * that no critter is an infinite money tap. Trap catches are not listed:
+   * digestion is their natural daily lid, as it has always been. */
+  DAILY_LUCK: {
+    raindrop: 8,
+    star: 4,
+    snail: 5,
+    ladybird: 4,
+    robin: 3,
+    butterfly: 3,
+    hedgehog: 3,
+  },
 } as const

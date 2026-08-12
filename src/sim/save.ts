@@ -1,7 +1,7 @@
 import type { GameState } from './types'
 
 export const SAVE_KEY = 'flytrap-keeper:save'
-export const SAVE_VERSION = 17
+export const SAVE_VERSION = 18
 
 type RawSave = Record<string, unknown>
 type Migration = (data: RawSave) => RawSave
@@ -160,6 +160,14 @@ const MIGRATIONS: Record<number, Migration> = {
     const quests = (data.quests ?? { day: '', items: [] }) as RawSave
     return { ...data, quests: { ...quests, week: '', weekItems: [] } }
   },
+  // v17 -> v18: daily luck jars — every little friend starts with a full one.
+  17: (data) => ({
+    ...data,
+    luck: {
+      day: '',
+      paid: { raindrop: 0, star: 0, snail: 0, ladybird: 0, robin: 0, butterfly: 0, hedgehog: 0 },
+    },
+  }),
 }
 
 export function saveToString(state: GameState): string {

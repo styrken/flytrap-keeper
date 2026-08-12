@@ -6,6 +6,8 @@ import { Color, Object3D } from 'three'
 import { playCatch, playToast, setRainAmbience } from '../audio'
 import { currentWeather, isFireflyNight } from '../sim'
 import {
+  luckLabel,
+  luckLeftNow,
   sceneNow,
   useIsVisiting,
   useRewardDispatch,
@@ -225,7 +227,7 @@ function ShootingStar() {
   )
   const active = !visiting && !reduceMotion
   const [star, setStar] = useState<{ id: number; x0: number; y0: number } | null>(null)
-  const [label, setLabel] = useState<{ x: number; y: number; gained: number } | null>(null)
+  const [label, setLabel] = useState<{ x: number; y: number; text: string } | null>(null)
   const group = useRef<Group>(null)
   const age = useRef(0)
   // Synchronous, so a burst of taps (extra fingers!) claims the star once —
@@ -275,7 +277,7 @@ function ShootingStar() {
             setLabel({
               x: group.current?.position.x ?? star.x0,
               y: group.current?.position.y ?? star.y0,
-              gained,
+              text: luckLabel('🌠', gained, luckLeftNow('star'), '✨'),
             })
             setStar(null)
           }}
@@ -304,7 +306,7 @@ function ShootingStar() {
       )}
       {label && (
         <Html position={[label.x, label.y + 0.12, -0.455]} center zIndexRange={[10, 0]}>
-          <div className="float-label">{label.gained > 0 ? `🌠 +${label.gained} 🫧` : '🌠 ✨'}</div>
+          <div className="float-label">{label.text}</div>
         </Html>
       )}
     </group>
@@ -389,7 +391,7 @@ export function GoldenDrop({ area }: { area: DropArea }) {
   )
   const raining = weather === 'rain' && !reduceMotion && !visiting
   const [drop, setDrop] = useState<{ id: number; x: number } | null>(null)
-  const [label, setLabel] = useState<{ x: number; y: number; gained: number } | null>(null)
+  const [label, setLabel] = useState<{ x: number; y: number; text: string } | null>(null)
   const group = useRef<Group>(null)
   const y = useRef(area.yTop)
   // Synchronous, so a burst of taps (extra fingers!) claims the drop once —
@@ -438,7 +440,11 @@ export function GoldenDrop({ area }: { area: DropArea }) {
             claimed.current = true
             const gained = rewardDispatch({ type: 'catchRaindrop' })
             playCatch()
-            setLabel({ x: drop.x, y: y.current, gained })
+            setLabel({
+              x: drop.x,
+              y: y.current,
+              text: luckLabel('💧', gained, luckLeftNow('raindrop')),
+            })
             setDrop(null)
           }}
           onPointerOver={() => {
@@ -461,7 +467,7 @@ export function GoldenDrop({ area }: { area: DropArea }) {
       )}
       {label && (
         <Html position={[label.x, label.y + 0.1, area.z]} center zIndexRange={[10, 0]}>
-          <div className="float-label">{label.gained > 0 ? `+${label.gained} 🫧` : '💧'}</div>
+          <div className="float-label">{label.text}</div>
         </Html>
       )}
     </group>

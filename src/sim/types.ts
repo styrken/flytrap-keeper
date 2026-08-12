@@ -8,6 +8,10 @@ export type WeatherKind = 'sun' | 'clouds' | 'rain'
 export type InsectKind = 'fly' | 'mosquito' | 'spider' | 'beetle' | 'moth'
 /** Insects the shop dares to box up — beetles are strictly not for sale. */
 export type PackKind = 'fly' | 'mosquito' | 'moth' | 'spider'
+
+/** The little friends whose rewards draw from a daily jar of luck. */
+export type LuckSourceId =
+  'raindrop' | 'star' | 'snail' | 'ladybird' | 'robin' | 'butterfly' | 'hedgehog'
 export type Season = 'spring' | 'summer' | 'autumn' | 'winter'
 
 export type QuestId = 'water2' | 'catch2' | 'weed2' | 'pet2' | 'pour1' | 'mist1'
@@ -193,6 +197,9 @@ export interface GameState {
   pets: PetsState
   /** The desk computer's arcade: best score ever, and today's payout so far. */
   arcade: { best: number; day: string; paidToday: number }
+  /** Daily luck jars: how many times each little friend has paid out today.
+   * Every jar refills at (UTC) midnight, together with the daily quests. */
+  luck: { day: string; paid: Record<LuckSourceId, number> }
   /** locale '' means no explicit choice — the UI follows the browser language. */
   settings: { sound: boolean; music: boolean; locale: string; hardMode: boolean }
   /** Distinct real-world days with at least one care action. */

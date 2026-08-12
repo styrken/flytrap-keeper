@@ -13,7 +13,7 @@ import { CULTIVARS, SPECIES } from './species'
 import { createPlant } from './state'
 import { tick } from './tick'
 import { TIME_SCALES, toGameTime, withTimeScale } from './time'
-import type { Action, GameState, PlantState } from './types'
+import type { Action, GameState, LuckSourceId, PlantState } from './types'
 import { clamp, dayKey, HOUR_MS } from './util'
 
 /**
@@ -56,29 +56,28 @@ function applyAction(s: GameState, action: Action, now: number, realNow: number)
       return next
     }
     case 'catchRaindrop': {
-      // Every golden drop caught is a golden drop paid — drops fall further
-      // apart than the repeat window, which exists only so a burst of taps
-      // on one drop can't cash it in several times over.
+      // Drops fall further apart than the repeat window (which only folds a
+      // tap-burst on one drop into a single catch), and the day's jar caps
+      // how many of them turn into dewdrops.
       if (currentWeather(s, now) !== 'rain') return s
       const last = s.minigames.lastRaindropAt
       if (last !== null && now - last < SIM.RAINDROP_REPEAT_SECONDS * 1000) return s
-      return {
+      const caught: GameState = {
         ...s,
         minigames: { ...s.minigames, lastRaindropAt: now },
-        inventory: { ...s.inventory, dewdrops: s.inventory.dewdrops + SIM.RAINDROP_DEWDROPS },
       }
+      return payLuck(caught, now, 'raindrop', SIM.RAINDROP_DEWDROPS)
     }
     case 'wishOnStar': {
-      // Every star grants its wish — stars streak by minutes apart, so the
-      // repeat window only folds a tap-burst on one star into a single wish.
+      // Stars streak by minutes apart; the repeat window folds a tap-burst
+      // on one star into a single wish, and the night's jar holds the rest.
       const last = s.minigames.lastWishAt
       if (last !== null && now - last < SIM.STAR_WISH_REPEAT_SECONDS * 1000) return s
       const wished: GameState = {
         ...s,
         minigames: { ...s.minigames, lastWishAt: now },
-        inventory: { ...s.inventory, dewdrops: s.inventory.dewdrops + SIM.STAR_WISH_DEWDROPS },
       }
-      return award(wished, 'first-wish')
+      return award(payLuck(wished, now, 'star', SIM.STAR_WISH_DEWDROPS), 'first-wish')
     }
     case 'markFireflies': {
       // View says "the player is watching fireflies" — verify the calendar agrees.
@@ -115,27 +114,28 @@ function applyAction(s: GameState, action: Action, now: number, realNow: number)
       // greeting brings its spot of luck — the strolls' own slow rhythm
       // is all the pacing luck needs.
       if (seasonOf(now) === 'winter') return s
-      const greeted: GameState = {
-        ...s,
-        pets: { ...s.pets, lastLadybirdAt: now },
-        inventory: { ...s.inventory, dewdrops: s.inventory.dewdrops + SIM.LADYBIRD_DEWDROPS },
-      }
+      const greeted: GameState = payLuck(
+        { ...s, pets: { ...s.pets, lastLadybirdAt: now } },
+        now,
+        'ladybird',
+        SIM.LADYBIRD_DEWDROPS,
+      )
       return progressWeekly(award(greeted, 'ladybird-luck'), 'greetWeek')
     }
     case 'greetRobin': {
       // No feeder, no robin — it has standards.
       if (!s.inventory.items.includes('bird-feeder')) return s
-      return greetGuest(s, now, 'lastRobinAt', 'robin-song')
+      return greetGuest(s, now, 'lastRobinAt', 'robin', 'robin-song')
     }
     case 'greetButterfly': {
       const season = seasonOf(now)
       if (season !== 'spring' && season !== 'summer') return s
-      return greetGuest(s, now, 'lastButterflyAt', 'safe-landing')
+      return greetGuest(s, now, 'lastButterflyAt', 'butterfly', 'safe-landing')
     }
     case 'greetHedgehog': {
       // Hedgehogs sleep the winter away, curled up somewhere dry.
       if (seasonOf(now) === 'winter') return s
-      return greetGuest(s, now, 'lastHedgehogAt', 'evening-snuffler')
+      return greetGuest(s, now, 'lastHedgehogAt', 'hedgehog', 'evening-snuffler')
     }
     case 'arcadeScore': {
       // The computer insists it is not for games; the sim knows better.
@@ -180,19 +180,20 @@ function applyAction(s: GameState, action: Action, now: number, realNow: number)
       const snailRescues = s.pets.snailRescues + (counted ? 1 : 0)
       const keep = s.pets.snail || (counted && snailRescues >= SIM.SNAIL_KEEP_AT)
       let next: GameState = bumpCareStreak(
-        {
-          ...s,
-          pets: {
-            ...s.pets,
-            snailRescues,
-            lastSnailAt: counted ? now : s.pets.lastSnailAt,
-            snail: keep,
+        payLuck(
+          {
+            ...s,
+            pets: {
+              ...s.pets,
+              snailRescues,
+              lastSnailAt: counted ? now : s.pets.lastSnailAt,
+              snail: keep,
+            },
           },
-          inventory: {
-            ...s.inventory,
-            dewdrops: s.inventory.dewdrops + SIM.SNAIL_RESCUE_DEWDROPS,
-          },
-        },
+          now,
+          'snail',
+          SIM.SNAIL_RESCUE_DEWDROPS,
+        ),
         now,
       )
       if (keep && !s.pets.snail) {
@@ -491,24 +492,26 @@ function spendTrapUse(plant: PlantState, trapId: string, now: number, digestFact
 }
 
 /**
- * Shared shape of every garden-guest hello: every visit pays a dewdrop —
- * greeting a friend should never feel like a shrug. The repeat window is
- * far shorter than any two visits; it exists only so drumming on a guest
- * that lingers (the robin pecks for a while) is one hello, not twenty.
+ * Shared shape of every garden-guest hello. The repeat window folds a
+ * tap-burst on one lingering guest into a single hello; the daily luck jar
+ * caps how many hellos turn into dewdrops. Quests, achievements and the
+ * greeting itself keep working even with an empty jar.
  */
 function greetGuest(
   s: GameState,
   now: number,
   field: 'lastRobinAt' | 'lastButterflyAt' | 'lastHedgehogAt',
+  source: LuckSourceId,
   achievement: AchievementId,
 ): GameState {
   const last = s.pets[field]
   if (last !== null && now - last < SIM.GUEST_REPEAT_SECONDS * 1000) return s
-  const greeted: GameState = {
-    ...s,
-    pets: { ...s.pets, [field]: now },
-    inventory: { ...s.inventory, dewdrops: s.inventory.dewdrops + SIM.GUEST_DEWDROPS },
-  }
+  const greeted: GameState = payLuck(
+    { ...s, pets: { ...s.pets, [field]: now } },
+    now,
+    source,
+    SIM.GUEST_DEWDROPS,
+  )
   return progressWeekly(award(greeted, achievement), 'greetWeek')
 }
 
@@ -516,6 +519,38 @@ function withPlant(state: GameState, plant: PlantState): GameState {
   return {
     ...state,
     plants: state.plants.map((candidate) => (candidate.id === plant.id ? plant : candidate)),
+  }
+}
+
+/** Zeroed jars for a fresh (UTC) day. */
+const EMPTY_LUCK: Record<LuckSourceId, number> = {
+  raindrop: 0,
+  star: 0,
+  snail: 0,
+  ladybird: 0,
+  robin: 0,
+  butterfly: 0,
+  hedgehog: 0,
+}
+
+/**
+ * Pay `amount` dewdrops from a source's daily luck jar. While the jar has
+ * charges the pay is full; once today's max is spent it pays nothing until
+ * midnight refills it. Only the dewdrops are gated — greetings still count
+ * for quests, achievements and adoptions, so nothing FEELS broken, the tap
+ * just stops printing money.
+ */
+function payLuck(s: GameState, now: number, source: LuckSourceId, amount: number): GameState {
+  const day = dayKey(now)
+  const paid = s.luck.day === day ? s.luck.paid : EMPTY_LUCK
+  if (paid[source] >= SIM.DAILY_LUCK[source]) {
+    // Jar empty — still roll the day forward so the state stays tidy.
+    return s.luck.day === day ? s : { ...s, luck: { day, paid: EMPTY_LUCK } }
+  }
+  return {
+    ...s,
+    luck: { day, paid: { ...paid, [source]: paid[source] + 1 } },
+    inventory: { ...s.inventory, dewdrops: s.inventory.dewdrops + amount },
   }
 }
 

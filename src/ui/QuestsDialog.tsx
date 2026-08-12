@@ -41,7 +41,9 @@ export function QuestsDialog() {
               <div key={quest.id} className={`shop-item quest-row${done ? ' done' : ''}`}>
                 <div className="shop-item-text">
                   <strong>
-                    {QUEST_ICON[quest.id]} {t(`quests.items.${quest.id}`, { target: quest.target })}
+                    {QUEST_ICON[quest.id]}{' '}
+                    {/* count picks the singular form when a young plant gets target 1 */}
+                    {t(`quests.items.${quest.id}`, { target: quest.target, count: quest.target })}
                   </strong>
                   <span className="muted">
                     {done ? '✅' : `${quest.progress}/${quest.target}`} · +{SIM.QUEST_DEWDROPS} 🫧

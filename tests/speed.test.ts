@@ -54,7 +54,10 @@ describe('speed mode', () => {
   })
 
   it('cooldowns run on the game clock', () => {
-    let state = apply(createInitialState(T0, 42), { type: 'setTimeScale', scale: 60 }, T0)
+    const base = createInitialState(T0, 42)
+    // Quests blanked so a completed pet quest can't sneak into the payout.
+    const noQuests = { ...base, quests: { ...base.quests, items: [] } }
+    let state = apply(noQuests, { type: 'setTimeScale', scale: 60 }, T0)
     state = apply(state, { type: 'pet' }, T0)
     const dewdropsAfterFirst = state.inventory.dewdrops
     // One real minute later the game clock has passed the 1h pet cooldown.

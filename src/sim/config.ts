@@ -25,7 +25,7 @@ export const SIM = {
   NUTRITION_XP_BONUS_MAX: 0.5,
 
   HAND_FEED_NUTRITION: 20,
-  DIGEST_HOURS: 4,
+  DIGEST_HOURS: 3.5,
   TRAP_USES: 3,
   TRAP_REGROW_HOURS: 24,
   /** Snapping at a beetle: no food, and the trap digests twice as long. */

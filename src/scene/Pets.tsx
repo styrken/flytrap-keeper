@@ -8,15 +8,21 @@ import { useEffect, useRef, useState } from 'react'
 import type { Group } from 'three'
 import { playCatch, playChirp, playCroak, playMeow, playPet, playPurr, playSnuffle } from '../audio'
 import {
-  SIM,
   catAtWindow,
+  currentWeather,
   frogStage,
   seasonAt,
   snailAbout,
   spiderAtCorner,
   webLootReady,
 } from '../sim'
-import { sceneNow, useIsVisiting, useSceneDispatch, useSceneState } from '../sceneView'
+import {
+  sceneNow,
+  useIsVisiting,
+  useRewardDispatch,
+  useSceneDispatch,
+  useSceneState,
+} from '../sceneView'
 import type { RoomView } from '../store'
 import { daylightFactor } from './daylight'
 import { POT_SLOTS, STAGE_SCALE, plantsInRoom } from './plantLayout'
@@ -36,8 +42,16 @@ export function Pets({ room }: { room: RoomView }) {
     )
   }
   if (room === 'garden') {
-    // The night hedgehog patrols this lawn too — same guest, bigger beat.
-    return <Hedgehog />
+    // The lawn has its own life: the night hedgehog, ladybirds patrolling the
+    // flower bed, and rain-day snails out on the grass.
+    return (
+      <group>
+        <Hedgehog />
+        <Ladybird stroll={GARDEN_LADYBIRD_STROLL} />
+        <GardenSnail lane={0} />
+        <GardenSnail lane={1} />
+      </group>
+    )
   }
   return (
     <group>
@@ -404,11 +418,11 @@ const SNAIL_BODY = '#d8b98a'
  * really do nibble carnivorous plants). Enough rescues and it moves in.
  */
 function SillSnail() {
-  const dispatch = useSceneDispatch()
+  const rewardDispatch = useRewardDispatch()
   const visiting = useIsVisiting()
   const mayShow = useSceneState((s) => snailAbout(s, s.lastTickAt))
   const [crawling, setCrawling] = useState(false)
-  const [label, setLabel] = useState<{ x: number } | null>(null)
+  const [label, setLabel] = useState<{ x: number; gained: number } | null>(null)
   const group = useRef<Group>(null)
   const x = useRef(1.75)
 
@@ -459,9 +473,9 @@ function SillSnail() {
           onPointerDown={(e) => {
             if (visiting) return
             e.stopPropagation()
-            dispatch({ type: 'rescueSnail' })
+            const gained = rewardDispatch({ type: 'rescueSnail' })
             playCatch()
-            setLabel({ x: x.current })
+            setLabel({ x: x.current, gained })
             setCrawling(false)
           }}
           onPointerOver={() => {
@@ -480,7 +494,7 @@ function SillSnail() {
       )}
       {label && (
         <Html position={[label.x, 0.3, 0.42]} center zIndexRange={[10, 0]}>
-          <div className="float-label">🐌 +{SIM.SNAIL_RESCUE_DEWDROPS} 🫧</div>
+          <div className="float-label">{label.gained > 0 ? `🐌 +${label.gained} 🫧` : '🐌 💚'}</div>
         </Html>
       )}
     </group>
@@ -555,6 +569,106 @@ function SnailJar() {
   )
 }
 
+/** Crawl lanes across the lawn — [fromX, toX, z]; two lanes, opposite ways. */
+const GARDEN_SNAIL_LANES: [number, number, number][] = [
+  [2.7, -1.1, 2.05],
+  [-2.4, 1.2, 4.35],
+]
+const GARDEN_SNAIL_Y = -0.885
+
+/**
+ * Rain brings the garden snails out onto the lawn — they only crawl while it
+ * actually rains. Lifting one gently is the same rescue as on the sill (and
+ * pays the same way, cooldown and all — the label tells the truth about it).
+ */
+function GardenSnail({ lane }: { lane: number }) {
+  const rewardDispatch = useRewardDispatch()
+  const visiting = useIsVisiting()
+  const raining = useSceneState((s) => currentWeather(s, s.lastTickAt) === 'rain')
+  const [crawling, setCrawling] = useState(false)
+  const [label, setLabel] = useState<{ x: number; gained: number } | null>(null)
+  const group = useRef<Group>(null)
+  const [fromX, toX, z] = GARDEN_SNAIL_LANES[lane % GARDEN_SNAIL_LANES.length]
+  const dir = Math.sign(toX - fromX)
+  const x = useRef(fromX)
+
+  const active = raining && !visiting
+
+  useEffect(() => {
+    if (!active || crawling) return
+    // Staggered per lane, so the two never march in step.
+    const timer = window.setTimeout(
+      () => {
+        x.current = fromX
+        setCrawling(true)
+      },
+      6_000 + lane * 7_000 + Math.random() * 14_000,
+    )
+    return () => window.clearTimeout(timer)
+  }, [active, crawling, fromX, lane])
+
+  useEffect(() => {
+    if (!label) return
+    const timer = window.setTimeout(() => setLabel(null), 1200)
+    return () => window.clearTimeout(timer)
+  }, [label])
+
+  useFrame((frame, delta) => {
+    if (!crawling) return
+    if (!active) {
+      setCrawling(false) // rain over — back under a leaf somewhere
+      return
+    }
+    const g = group.current
+    if (!g) return
+    x.current += dir * delta * 0.03 // garden distances, still a snail's pace
+    if (dir > 0 ? x.current > toX : x.current < toX) {
+      setCrawling(false) // made it across the lawn — until the next shower
+      return
+    }
+    g.position.x = x.current
+    g.scale.x = 1.7 * (1 + Math.sin(frame.clock.elapsedTime * 2.2 + lane * 2) * 0.06)
+  })
+
+  return (
+    <group>
+      {crawling && (
+        <group
+          ref={group}
+          position={[fromX, GARDEN_SNAIL_Y, z]}
+          scale={1.7}
+          rotation-y={dir < 0 ? Math.PI : 0} /* eye stalks point the way it crawls */
+          onPointerDown={(e) => {
+            if (visiting) return
+            e.stopPropagation()
+            const gained = rewardDispatch({ type: 'rescueSnail' })
+            playCatch()
+            setLabel({ x: x.current, gained })
+            setCrawling(false)
+          }}
+          onPointerOver={() => {
+            if (!visiting) document.body.style.cursor = 'pointer'
+          }}
+          onPointerOut={() => {
+            document.body.style.cursor = 'auto'
+          }}
+        >
+          <SnailShape />
+          <mesh visible={false} position={[0, 0.04, 0]}>
+            <boxGeometry args={[0.25, 0.2, 0.25]} />
+            <meshStandardMaterial />
+          </mesh>
+        </group>
+      )}
+      {label && (
+        <Html position={[label.x, GARDEN_SNAIL_Y + 0.45, z]} center zIndexRange={[10, 0]}>
+          <div className="float-label">{label.gained > 0 ? `🐌 +${label.gained} 🫧` : '🐌 💚'}</div>
+        </Html>
+      )}
+    </group>
+  )
+}
+
 /* ---------------------------------- spider ----------------------------------- */
 
 const WEB_STRAND = '#f2efe4'
@@ -616,6 +730,7 @@ function SpiderShape({ scale = 1 }: { scale?: number }) {
  */
 function CornerSpider() {
   const dispatch = useSceneDispatch()
+  const rewardDispatch = useRewardDispatch()
   const visiting = useIsVisiting()
   const trial = useSceneState((s) => spiderAtCorner(s, s.lastTickAt))
   const settled = useSceneState((s) => s.pets.spider)
@@ -647,9 +762,9 @@ function CornerSpider() {
           return
         }
         if (loot) {
-          dispatch({ type: 'lootWeb' })
+          const gained = rewardDispatch({ type: 'lootWeb' })
           playCatch()
-          pop(`🕸️ +${SIM.WEB_LOOT_DEWDROPS} 🫧`)
+          pop(gained > 0 ? `🕸️ +${gained} 🫧` : '🕷️ 💚')
         } else {
           playPet()
           pop('🕷️')
@@ -695,20 +810,51 @@ function CornerSpider() {
 
 const LADYBIRD_RED = '#d24545'
 
+/** Where a ladybird strolls: along x at fixed height/depth, then flies off. */
+interface LadybirdStroll {
+  xFrom: number
+  xTo: number
+  y: number
+  z: number
+  scale: number
+  speed: number
+}
+
+/** The sill stroll — the original beat, kept exactly as it always was. */
+const SILL_LADYBIRD_STROLL: LadybirdStroll = {
+  xFrom: -1.55,
+  xTo: 1.55,
+  y: 0.075,
+  z: 0.3,
+  scale: 1,
+  speed: 0.045,
+}
+
+/** Outdoors it patrols the flower bed under the big window — aphid country. */
+const GARDEN_LADYBIRD_STROLL: LadybirdStroll = {
+  xFrom: -3.5,
+  xTo: -1.3,
+  y: -0.53,
+  z: -0.72,
+  scale: 1.7,
+  speed: 0.06,
+}
+
 /**
- * The guest that is never a pet: a ladybird lands on the sill for a short
- * stroll (never in winter — they hibernate). Greeting it with a tap brings a
- * spot of luck before it flies off. The traps never get a say: gardeners'
- * best friend, and famously terrible-tasting anyway.
+ * The guest that is never a pet: a ladybird lands for a short stroll — on the
+ * sill, or outside along the flower bed (never in winter — they hibernate).
+ * Greeting it with a tap brings a spot of luck before it flies off. The traps
+ * never get a say: gardeners' best friend, and famously terrible-tasting
+ * anyway.
  */
-function Ladybird() {
-  const dispatch = useSceneDispatch()
+function Ladybird({ stroll = SILL_LADYBIRD_STROLL }: { stroll?: LadybirdStroll }) {
+  const rewardDispatch = useRewardDispatch()
   const visiting = useIsVisiting()
   const winter = useSceneState((s) => seasonAt(s.lastTickAt) === 'winter')
   const [strolling, setStrolling] = useState(false)
-  const [label, setLabel] = useState<{ x: number } | null>(null)
+  const [label, setLabel] = useState<{ x: number; gained: number } | null>(null)
   const group = useRef<Group>(null)
-  const x = useRef(-1.55)
+  const x = useRef(stroll.xFrom)
   const leaving = useRef(false)
   const age = useRef(0)
 
@@ -718,7 +864,7 @@ function Ladybird() {
     if (!active || strolling) return
     const timer = window.setTimeout(
       () => {
-        x.current = -1.55
+        x.current = stroll.xFrom
         leaving.current = false
         age.current = 0
         setStrolling(true)
@@ -726,7 +872,7 @@ function Ladybird() {
       40_000 + Math.random() * 80_000,
     )
     return () => window.clearTimeout(timer)
-  }, [active, strolling])
+  }, [active, strolling, stroll])
 
   useEffect(() => {
     if (!label) return
@@ -747,16 +893,16 @@ function Ladybird() {
       // wings out — up and away in a little arc
       g.position.y += delta * 1.1
       g.position.x += delta * 0.5
-      if (g.position.y > 1.6) setStrolling(false)
+      if (g.position.y > stroll.y + 1.6) setStrolling(false)
       return
     }
-    x.current += delta * 0.045
-    if (x.current > 1.55) {
+    x.current += delta * stroll.speed
+    if (x.current > stroll.xTo) {
       leaving.current = true
       return
     }
     g.position.x = x.current
-    g.position.y = 0.075 + Math.abs(Math.sin(frame.clock.elapsedTime * 9)) * 0.004
+    g.position.y = stroll.y + Math.abs(Math.sin(frame.clock.elapsedTime * 9)) * 0.004 * stroll.scale
   })
 
   return (
@@ -764,13 +910,14 @@ function Ladybird() {
       {strolling && (
         <group
           ref={group}
-          position={[-1.55, 0.075, 0.3]}
+          position={[stroll.xFrom, stroll.y, stroll.z]}
+          scale={stroll.scale}
           onPointerDown={(e) => {
             if (visiting || leaving.current) return
             e.stopPropagation()
-            dispatch({ type: 'greetLadybird' })
+            const gained = rewardDispatch({ type: 'greetLadybird' })
             playCatch()
-            setLabel({ x: x.current })
+            setLabel({ x: x.current, gained })
             leaving.current = true
           }}
           onPointerOver={() => {
@@ -806,8 +953,12 @@ function Ladybird() {
         </group>
       )}
       {label && (
-        <Html position={[label.x, 0.35, 0.3]} center zIndexRange={[10, 0]}>
-          <div className="float-label">🐞 +{SIM.LADYBIRD_DEWDROPS} 🫧</div>
+        <Html
+          position={[label.x, stroll.y + 0.28 * stroll.scale, stroll.z]}
+          center
+          zIndexRange={[10, 0]}
+        >
+          <div className="float-label">{label.gained > 0 ? `🐞 +${label.gained} 🫧` : '🐞 💚'}</div>
         </Html>
       )}
     </group>
@@ -825,7 +976,7 @@ const ROBIN_RED = '#d2653c'
  * through winter, when everyone else is asleep.
  */
 function BirdFeeder() {
-  const dispatch = useSceneDispatch()
+  const rewardDispatch = useRewardDispatch()
   const visiting = useIsVisiting()
   const day = useDaytime()
   const [perched, setPerched] = useState(false)
@@ -900,9 +1051,9 @@ function BirdFeeder() {
           onPointerDown={(e) => {
             if (visiting) return
             e.stopPropagation()
-            dispatch({ type: 'greetRobin' })
+            const gained = rewardDispatch({ type: 'greetRobin' })
             playChirp()
-            pop(`🐦 +${SIM.GUEST_DEWDROPS} 🫧`)
+            pop(gained > 0 ? `🐦 +${gained} 🫧` : '🐦 🎶')
           }}
           onPointerOver={() => {
             if (!visiting) document.body.style.cursor = 'pointer'
@@ -961,7 +1112,7 @@ const BUTTERFLY_EDGE = '#5a4030'
  * up on the menu. Safe landing, always.
  */
 function Butterfly() {
-  const dispatch = useSceneDispatch()
+  const rewardDispatch = useRewardDispatch()
   const visiting = useIsVisiting()
   const day = useDaytime()
   const summery = useSceneState((s) => {
@@ -1047,9 +1198,9 @@ function Butterfly() {
           onPointerDown={(e) => {
             if (visiting) return
             e.stopPropagation()
-            dispatch({ type: 'greetButterfly' })
+            const gained = rewardDispatch({ type: 'greetButterfly' })
             playPet()
-            pop(`🦋 +${SIM.GUEST_DEWDROPS} 🫧`)
+            pop(gained > 0 ? `🦋 +${gained} 🫧` : '🦋 💚')
           }}
           onPointerOver={() => {
             if (!visiting) document.body.style.cursor = 'pointer'
@@ -1109,12 +1260,12 @@ const HEDGEHOG_FACE = '#c9a87e'
  * is a three-season guest.
  */
 function Hedgehog() {
-  const dispatch = useSceneDispatch()
+  const rewardDispatch = useRewardDispatch()
   const visiting = useIsVisiting()
   const night = !useDaytime(0.5)
   const awake = useSceneState((s) => seasonAt(s.lastTickAt) !== 'winter')
   const [trundling, setTrundling] = useState(false)
-  const [label, setLabel] = useState<{ x: number } | null>(null)
+  const [label, setLabel] = useState<{ x: number; gained: number } | null>(null)
   const group = useRef<Group>(null)
   const x = useRef(4.6)
 
@@ -1165,9 +1316,9 @@ function Hedgehog() {
           onPointerDown={(e) => {
             if (visiting) return
             e.stopPropagation()
-            dispatch({ type: 'greetHedgehog' })
+            const gained = rewardDispatch({ type: 'greetHedgehog' })
             playSnuffle()
-            setLabel({ x: x.current })
+            setLabel({ x: x.current, gained })
           }}
           onPointerOver={() => {
             if (!visiting) document.body.style.cursor = 'pointer'
@@ -1211,7 +1362,7 @@ function Hedgehog() {
       )}
       {label && (
         <Html position={[label.x, -0.5, 3.85]} center zIndexRange={[10, 0]}>
-          <div className="float-label">🦔 +{SIM.GUEST_DEWDROPS} 🫧</div>
+          <div className="float-label">{label.gained > 0 ? `🦔 +${label.gained} 🫧` : '🦔 💚'}</div>
         </Html>
       )}
     </group>

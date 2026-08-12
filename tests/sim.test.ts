@@ -272,8 +272,11 @@ describe('minigames', () => {
     expect(caught.inventory.dewdrops).toBe(SIM.RAINDROP_DEWDROPS)
     expect(caught.minigames.lastRaindropAt).toBe(rainy)
 
-    // two quick drops back to back both pay — the rain sets the pace
-    const nextDrop = apply(caught, { type: 'catchRaindrop' }, rainy + 3000)
+    // a tap-burst on the same drop cashes in exactly once…
+    const spammed = apply(caught, { type: 'catchRaindrop' }, rainy + 1000)
+    expect(spammed.inventory.dewdrops).toBe(SIM.RAINDROP_DEWDROPS)
+    // …while the next drop (they fall at least 7s apart) pays as always
+    const nextDrop = apply(caught, { type: 'catchRaindrop' }, rainy + 8000)
     expect(nextDrop.inventory.dewdrops).toBe(SIM.RAINDROP_DEWDROPS * 2)
   })
 })

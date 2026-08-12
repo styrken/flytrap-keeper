@@ -426,6 +426,8 @@ function SillSnail() {
   const [label, setLabel] = useState<{ x: number; gained: number } | null>(null)
   const group = useRef<Group>(null)
   const x = useRef(1.75)
+  // Synchronous one-shot guard: a burst of taps rescues this snail once.
+  const claimed = useRef(false)
 
   const active = mayShow && !visiting
 
@@ -435,6 +437,7 @@ function SillSnail() {
     const timer = window.setTimeout(
       () => {
         x.current = 1.75
+        claimed.current = false
         setCrawling(true)
       },
       9_000 + Math.random() * 13_000,
@@ -472,8 +475,9 @@ function SillSnail() {
           ref={group}
           position={[1.75, 0.06, 0.42]}
           onPointerDown={(e) => {
-            if (visiting) return
+            if (visiting || claimed.current) return
             e.stopPropagation()
+            claimed.current = true // extra fingers can't rescue it twice
             const gained = rewardDispatch({ type: 'rescueSnail' })
             playCatch()
             setLabel({ x: x.current, gained })
@@ -592,6 +596,8 @@ function GardenSnail({ lane }: { lane: number }) {
   const [fromX, toX, z] = GARDEN_SNAIL_LANES[lane % GARDEN_SNAIL_LANES.length]
   const dir = Math.sign(toX - fromX)
   const x = useRef(fromX)
+  // Synchronous one-shot guard: a burst of taps rescues this snail once.
+  const claimed = useRef(false)
 
   const active = raining && !visiting
 
@@ -602,6 +608,7 @@ function GardenSnail({ lane }: { lane: number }) {
     const timer = window.setTimeout(
       () => {
         x.current = fromX
+        claimed.current = false
         setCrawling(true)
       },
       14_000 + lane * 9_000 + Math.random() * 22_000,
@@ -641,8 +648,9 @@ function GardenSnail({ lane }: { lane: number }) {
           scale={1.7}
           rotation-y={dir < 0 ? Math.PI : 0} /* eye stalks point the way it crawls */
           onPointerDown={(e) => {
-            if (visiting) return
+            if (visiting || claimed.current) return
             e.stopPropagation()
+            claimed.current = true // extra fingers can't rescue it twice
             const gained = rewardDispatch({ type: 'rescueSnail' })
             playCatch()
             setLabel({ x: x.current, gained })
@@ -985,6 +993,8 @@ function BirdFeeder() {
   const [label, pop] = useLabel()
   const bird = useRef<Group>(null)
   const age = useRef(0)
+  // One paid hello per perch — drumming on the tray is not twenty hellos.
+  const greetedVisit = useRef(false)
 
   const active = day && !visiting
 
@@ -993,6 +1003,7 @@ function BirdFeeder() {
     const timer = window.setTimeout(
       () => {
         age.current = 0
+        greetedVisit.current = false
         setPerched(true)
       },
       35_000 + Math.random() * 65_000,
@@ -1053,6 +1064,13 @@ function BirdFeeder() {
           onPointerDown={(e) => {
             if (visiting) return
             e.stopPropagation()
+            // One hello pays per perch — after that it just keeps singing.
+            if (greetedVisit.current) {
+              playChirp()
+              pop('🐦 🎶')
+              return
+            }
+            greetedVisit.current = true
             const gained = rewardDispatch({ type: 'greetRobin' })
             playChirp()
             pop(gained > 0 ? `🐦 +${gained} 🫧` : '🐦 🎶')
@@ -1128,6 +1146,8 @@ function Butterfly() {
   const wingL = useRef<Group>(null)
   const wingR = useRef<Group>(null)
   const age = useRef(0)
+  // One paid hello per flutter-by — the wings stay pettable regardless.
+  const greetedVisit = useRef(false)
 
   const active = summery && day && !visiting
 
@@ -1151,6 +1171,7 @@ function Butterfly() {
     const timer = window.setTimeout(
       () => {
         age.current = 0
+        greetedVisit.current = false
         setFluttering(true)
       },
       30_000 + Math.random() * 70_000,
@@ -1200,6 +1221,13 @@ function Butterfly() {
           onPointerDown={(e) => {
             if (visiting) return
             e.stopPropagation()
+            // One hello pays per flutter-by; the rest is pure affection.
+            if (greetedVisit.current) {
+              playPet()
+              pop('🦋 💚')
+              return
+            }
+            greetedVisit.current = true
             const gained = rewardDispatch({ type: 'greetButterfly' })
             playPet()
             pop(gained > 0 ? `🦋 +${gained} 🫧` : '🦋 💚')
@@ -1270,6 +1298,8 @@ function Hedgehog() {
   const [label, setLabel] = useState<{ x: number; gained: number } | null>(null)
   const group = useRef<Group>(null)
   const x = useRef(4.6)
+  // One paid hello per trundle across the lawn.
+  const greetedVisit = useRef(false)
 
   const active = night && awake && !visiting
 
@@ -1278,6 +1308,7 @@ function Hedgehog() {
     const timer = window.setTimeout(
       () => {
         x.current = 4.6
+        greetedVisit.current = false
         setTrundling(true)
       },
       20_000 + Math.random() * 55_000,
@@ -1318,6 +1349,13 @@ function Hedgehog() {
           onPointerDown={(e) => {
             if (visiting) return
             e.stopPropagation()
+            // One hello pays per trundle; after that it just snuffles along.
+            if (greetedVisit.current) {
+              playSnuffle()
+              setLabel({ x: x.current, gained: 0 })
+              return
+            }
+            greetedVisit.current = true
             const gained = rewardDispatch({ type: 'greetHedgehog' })
             playSnuffle()
             setLabel({ x: x.current, gained })

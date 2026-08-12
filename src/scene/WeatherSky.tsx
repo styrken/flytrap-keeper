@@ -228,12 +228,16 @@ function ShootingStar() {
   const [label, setLabel] = useState<{ x: number; y: number; gained: number } | null>(null)
   const group = useRef<Group>(null)
   const age = useRef(0)
+  // Synchronous, so a burst of taps (extra fingers!) claims the star once —
+  // state alone flips too late to stop the second pointer event.
+  const claimed = useRef(false)
 
   useEffect(() => {
     if (!active || star) return
     const timer = window.setTimeout(
       () => {
         age.current = 0
+        claimed.current = false
         setStar({ id: Date.now(), x0: 0.55 + Math.random() * 0.5, y0: 1.75 + Math.random() * 0.2 })
       },
       25_000 + Math.random() * 65_000,
@@ -264,6 +268,8 @@ function ShootingStar() {
           position={[star.x0, star.y0, -0.455]}
           onPointerDown={(e) => {
             e.stopPropagation()
+            if (claimed.current) return
+            claimed.current = true
             const gained = rewardDispatch({ type: 'wishOnStar' })
             playToast()
             setLabel({
@@ -386,12 +392,16 @@ export function GoldenDrop({ area }: { area: DropArea }) {
   const [label, setLabel] = useState<{ x: number; y: number; gained: number } | null>(null)
   const group = useRef<Group>(null)
   const y = useRef(area.yTop)
+  // Synchronous, so a burst of taps (extra fingers!) claims the drop once —
+  // state alone flips too late to stop the second pointer event.
+  const claimed = useRef(false)
 
   useEffect(() => {
     if (!raining || drop) return
     const timer = window.setTimeout(
       () => {
         y.current = area.yTop
+        claimed.current = false
         setDrop({ id: Date.now(), x: area.x0 + Math.random() * (area.x1 - area.x0) })
       },
       7000 + Math.random() * 13000,
@@ -424,6 +434,8 @@ export function GoldenDrop({ area }: { area: DropArea }) {
           position={[drop.x, area.yTop, area.z]}
           onPointerDown={(e) => {
             e.stopPropagation()
+            if (claimed.current) return
+            claimed.current = true
             const gained = rewardDispatch({ type: 'catchRaindrop' })
             playCatch()
             setLabel({ x: drop.x, y: y.current, gained })

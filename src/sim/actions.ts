@@ -56,10 +56,12 @@ function applyAction(s: GameState, action: Action, now: number, realNow: number)
       return next
     }
     case 'catchRaindrop': {
-      // Every golden drop caught is a golden drop paid — the rain itself
-      // decides how often one falls, so no cooldown gets between a catch
-      // and its reward.
+      // Every golden drop caught is a golden drop paid — drops fall further
+      // apart than the repeat window, which exists only so a burst of taps
+      // on one drop can't cash it in several times over.
       if (currentWeather(s, now) !== 'rain') return s
+      const last = s.minigames.lastRaindropAt
+      if (last !== null && now - last < SIM.RAINDROP_REPEAT_SECONDS * 1000) return s
       return {
         ...s,
         minigames: { ...s.minigames, lastRaindropAt: now },
@@ -67,7 +69,10 @@ function applyAction(s: GameState, action: Action, now: number, realNow: number)
       }
     }
     case 'wishOnStar': {
-      // The sky decides when a star streaks by — and every wish on one pays.
+      // Every star grants its wish — stars streak by minutes apart, so the
+      // repeat window only folds a tap-burst on one star into a single wish.
+      const last = s.minigames.lastWishAt
+      if (last !== null && now - last < SIM.STAR_WISH_REPEAT_SECONDS * 1000) return s
       const wished: GameState = {
         ...s,
         minigames: { ...s.minigames, lastWishAt: now },
@@ -486,9 +491,10 @@ function spendTrapUse(plant: PlantState, trapId: string, now: number, digestFact
 }
 
 /**
- * Shared shape of every garden-guest hello: always a dewdrop — greeting a
- * friend should never feel like a shrug. The guests' unhurried visiting
- * rhythm is pacing enough; the timestamp is a diary note, not a paywall.
+ * Shared shape of every garden-guest hello: every visit pays a dewdrop —
+ * greeting a friend should never feel like a shrug. The repeat window is
+ * far shorter than any two visits; it exists only so drumming on a guest
+ * that lingers (the robin pecks for a while) is one hello, not twenty.
  */
 function greetGuest(
   s: GameState,
@@ -496,6 +502,8 @@ function greetGuest(
   field: 'lastRobinAt' | 'lastButterflyAt' | 'lastHedgehogAt',
   achievement: AchievementId,
 ): GameState {
+  const last = s.pets[field]
+  if (last !== null && now - last < SIM.GUEST_REPEAT_SECONDS * 1000) return s
   const greeted: GameState = {
     ...s,
     pets: { ...s.pets, [field]: now },

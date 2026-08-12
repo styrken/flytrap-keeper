@@ -40,7 +40,7 @@
       "how": "Every watering draws from the barrel. If it runs low, wait for rain — or fall back on tap water, which always works but costs a little health in limescale."
     },
     "dewdrops": {
-      "what": "The game's currency. Daily care, quests, achievements, pulled weeds, petting, perfect pours and blooms all pay out dewdrops.",
+      "what": "The game's currency. Daily care, quests, achievements, pulled weeds, petting, perfect pours and blooms all pay out dewdrops. The garden friends share from a daily jar of luck: each little friend pays out up to a daily max that counts down (⏳) and refills at midnight (🌙 = empty for today).",
       "how": "Spend them in the shop on new species, gear like the grow light and the greenhouse, and cosy decor for the room."
     }
   },

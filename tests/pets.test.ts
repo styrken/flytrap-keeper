@@ -251,7 +251,11 @@ describe('the garden guests: robin, butterfly, hedgehog', () => {
     expect(state.inventory.dewdrops).toBe(SIM.GUEST_DEWDROPS + SIM.ACHIEVEMENT_DEWDROPS)
     expect(state.achievements).toContain('robin-song')
 
-    // back at the tray an hour later — greeted and paid again
+    // drumming on the same perched robin pays nothing extra…
+    const spammed = apply(state, { type: 'greetRobin' }, T0 + 2_000)
+    expect(spammed.inventory.dewdrops).toBe(state.inventory.dewdrops)
+
+    // …but back at the tray an hour later, greeted and paid again
     const soon = tick(state, T0 + h(1))
     const greeted = apply(soon, { type: 'greetRobin' }, T0 + h(1))
     expect(greeted.inventory.dewdrops - soon.inventory.dewdrops).toBe(SIM.GUEST_DEWDROPS)

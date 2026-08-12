@@ -58,13 +58,18 @@ describe('moths', () => {
 })
 
 describe('wishing on a star', () => {
-  it('every wish pays — the sky already rations the stars', () => {
+  it('every star pays; a tap-burst on one star is a single wish', () => {
     let state = apply(init(), { type: 'wishOnStar' }, T0)
     expect(state.inventory.dewdrops).toBe(SIM.STAR_WISH_DEWDROPS + SIM.ACHIEVEMENT_DEWDROPS)
     expect(state.achievements).toContain('first-wish')
 
-    // a second star seconds later grants a second wish — achievement stays unique
-    state = apply(state, { type: 'wishOnStar' }, T0 + 1_000)
+    // hammering the same star a second later cashes in nothing extra
+    const spammed = apply(state, { type: 'wishOnStar' }, T0 + 1_000)
+    expect(spammed.inventory.dewdrops).toBe(state.inventory.dewdrops)
+
+    // the NEXT star (stars are never closer than the repeat window) pays —
+    // and the achievement stays unique
+    state = apply(state, { type: 'wishOnStar' }, T0 + SIM.STAR_WISH_REPEAT_SECONDS * 1000 + 500)
     expect(state.inventory.dewdrops).toBe(2 * SIM.STAR_WISH_DEWDROPS + SIM.ACHIEVEMENT_DEWDROPS)
     expect(state.achievements.filter((a) => a === 'first-wish')).toHaveLength(1)
   })

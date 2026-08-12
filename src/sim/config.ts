@@ -82,9 +82,11 @@ export const SIM = {
   DAILY_CARE_DEWDROPS: 5,
 
   /** Minigames: a perfect pour when watering, golden drops while it rains.
-   * Every caught drop pays — the rain sets the pace, not a cooldown. */
+   * Every drop pays — the repeat window only swallows tap-bursts on one
+   * drop (drops are never legitimately closer than the spawn gap). */
   POUR_PERFECT_DEWDROPS: 2,
   RAINDROP_DEWDROPS: 1,
+  RAINDROP_REPEAT_SECONDS: 4,
 
   /** Daily quests: three per day, paid on completion, bonus for the full set. */
   QUEST_DEWDROPS: 5,
@@ -93,9 +95,11 @@ export const SIM = {
   QUEST_WEEK_DEWDROPS: 15,
   QUEST_WEEK_ALL_BONUS: 20,
 
-  /** Night life: wish on a shooting star (every wish pays — stars are rare
-   * enough on their own), fireflies on some summer nights. */
+  /** Night life: wish on a shooting star (every star grants its wish; the
+   * repeat window only folds a tap-burst on one star into a single wish),
+   * fireflies on some summer nights. */
   STAR_WISH_DEWDROPS: 3,
+  STAR_WISH_REPEAT_SECONDS: 10,
   FIREFLY_NIGHT_CHANCE: 0.45,
 
   /** Pets: zero needs by design — company, not chores. Every rescue pays;
@@ -112,8 +116,10 @@ export const SIM = {
   /** The ladybird is a guest, never a pet — every greeting brings luck. */
   LADYBIRD_DEWDROPS: 1,
   /** More garden guests: the feeder robin, the butterfly, the hedgehog —
-   * greeting always pays; their visiting rhythm is pacing enough. */
+   * every visit pays. The repeat window is shorter than any two visits, so
+   * it only stops drumming on one lingering guest from paying per tap. */
   GUEST_DEWDROPS: 1,
+  GUEST_REPEAT_SECONDS: 15,
 
   NICKNAME_MAX_LENGTH: 20,
 
@@ -127,4 +133,19 @@ export const SIM = {
 
   /** Insect packs: buyable boxes of bugs, released wherever you stand. */
   PACK_INSECTS: 3,
+
+  /** Daily luck jars: each little friend pays out at most this many times a
+   * day. The jar visibly counts down and refills at midnight with the
+   * quests — generous enough that normal play rarely notices, small enough
+   * that no critter is an infinite money tap. Trap catches are not listed:
+   * digestion is their natural daily lid, as it has always been. */
+  DAILY_LUCK: {
+    raindrop: 8,
+    star: 4,
+    snail: 5,
+    ladybird: 4,
+    robin: 3,
+    butterfly: 3,
+    hedgehog: 3,
+  },
 } as const

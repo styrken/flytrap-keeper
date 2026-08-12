@@ -8,8 +8,8 @@ import {
   sillPlantCount,
 } from './shop'
 import { SPECIES } from './species'
-import type { GameState, PlacementId, PlantState, TrapState } from './types'
-import { HOUR_MS } from './util'
+import type { GameState, LuckSourceId, PlacementId, PlantState, TrapState } from './types'
+import { HOUR_MS, dayKey } from './util'
 
 export const activePlant = (state: GameState): PlantState | undefined =>
   state.plants.find((plant) => plant.id === state.activePlantId) ?? state.plants[0]
@@ -30,6 +30,12 @@ export const firstReadyTrap = (plant: PlantState, now: number): TrapState | unde
 export const canRainWater = (state: GameState): boolean => {
   const plant = activePlant(state)
   return !!plant && plant.water < 100 && state.weather.rainBarrel >= SIM.WATER_COST
+}
+
+/** How many paid rewards a luck source has left in today's jar. */
+export const luckLeft = (state: GameState, source: LuckSourceId, now: number): number => {
+  const paid = state.luck.day === dayKey(now) ? state.luck.paid[source] : 0
+  return Math.max(0, SIM.DAILY_LUCK[source] - paid)
 }
 
 export const canFeedPlant = (plant: PlantState, now: number): boolean =>

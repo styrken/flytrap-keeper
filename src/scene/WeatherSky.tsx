@@ -6,6 +6,8 @@ import { Color, Object3D } from 'three'
 import { playCatch, playToast, setRainAmbience } from '../audio'
 import { currentWeather, isFireflyNight } from '../sim'
 import {
+  luckLabel,
+  luckLeftNow,
   sceneNow,
   useIsVisiting,
   useRewardDispatch,
@@ -225,15 +227,19 @@ function ShootingStar() {
   )
   const active = !visiting && !reduceMotion
   const [star, setStar] = useState<{ id: number; x0: number; y0: number } | null>(null)
-  const [label, setLabel] = useState<{ x: number; y: number; gained: number } | null>(null)
+  const [label, setLabel] = useState<{ x: number; y: number; text: string } | null>(null)
   const group = useRef<Group>(null)
   const age = useRef(0)
+  // Synchronous, so a burst of taps (extra fingers!) claims the star once —
+  // state alone flips too late to stop the second pointer event.
+  const claimed = useRef(false)
 
   useEffect(() => {
     if (!active || star) return
     const timer = window.setTimeout(
       () => {
         age.current = 0
+        claimed.current = false
         setStar({ id: Date.now(), x0: 0.55 + Math.random() * 0.5, y0: 1.75 + Math.random() * 0.2 })
       },
       25_000 + Math.random() * 65_000,
@@ -264,12 +270,14 @@ function ShootingStar() {
           position={[star.x0, star.y0, -0.455]}
           onPointerDown={(e) => {
             e.stopPropagation()
+            if (claimed.current) return
+            claimed.current = true
             const gained = rewardDispatch({ type: 'wishOnStar' })
             playToast()
             setLabel({
               x: group.current?.position.x ?? star.x0,
               y: group.current?.position.y ?? star.y0,
-              gained,
+              text: luckLabel('🌠', gained, luckLeftNow('star'), '✨'),
             })
             setStar(null)
           }}
@@ -298,7 +306,7 @@ function ShootingStar() {
       )}
       {label && (
         <Html position={[label.x, label.y + 0.12, -0.455]} center zIndexRange={[10, 0]}>
-          <div className="float-label">{label.gained > 0 ? `🌠 +${label.gained} 🫧` : '🌠 ✨'}</div>
+          <div className="float-label">{label.text}</div>
         </Html>
       )}
     </group>
@@ -383,15 +391,19 @@ export function GoldenDrop({ area }: { area: DropArea }) {
   )
   const raining = weather === 'rain' && !reduceMotion && !visiting
   const [drop, setDrop] = useState<{ id: number; x: number } | null>(null)
-  const [label, setLabel] = useState<{ x: number; y: number; gained: number } | null>(null)
+  const [label, setLabel] = useState<{ x: number; y: number; text: string } | null>(null)
   const group = useRef<Group>(null)
   const y = useRef(area.yTop)
+  // Synchronous, so a burst of taps (extra fingers!) claims the drop once —
+  // state alone flips too late to stop the second pointer event.
+  const claimed = useRef(false)
 
   useEffect(() => {
     if (!raining || drop) return
     const timer = window.setTimeout(
       () => {
         y.current = area.yTop
+        claimed.current = false
         setDrop({ id: Date.now(), x: area.x0 + Math.random() * (area.x1 - area.x0) })
       },
       7000 + Math.random() * 13000,
@@ -424,9 +436,15 @@ export function GoldenDrop({ area }: { area: DropArea }) {
           position={[drop.x, area.yTop, area.z]}
           onPointerDown={(e) => {
             e.stopPropagation()
+            if (claimed.current) return
+            claimed.current = true
             const gained = rewardDispatch({ type: 'catchRaindrop' })
             playCatch()
-            setLabel({ x: drop.x, y: y.current, gained })
+            setLabel({
+              x: drop.x,
+              y: y.current,
+              text: luckLabel('💧', gained, luckLeftNow('raindrop')),
+            })
             setDrop(null)
           }}
           onPointerOver={() => {
@@ -449,7 +467,7 @@ export function GoldenDrop({ area }: { area: DropArea }) {
       )}
       {label && (
         <Html position={[label.x, label.y + 0.1, area.z]} center zIndexRange={[10, 0]}>
-          <div className="float-label">{label.gained > 0 ? `+${label.gained} 🫧` : '💧'}</div>
+          <div className="float-label">{label.text}</div>
         </Html>
       )}
     </group>

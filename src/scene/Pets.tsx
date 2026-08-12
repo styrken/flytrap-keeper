@@ -17,6 +17,8 @@ import {
   webLootReady,
 } from '../sim'
 import {
+  luckLabel,
+  luckLeftNow,
   sceneNow,
   useIsVisiting,
   useRewardDispatch,
@@ -423,9 +425,11 @@ function SillSnail() {
   const visiting = useIsVisiting()
   const mayShow = useSceneState((s) => snailAbout(s, s.lastTickAt))
   const [crawling, setCrawling] = useState(false)
-  const [label, setLabel] = useState<{ x: number; gained: number } | null>(null)
+  const [label, setLabel] = useState<{ x: number; text: string } | null>(null)
   const group = useRef<Group>(null)
   const x = useRef(1.75)
+  // Synchronous one-shot guard: a burst of taps rescues this snail once.
+  const claimed = useRef(false)
 
   const active = mayShow && !visiting
 
@@ -435,6 +439,7 @@ function SillSnail() {
     const timer = window.setTimeout(
       () => {
         x.current = 1.75
+        claimed.current = false
         setCrawling(true)
       },
       9_000 + Math.random() * 13_000,
@@ -472,11 +477,12 @@ function SillSnail() {
           ref={group}
           position={[1.75, 0.06, 0.42]}
           onPointerDown={(e) => {
-            if (visiting) return
+            if (visiting || claimed.current) return
             e.stopPropagation()
+            claimed.current = true // extra fingers can't rescue it twice
             const gained = rewardDispatch({ type: 'rescueSnail' })
             playCatch()
-            setLabel({ x: x.current, gained })
+            setLabel({ x: x.current, text: luckLabel('🐌', gained, luckLeftNow('snail')) })
             setCrawling(false)
           }}
           onPointerOver={() => {
@@ -495,7 +501,7 @@ function SillSnail() {
       )}
       {label && (
         <Html position={[label.x, 0.3, 0.42]} center zIndexRange={[10, 0]}>
-          <div className="float-label">{label.gained > 0 ? `🐌 +${label.gained} 🫧` : '🐌 💚'}</div>
+          <div className="float-label">{label.text}</div>
         </Html>
       )}
     </group>
@@ -587,11 +593,13 @@ function GardenSnail({ lane }: { lane: number }) {
   const visiting = useIsVisiting()
   const raining = useSceneState((s) => currentWeather(s, s.lastTickAt) === 'rain')
   const [crawling, setCrawling] = useState(false)
-  const [label, setLabel] = useState<{ x: number; gained: number } | null>(null)
+  const [label, setLabel] = useState<{ x: number; text: string } | null>(null)
   const group = useRef<Group>(null)
   const [fromX, toX, z] = GARDEN_SNAIL_LANES[lane % GARDEN_SNAIL_LANES.length]
   const dir = Math.sign(toX - fromX)
   const x = useRef(fromX)
+  // Synchronous one-shot guard: a burst of taps rescues this snail once.
+  const claimed = useRef(false)
 
   const active = raining && !visiting
 
@@ -602,6 +610,7 @@ function GardenSnail({ lane }: { lane: number }) {
     const timer = window.setTimeout(
       () => {
         x.current = fromX
+        claimed.current = false
         setCrawling(true)
       },
       14_000 + lane * 9_000 + Math.random() * 22_000,
@@ -641,11 +650,12 @@ function GardenSnail({ lane }: { lane: number }) {
           scale={1.7}
           rotation-y={dir < 0 ? Math.PI : 0} /* eye stalks point the way it crawls */
           onPointerDown={(e) => {
-            if (visiting) return
+            if (visiting || claimed.current) return
             e.stopPropagation()
+            claimed.current = true // extra fingers can't rescue it twice
             const gained = rewardDispatch({ type: 'rescueSnail' })
             playCatch()
-            setLabel({ x: x.current, gained })
+            setLabel({ x: x.current, text: luckLabel('🐌', gained, luckLeftNow('snail')) })
             setCrawling(false)
           }}
           onPointerOver={() => {
@@ -664,7 +674,7 @@ function GardenSnail({ lane }: { lane: number }) {
       )}
       {label && (
         <Html position={[label.x, GARDEN_SNAIL_Y + 0.45, z]} center zIndexRange={[10, 0]}>
-          <div className="float-label">{label.gained > 0 ? `🐌 +${label.gained} 🫧` : '🐌 💚'}</div>
+          <div className="float-label">{label.text}</div>
         </Html>
       )}
     </group>
@@ -854,7 +864,7 @@ function Ladybird({ stroll }: { stroll: LadybirdStroll }) {
   const visiting = useIsVisiting()
   const winter = useSceneState((s) => seasonAt(s.lastTickAt) === 'winter')
   const [strolling, setStrolling] = useState(false)
-  const [label, setLabel] = useState<{ x: number; gained: number } | null>(null)
+  const [label, setLabel] = useState<{ x: number; text: string } | null>(null)
   const group = useRef<Group>(null)
   const x = useRef(stroll.xFrom)
   const leaving = useRef(false)
@@ -919,7 +929,7 @@ function Ladybird({ stroll }: { stroll: LadybirdStroll }) {
             e.stopPropagation()
             const gained = rewardDispatch({ type: 'greetLadybird' })
             playCatch()
-            setLabel({ x: x.current, gained })
+            setLabel({ x: x.current, text: luckLabel('🐞', gained, luckLeftNow('ladybird')) })
             leaving.current = true
           }}
           onPointerOver={() => {
@@ -960,7 +970,7 @@ function Ladybird({ stroll }: { stroll: LadybirdStroll }) {
           center
           zIndexRange={[10, 0]}
         >
-          <div className="float-label">{label.gained > 0 ? `🐞 +${label.gained} 🫧` : '🐞 💚'}</div>
+          <div className="float-label">{label.text}</div>
         </Html>
       )}
     </group>
@@ -985,6 +995,8 @@ function BirdFeeder() {
   const [label, pop] = useLabel()
   const bird = useRef<Group>(null)
   const age = useRef(0)
+  // One paid hello per perch — drumming on the tray is not twenty hellos.
+  const greetedVisit = useRef(false)
 
   const active = day && !visiting
 
@@ -993,6 +1005,7 @@ function BirdFeeder() {
     const timer = window.setTimeout(
       () => {
         age.current = 0
+        greetedVisit.current = false
         setPerched(true)
       },
       35_000 + Math.random() * 65_000,
@@ -1053,9 +1066,16 @@ function BirdFeeder() {
           onPointerDown={(e) => {
             if (visiting) return
             e.stopPropagation()
+            // One hello pays per perch — after that it just keeps singing.
+            if (greetedVisit.current) {
+              playChirp()
+              pop('🐦 🎶')
+              return
+            }
+            greetedVisit.current = true
             const gained = rewardDispatch({ type: 'greetRobin' })
             playChirp()
-            pop(gained > 0 ? `🐦 +${gained} 🫧` : '🐦 🎶')
+            pop(luckLabel('🐦', gained, luckLeftNow('robin'), '🎶'))
           }}
           onPointerOver={() => {
             if (!visiting) document.body.style.cursor = 'pointer'
@@ -1128,6 +1148,8 @@ function Butterfly() {
   const wingL = useRef<Group>(null)
   const wingR = useRef<Group>(null)
   const age = useRef(0)
+  // One paid hello per flutter-by — the wings stay pettable regardless.
+  const greetedVisit = useRef(false)
 
   const active = summery && day && !visiting
 
@@ -1151,6 +1173,7 @@ function Butterfly() {
     const timer = window.setTimeout(
       () => {
         age.current = 0
+        greetedVisit.current = false
         setFluttering(true)
       },
       30_000 + Math.random() * 70_000,
@@ -1200,9 +1223,16 @@ function Butterfly() {
           onPointerDown={(e) => {
             if (visiting) return
             e.stopPropagation()
+            // One hello pays per flutter-by; the rest is pure affection.
+            if (greetedVisit.current) {
+              playPet()
+              pop('🦋 💚')
+              return
+            }
+            greetedVisit.current = true
             const gained = rewardDispatch({ type: 'greetButterfly' })
             playPet()
-            pop(gained > 0 ? `🦋 +${gained} 🫧` : '🦋 💚')
+            pop(luckLabel('🦋', gained, luckLeftNow('butterfly')))
           }}
           onPointerOver={() => {
             if (!visiting) document.body.style.cursor = 'pointer'
@@ -1267,9 +1297,11 @@ function Hedgehog() {
   const night = !useDaytime(0.5)
   const awake = useSceneState((s) => seasonAt(s.lastTickAt) !== 'winter')
   const [trundling, setTrundling] = useState(false)
-  const [label, setLabel] = useState<{ x: number; gained: number } | null>(null)
+  const [label, setLabel] = useState<{ x: number; text: string } | null>(null)
   const group = useRef<Group>(null)
   const x = useRef(4.6)
+  // One paid hello per trundle across the lawn.
+  const greetedVisit = useRef(false)
 
   const active = night && awake && !visiting
 
@@ -1278,6 +1310,7 @@ function Hedgehog() {
     const timer = window.setTimeout(
       () => {
         x.current = 4.6
+        greetedVisit.current = false
         setTrundling(true)
       },
       20_000 + Math.random() * 55_000,
@@ -1318,9 +1351,16 @@ function Hedgehog() {
           onPointerDown={(e) => {
             if (visiting) return
             e.stopPropagation()
+            // One hello pays per trundle; after that it just snuffles along.
+            if (greetedVisit.current) {
+              playSnuffle()
+              setLabel({ x: x.current, text: '🦔 💚' })
+              return
+            }
+            greetedVisit.current = true
             const gained = rewardDispatch({ type: 'greetHedgehog' })
             playSnuffle()
-            setLabel({ x: x.current, gained })
+            setLabel({ x: x.current, text: luckLabel('🦔', gained, luckLeftNow('hedgehog')) })
           }}
           onPointerOver={() => {
             if (!visiting) document.body.style.cursor = 'pointer'
@@ -1364,7 +1404,7 @@ function Hedgehog() {
       )}
       {label && (
         <Html position={[label.x, -0.5, 3.85]} center zIndexRange={[10, 0]}>
-          <div className="float-label">{label.gained > 0 ? `🦔 +${label.gained} 🫧` : '🦔 💚'}</div>
+          <div className="float-label">{label.text}</div>
         </Html>
       )}
     </group>

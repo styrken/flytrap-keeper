@@ -55,7 +55,8 @@
     "sun": "Sunny",
     "clouds": "Cloudy",
     "rain": "Raining",
-    "snow": "Snowing"
+    "snow": "Snowing",
+    "windy": "Windy"
   },
   "forecast": {
     "title": "The weather report",
@@ -116,6 +117,8 @@
     "removePlant": "Clear the pot",
     "letCatIn": "Let it in",
     "letSpiderStay": "Let it stay",
+    "takeCutting": "Take a cutting",
+    "takeCuttingHint": "Snip a leaf pulling from this thriving plant — it roots into a free little clone.",
     "release": {
       "fly": "Release flies",
       "mosquito": "Release mosquitoes",
@@ -235,6 +238,22 @@
         "name": "Garden trampoline",
         "desc": "A big trampoline for the lawn. Hop on and time your bounces on landing — higher and higher it goes!"
       },
+      "pond": {
+        "name": "Garden pond",
+        "desc": "A quiet pool for the lawn: stone ring, cattails, a water lily — and every summer a dragonfly moves in."
+      },
+      "sun-hat": {
+        "name": "Straw sun hat",
+        "desc": "For bright spring and summer days. The keeper puts it on whenever the sun is out."
+      },
+      "raincoat": {
+        "name": "Yellow raincoat",
+        "desc": "The keeper pulls it on whenever it pours. Hood included, obviously."
+      },
+      "rain-boots": {
+        "name": "Rain boots",
+        "desc": "Proper puddle footwear. The keeper wears them in the rain — and suddenly stomping puddles is not just possible but necessary."
+      },
       "rug": {
         "name": "Cosy rug",
         "desc": "Ties the whole room together."
@@ -344,7 +363,16 @@
     "full-collection": "Full collection",
     "high-score": "High score!",
     "snowman": "A very cool friend",
-    "birthday-party": "Birthday party!"
+    "birthday-party": "Birthday party!",
+    "rainbow-wish": "Over the rainbow",
+    "apple-picker": "An apple a day",
+    "puddle-jumper": "Puddle jumper",
+    "pen-pal": "Pen pal",
+    "volunteer": "Blown in on the wind",
+    "sky-dancer": "Sky dancer",
+    "propagator": "A chip off the old plant",
+    "gift-sent": "Better to give",
+    "advent-star": "December keeper"
   },
   "onboarding": {
     "welcome1": "Flytrap Keeper is a calm, real-time care game. Your carnivorous plant lives on while you're away — drop by a few times a day, tend to it, and watch it grow from seedling to bloom.",
@@ -380,7 +408,62 @@
     "repot": "Moved into a fresh pot 🪴",
     "dressed": "Got dressed up ✨",
     "birthday": "Turned {{age}} today — happy birthday! 🎂",
+    "cutting": "Donated a leaf pulling — somewhere, a little clone is rooting 🌱",
     "died": "The end of a little life 🪦"
+  },
+  "mail": {
+    "title": "Post",
+    "collected": "There was {{n}} 🫧 tucked in the envelope",
+    "letters": {
+      "0": {
+        "from": "From Aunt Drosera 🌱",
+        "text": "My sundews caught three gnats this week without lifting a leaf. Effortless, darling. How is your windowsill keeping?"
+      },
+      "1": {
+        "from": "From Uncle Nepenthes 🏺",
+        "text": "Greetings from the jungle corner! Remember: a pitcher plant would rather be misted than fussed over. Warm and damp, that's the whole secret."
+      },
+      "2": {
+        "from": "From Grandpa Sarracenia 🎺",
+        "text": "In my day, trumpets stood in FULL sun all summer and slept all winter. They still should. Stand tall out there!"
+      },
+      "3": {
+        "from": "From the Seed Club ✉️",
+        "text": "Dear member: this season's tip is rainwater, rainwater, rainwater. That is the entire newsletter. See you next time."
+      },
+      "4": {
+        "from": "From Cousin Pinguicula 💜",
+        "text": "I have sat on limestone all month and feel wonderful. Tap water? Doesn't bother me in the slightest. Kisses to the collection!"
+      },
+      "5": {
+        "from": "From the Garden Society 🏡",
+        "text": "Your lawn has been nominated for Cosiest Corner of the Year. The judging panel consists of three snails and a hedgehog."
+      },
+      "6": {
+        "from": "From Aunt Drosera 🌱",
+        "text": "Whatever you do, don't overfeed the traps. A plant that photosynthesizes is never truly starving — insects are pudding, not dinner."
+      },
+      "7": {
+        "from": "From the postman 📯",
+        "text": "No actual letter today, but the box looked lonely, so here's a note. Keep watering! — P."
+      }
+    }
+  },
+  "advent": {
+    "title": "Advent calendar",
+    "hint": "One door a day, all through December — and missed doors keep. Catching up is half the tradition. 🎄",
+    "day": "Door {{day}}",
+    "locked": "Not yet!",
+    "done": "All twenty-four! What a December — +{{n}} bonus"
+  },
+  "gift": {
+    "send": "Send a seed gift",
+    "pick": "Choose seeds to send to {{name}}:",
+    "sent": "🎁 You sent {{item}}",
+    "received": "🎁 A gift: {{item}}!",
+    "plant": "Plant it 🌱",
+    "planted": "Planted 💚",
+    "noRoom": "No free pots right now — the gift will keep."
   },
   "arcade": {
     "title": "SNAP!",

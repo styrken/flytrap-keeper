@@ -168,6 +168,16 @@ const GARDEN_SNOWMAN: Collider = {
   height: WALL,
 }
 
+/** The bought pond on the south-east lawn — keepers stay dry, rules are rules. */
+const GARDEN_POND: Collider = {
+  id: 'pond',
+  minX: 2.3,
+  maxX: 3.9,
+  minZ: 3.9,
+  maxZ: 5.5,
+  height: WALL,
+}
+
 /** Decor that becomes solid once it actually stands in the room. */
 const LAMP: Collider = {
   id: 'lamp',
@@ -198,6 +208,7 @@ export function roomColliders(
     const colliders = [...GARDEN_FURNITURE]
     if (items.includes('greenhouse')) colliders.push(GARDEN_GREENHOUSE)
     if (items.includes('trampoline')) colliders.push(GARDEN_TRAMPOLINE)
+    if (items.includes('pond')) colliders.push(GARDEN_POND)
     if (snowmanUp) colliders.push(GARDEN_SNOWMAN)
     return colliders
   }

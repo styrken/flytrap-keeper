@@ -2,7 +2,7 @@ import { birthdaysPassed } from './birthday'
 import type { GameState } from './types'
 
 export const SAVE_KEY = 'flytrap-keeper:save'
-export const SAVE_VERSION = 19
+export const SAVE_VERSION = 20
 
 type RawSave = Record<string, unknown>
 type Migration = (data: RawSave) => RawSave
@@ -185,6 +185,32 @@ const MIGRATIONS: Record<number, Migration> = {
         const plantedAt = typeof first?.at === 'number' ? first.at : base
         return { ...plant, plantedAt, birthdays: birthdaysPassed(plantedAt, base) }
       }),
+    }
+  },
+  // v19 -> v20: the rest of the brainstorm — rainbows, apples, puddles, post,
+  // the volunteer seedling, the pond dragonfly, cuttings, seed gifts and the
+  // advent calendar. Everything starts untouched: empty letterbox history,
+  // full luck jars for the newcomers, no doors opened, nothing redeemed.
+  19: (data) => {
+    const minigames = (data.minigames ?? {}) as RawSave
+    const pets = (data.pets ?? {}) as RawSave
+    const luck = (data.luck ?? { day: '', paid: {} }) as RawSave
+    return {
+      ...data,
+      minigames: { ...minigames, lastRainbowAt: null, lastAppleAt: null },
+      pets: { ...pets, lastDragonflyAt: null },
+      luck: {
+        ...luck,
+        paid: { ...(luck.paid as RawSave), apple: 0, rainbow: 0, dragonfly: 0 },
+      },
+      mail: { lastDay: null },
+      volunteerYear: null,
+      advent: null,
+      redeemedGifts: [],
+      plants: ((Array.isArray(data.plants) ? data.plants : []) as RawSave[]).map((plant) => ({
+        ...plant,
+        lastCuttingAt: null,
+      })),
     }
   },
 }

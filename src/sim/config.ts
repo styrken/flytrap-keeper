@@ -103,6 +103,45 @@ export const SIM = {
    * and pays a small present. Missed ones are caught up by the next tick. */
   BIRTHDAY_DEWDROPS: 5,
 
+  /** Wind is an overlay on the weather (any kind can blow), rolled per
+   * period like everything else — clotheslines flap, leaves tumble. */
+  WIND_PERIOD_CHANCE: 0.22,
+
+  /** A rainbow sometimes follows a rain period into a sunny one. Wishing on
+   * it pays like a shooting star; the repeat window folds tap-bursts. */
+  RAINBOW_AFTER_RAIN_CHANCE: 0.6,
+  RAINBOW_WISH_DEWDROPS: 3,
+  RAINBOW_REPEAT_SECONDS: 10,
+
+  /** The apple tree: three red apples every autumn day (they are the luck
+   * jar, visibly — picked apples are gone until midnight regrows them). */
+  APPLE_DEWDROPS: 2,
+  APPLE_REPEAT_SECONDS: 6,
+
+  /** Post in the letterbox on some days — flag up, one letter, small treat. */
+  MAIL_CHANCE: 0.4,
+  MAIL_DEWDROPS: 2,
+  MAIL_LETTERS: 8,
+
+  /** A windy autumn day can blow a volunteer seedling into the flower box —
+   * potting it up for a fellow collector pays like a small seed harvest. */
+  VOLUNTEER_DEWDROPS: 8,
+
+  /** Propagation: a healthy grown plant can donate a leaf pulling that roots
+   * into a free clone (cultivar included) — real keepers' favourite trick. */
+  CUTTING_MIN_STAGE: 2,
+  CUTTING_MIN_HEALTH: 70,
+  CUTTING_COOLDOWN_DAYS: 14,
+
+  /** The pond dragonfly: summer's fast little jewel, greeted like a guest. */
+  DRAGONFLY_DEWDROPS: 2,
+
+  /** December's advent calendar: one door per day (catching up is allowed —
+   * it's tradition), each holding a little something. Index = day - 1. */
+  ADVENT_GIFTS: [
+    2, 2, 3, 2, 2, 5, 2, 2, 3, 2, 2, 5, 2, 3, 2, 2, 2, 5, 2, 3, 2, 2, 3, 12,
+  ] as readonly number[],
+
   /** Daily quests: three per day, paid on completion, bonus for the full set. */
   QUEST_DEWDROPS: 5,
   QUEST_ALL_BONUS: 10,
@@ -162,5 +201,8 @@ export const SIM = {
     robin: 3,
     butterfly: 3,
     hedgehog: 3,
+    apple: 3,
+    rainbow: 2,
+    dragonfly: 3,
   },
 } as const

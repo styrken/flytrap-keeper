@@ -333,7 +333,7 @@ describe('garden movement', () => {
 })
 
 describe('doorways', () => {
-  const ALL_ITEMS = ['lamp', 'computer', 'greenhouse', 'trampoline']
+  const ALL_ITEMS = ['lamp', 'computer', 'greenhouse', 'trampoline', 'pond']
   const ROOMS: PlayerRoom[] = ['bedroom', 'garden', 'greenhouse']
 
   it('walking into the bedroom door steps out into the garden', () => {

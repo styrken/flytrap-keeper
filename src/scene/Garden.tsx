@@ -11,9 +11,30 @@ import { useFrame } from '@react-three/fiber'
 import { useMemo, useRef, useState } from 'react'
 import type { Group, InstancedMesh, Mesh, MeshStandardMaterial } from 'three'
 import { BackSide, Color, DoubleSide, Object3D } from 'three'
-import { playPouf, playToast } from '../audio'
-import { SIM, currentWeather, seasonAt, snowmanStage } from '../sim'
-import { sceneNow, useIsVisiting, useRewardDispatch, useSceneState } from '../sceneView'
+import { playCatch, playPouf, playSplash, playToast } from '../audio'
+import {
+  SIM,
+  type Season,
+  currentWeather,
+  hasMailWaiting,
+  isRainbowSpell,
+  isWindyAt,
+  luckLeft,
+  mailToday,
+  puddlesAbout,
+  seasonAt,
+  snowmanStage,
+  volunteerAbout,
+} from '../sim'
+import {
+  luckLabel,
+  luckLeftNow,
+  sceneNow,
+  useIsVisiting,
+  useRewardDispatch,
+  useSceneState,
+} from '../sceneView'
+import { useGame } from '../store'
 import { daylightFactor } from './daylight'
 import { DollhouseWall } from './dollhouse'
 import { palette } from './palette'
@@ -37,7 +58,9 @@ const GH_GLASS = '#d8ecef'
 export function Garden() {
   const items = useSceneState((s) => s.inventory.items)
   const lastTickAt = useSceneState((s) => s.lastTickAt)
-  const winter = seasonAt(lastTickAt) === 'winter'
+  const windy = useSceneState((s) => isWindyAt(s.rngSeed, s.lastTickAt))
+  const season = seasonAt(lastTickAt)
+  const winter = season === 'winter'
   const dark = daylightFactor(lastTickAt) < 0.6
   return (
     <group>
@@ -53,20 +76,24 @@ export function Garden() {
         {winter && <HouseSnow />}
       </DollhouseWall>
       <FlowerBed />
+      <VolunteerSprout />
       <Downspout />
       <Path />
       <Fence />
-      <Tree />
+      <Tree season={season} />
       <Bush position={[-5.62, 5.68]} scale={1.15} />
       <Bush position={[5.78, 2.62]} scale={0.85} />
-      <Clothesline />
+      <Clothesline windy={windy} />
       <Mailbox />
       <LawnTufts />
       <Sunflowers />
+      <Puddles />
       {items.includes('greenhouse') && <GardenGreenhouse />}
       {items.includes('trampoline') && <GardenTrampoline />}
+      {items.includes('pond') && <GardenPond season={season} />}
       {winter && <WinterDressing greenhouseOwned={items.includes('greenhouse')} />}
       {winter && <Snowman />}
+      {windy && <WindLeaves />}
 
       <GardenWeather winter={winter} />
     </group>
@@ -630,7 +657,36 @@ function Gate() {
  * the keeper at head height — slides under and past it instead of ending up
  * inside the leaves.
  */
-function Tree() {
+/** Where the tree carries its fruit (and its spring blossom). */
+const APPLE_SPOTS = [
+  [0.6, 2.5, 0.95],
+  [-0.85, 2.45, 0.25],
+  [0.15, 3.0, 0.98],
+] as const
+
+/**
+ * The old apple tree lives by the calendar now: pink blossom in spring,
+ * hard little green apples all summer, and in autumn three red ones worth
+ * picking — the visible apples are the day's luck jar, so a picked-clean
+ * tree stays bare until midnight regrows it.
+ */
+function Tree({ season }: { season: Season }) {
+  const applesLeft = useSceneState((s) =>
+    season === 'autumn' ? luckLeft(s, 'apple', s.lastTickAt) : 0,
+  )
+  const visiting = useIsVisiting()
+  const rewardDispatch = useRewardDispatch()
+  const [label, setLabel] = useState<{ at: [number, number, number]; text: string } | null>(null)
+  const labelTimer = useRef(0)
+
+  const pick = (spot: [number, number, number]) => {
+    const gained = rewardDispatch({ type: 'pickApple' })
+    playCatch()
+    setLabel({ at: spot, text: luckLabel('🍎', gained, luckLeftNow('apple')) })
+    window.clearTimeout(labelTimer.current)
+    labelTimer.current = window.setTimeout(() => setLabel(null), 1200)
+  }
+
   return (
     <group position={[5.4, 0, 5.9]}>
       <mesh position={[0, 0.2, 0]}>
@@ -657,19 +713,60 @@ function Tree() {
         <boxGeometry args={[0.9, 0.5, 0.8]} />
         <meshStandardMaterial color={LEAF} />
       </mesh>
-      {/* a few apples */}
-      {(
-        [
-          [0.6, 2.5, 0.95],
-          [-0.85, 2.45, 0.25],
-          [0.15, 3.0, 0.98],
-        ] as const
-      ).map(([x, y, z]) => (
-        <mesh key={`${x}:${y}`} position={[x, y, z]}>
-          <boxGeometry args={[0.12, 0.12, 0.12]} />
-          <meshStandardMaterial color="#cb4a4a" />
-        </mesh>
-      ))}
+      {/* spring: blossom clusters where the apples will be (and a few more) */}
+      {season === 'spring' &&
+        [...APPLE_SPOTS, [-0.3, 2.15, 0.85] as const, [0.9, 3.0, 0.3] as const].map(([x, y, z]) => (
+          <mesh key={`b${x}:${y}`} position={[x, y, z]}>
+            <boxGeometry args={[0.14, 0.1, 0.14]} />
+            <meshStandardMaterial color="#f2c9d6" />
+          </mesh>
+        ))}
+      {/* summer: small hard green apples, not worth anyone's time yet */}
+      {season === 'summer' &&
+        APPLE_SPOTS.map(([x, y, z]) => (
+          <mesh key={`g${x}:${y}`} position={[x, y, z]}>
+            <boxGeometry args={[0.09, 0.09, 0.09]} />
+            <meshStandardMaterial color="#9bb04f" />
+          </mesh>
+        ))}
+      {/* autumn: the pickable reds — one tap each, gone until midnight */}
+      {season === 'autumn' &&
+        APPLE_SPOTS.slice(0, applesLeft).map(([x, y, z]) => (
+          <group
+            key={`r${x}:${y}`}
+            position={[x, y, z]}
+            onPointerDown={(e) => {
+              if (visiting) return
+              e.stopPropagation()
+              pick([x, y, z])
+            }}
+            onPointerOver={() => {
+              if (!visiting) document.body.style.cursor = 'pointer'
+            }}
+            onPointerOut={() => {
+              document.body.style.cursor = 'auto'
+            }}
+          >
+            <mesh>
+              <boxGeometry args={[0.16, 0.16, 0.16]} />
+              <meshStandardMaterial color="#cb4a4a" />
+            </mesh>
+            <mesh position={[0, 0.1, 0]}>
+              <boxGeometry args={[0.025, 0.06, 0.025]} />
+              <meshStandardMaterial color={TRUNK} />
+            </mesh>
+            {/* generous invisible hit area for phone thumbs */}
+            <mesh visible={false}>
+              <boxGeometry args={[0.44, 0.44, 0.44]} />
+              <meshStandardMaterial />
+            </mesh>
+          </group>
+        ))}
+      {label && (
+        <Html position={[label.at[0], label.at[1] + 0.3, label.at[2]]} center zIndexRange={[10, 0]}>
+          <div className="float-label">{label.text}</div>
+        </Html>
+      )}
     </group>
   )
 }
@@ -693,8 +790,26 @@ function Bush({ position, scale = 1 }: { position: [number, number]; scale?: num
   )
 }
 
-/** The washing line: two poles, a sagging line, a shirt and a towel. */
-function Clothesline() {
+/** The washing line: two poles, a sagging line, a shirt and a towel — which
+ * hang about calmly until a windy period sets them flapping. */
+function Clothesline({ windy }: { windy: boolean }) {
+  const shirt = useRef<Group>(null)
+  const towel = useRef<Group>(null)
+  const reduceMotion = useMemo(
+    () => window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+    [],
+  )
+
+  useFrame((frame) => {
+    if (reduceMotion) return
+    const t = frame.clock.elapsedTime
+    // Laundry pivots at the line: a lazy sway normally, a proper flap in wind.
+    const amp = windy ? 0.55 : 0.07
+    const speed = windy ? 5.2 : 1.1
+    if (shirt.current) shirt.current.rotation.x = Math.sin(t * speed) * amp
+    if (towel.current) towel.current.rotation.x = Math.sin(t * speed * 1.15 + 1.2) * amp
+  })
+
   return (
     <group>
       {[-5.3, -3.0].map((x) => (
@@ -707,34 +822,78 @@ function Clothesline() {
         <cylinderGeometry args={[0.012, 0.012, 2.3, 4]} />
         <meshStandardMaterial color="#e3ddcf" flatShading />
       </mesh>
-      {/* a keeper-blue shirt */}
-      <group position={[-4.65, 0.08, 2.3]}>
-        <mesh>
+      {/* a keeper-blue shirt, hung at the line so the wind can play with it */}
+      <group ref={shirt} position={[-4.65, 0.29, 2.3]}>
+        <mesh position={[0, -0.21, 0]}>
           <boxGeometry args={[0.4, 0.42, 0.03]} />
           <meshStandardMaterial color="#5d84ae" side={DoubleSide} />
         </mesh>
-        <mesh position={[-0.26, 0.13, 0]}>
+        <mesh position={[-0.26, -0.08, 0]}>
           <boxGeometry args={[0.12, 0.16, 0.03]} />
           <meshStandardMaterial color="#5d84ae" />
         </mesh>
-        <mesh position={[0.26, 0.13, 0]}>
+        <mesh position={[0.26, -0.08, 0]}>
           <boxGeometry args={[0.12, 0.16, 0.03]} />
           <meshStandardMaterial color="#5d84ae" />
         </mesh>
       </group>
-      {/* a sunny towel */}
-      <mesh position={[-3.7, 0.02, 2.3]}>
-        <boxGeometry args={[0.34, 0.52, 0.03]} />
-        <meshStandardMaterial color="#e8c94a" side={DoubleSide} />
-      </mesh>
+      {/* a sunny towel on the same breeze */}
+      <group ref={towel} position={[-3.7, 0.29, 2.3]}>
+        <mesh position={[0, -0.27, 0]}>
+          <boxGeometry args={[0.34, 0.52, 0.03]} />
+          <meshStandardMaterial color="#e8c94a" side={DoubleSide} />
+        </mesh>
+      </group>
     </group>
   )
 }
 
-/** The letterbox by the gate, flag up — something nice might have arrived. */
+/**
+ * The letterbox by the gate. The flag is honest now: up only when the
+ * postman has actually been — collect the letter (small treat enclosed) and
+ * read it; tapping again re-reads today's post, an empty box just shrugs.
+ */
 function Mailbox() {
+  const waiting = useSceneState((s) => hasMailWaiting(s, s.lastTickAt))
+  const collectedToday = useSceneState(
+    (s) => mailToday(s.rngSeed, s.lastTickAt) && !hasMailWaiting(s, s.lastTickAt),
+  )
+  const visiting = useIsVisiting()
+  const rewardDispatch = useRewardDispatch()
+  const setShowMail = useGame((s) => s.setShowMail)
+  const [label, setLabel] = useState<string | null>(null)
+  const labelTimer = useRef(0)
+
+  const popLabel = (text: string) => {
+    setLabel(text)
+    window.clearTimeout(labelTimer.current)
+    labelTimer.current = window.setTimeout(() => setLabel(null), 1200)
+  }
+
   return (
-    <group position={[1.7, 0, 6.0]}>
+    <group
+      position={[1.7, 0, 6.0]}
+      onPointerDown={(e) => {
+        if (visiting) return // their post is their post
+        e.stopPropagation()
+        if (waiting) {
+          const gained = rewardDispatch({ type: 'collectMail' })
+          playToast()
+          if (gained > 0) popLabel(`✉️ +${gained} 🫧`)
+          setShowMail(true)
+        } else if (collectedToday) {
+          setShowMail(true) // re-read today's letter
+        } else {
+          popLabel('📭')
+        }
+      }}
+      onPointerOver={() => {
+        if (!visiting) document.body.style.cursor = 'pointer'
+      }}
+      onPointerOut={() => {
+        document.body.style.cursor = 'auto'
+      }}
+    >
       <mesh position={[0, -0.5, 0]}>
         <boxGeometry args={[0.09, 0.8, 0.09]} />
         <meshStandardMaterial color={TRUNK} />
@@ -747,10 +906,30 @@ function Mailbox() {
         <boxGeometry args={[0.32, 0.06, 0.42]} />
         <meshStandardMaterial color="#a34f40" />
       </mesh>
-      <mesh position={[0.18, 0.12, 0.1]}>
-        <boxGeometry args={[0.03, 0.18, 0.05]} />
-        <meshStandardMaterial color="#e8c94a" />
+      {/* the flag: raised while post waits, folded down otherwise */}
+      <group position={[0.18, 0.04, 0.1]} rotation-z={waiting ? 0 : -Math.PI / 2}>
+        <mesh position={[0, 0.16, 0]}>
+          <boxGeometry args={[0.03, 0.18, 0.05]} />
+          <meshStandardMaterial color="#e8c94a" />
+        </mesh>
+      </group>
+      {/* an envelope peeking out while something waits */}
+      {waiting && (
+        <mesh position={[0, 0.02, 0.21]} rotation-x={0.25}>
+          <boxGeometry args={[0.2, 0.13, 0.015]} />
+          <meshStandardMaterial color="#fbf7ee" />
+        </mesh>
+      )}
+      {/* generous invisible hit area for phone thumbs */}
+      <mesh position={[0, -0.1, 0]} visible={false}>
+        <boxGeometry args={[0.6, 1.0, 0.7]} />
+        <meshStandardMaterial />
       </mesh>
+      {label && (
+        <Html position={[0, 0.5, 0]} center zIndexRange={[10, 0]}>
+          <div className="float-label">{label}</div>
+        </Html>
+      )}
     </group>
   )
 }
@@ -911,6 +1090,369 @@ function GardenGreenhouse() {
   )
 }
 
+/* ------------------------------ garden life ---------------------------------- */
+
+/**
+ * The windblown volunteer seedling in the flower box — autumn's little
+ * surprise. Pot it up and pass it on to a fellow collector for a few
+ * dewdrops; one per year is all a flower box can manage.
+ */
+function VolunteerSprout() {
+  const about = useSceneState((s) => volunteerAbout(s, s.lastTickAt))
+  const visiting = useIsVisiting()
+  const rewardDispatch = useRewardDispatch()
+  const [label, setLabel] = useState<string | null>(null)
+  const labelTimer = useRef(0)
+  const sway = useRef<Group>(null)
+
+  useFrame((frame) => {
+    if (sway.current) sway.current.rotation.z = Math.sin(frame.clock.elapsedTime * 2.6) * 0.16
+  })
+
+  if (!about) return null
+  return (
+    <group
+      position={[-1.42, -0.55, -0.83]}
+      onPointerDown={(e) => {
+        if (visiting) return
+        e.stopPropagation()
+        const gained = rewardDispatch({ type: 'claimVolunteer' })
+        playCatch()
+        setLabel(gained > 0 ? `🌱 +${gained} 🫧` : '🌱')
+        window.clearTimeout(labelTimer.current)
+        labelTimer.current = window.setTimeout(() => setLabel(null), 1200)
+      }}
+      onPointerOver={() => {
+        if (!visiting) document.body.style.cursor = 'pointer'
+      }}
+      onPointerOut={() => {
+        document.body.style.cursor = 'auto'
+      }}
+    >
+      <group ref={sway}>
+        <mesh position={[0, 0.1, 0]}>
+          <boxGeometry args={[0.04, 0.2, 0.04]} />
+          <meshStandardMaterial color={palette.stem} />
+        </mesh>
+        <mesh position={[-0.06, 0.2, 0]} rotation-z={0.5}>
+          <boxGeometry args={[0.12, 0.05, 0.04]} />
+          <meshStandardMaterial color={LEAF} />
+        </mesh>
+        <mesh position={[0.06, 0.16, 0]} rotation-z={-0.5}>
+          <boxGeometry args={[0.12, 0.05, 0.04]} />
+          <meshStandardMaterial color={LEAF} />
+        </mesh>
+        {/* the little shimmer that says "I'm new here" */}
+        <mesh position={[0.02, 0.3, 0]}>
+          <boxGeometry args={[0.05, 0.05, 0.05]} />
+          <meshStandardMaterial color="#f6f1e6" emissive="#e8c94a" emissiveIntensity={0.6} />
+        </mesh>
+      </group>
+      {/* generous invisible hit area for phone thumbs */}
+      <mesh position={[0, 0.15, 0]} visible={false}>
+        <boxGeometry args={[0.4, 0.5, 0.4]} />
+        <meshStandardMaterial />
+      </mesh>
+      {label && (
+        <Html position={[0, 0.55, 0]} center zIndexRange={[10, 0]}>
+          <div className="float-label">{label}</div>
+        </Html>
+      )}
+    </group>
+  )
+}
+
+/** Where rain gathers on the lawn — two favourite dips. */
+const PUDDLE_SPOTS: [number, number, number][] = [
+  [1.95, 3.25, 0.42],
+  [-0.9, 5.05, 0.3],
+]
+
+/**
+ * Puddles during rain and just after. With the shop's rain boots on, a tap
+ * is a proper stomp — splash, sound and (the first time) a badge. Without
+ * them, the puddle politely suggests footwear.
+ */
+function Puddles() {
+  const about = useSceneState((s) => puddlesAbout(s.rngSeed, s.lastTickAt))
+  const booted = useSceneState((s) => s.inventory.items.includes('rain-boots'))
+  const visiting = useIsVisiting()
+  const dispatch = useRewardDispatch()
+  const [splash, setSplash] = useState<{ id: number; at: [number, number] } | null>(null)
+  const [hint, setHint] = useState<[number, number] | null>(null)
+  const hintTimer = useRef(0)
+
+  if (!about) return null
+  return (
+    <group>
+      {PUDDLE_SPOTS.map(([x, z, r]) => (
+        <group key={`${x}:${z}`}>
+          <mesh
+            position={[x, -0.879, z]}
+            onPointerDown={(e) => {
+              if (visiting) return
+              e.stopPropagation()
+              if (booted) {
+                dispatch({ type: 'stompPuddle' })
+                playSplash()
+                setSplash({ id: Date.now(), at: [x, z] })
+              } else {
+                setHint([x, z])
+                window.clearTimeout(hintTimer.current)
+                hintTimer.current = window.setTimeout(() => setHint(null), 1200)
+              }
+            }}
+            onPointerOver={() => {
+              if (!visiting) document.body.style.cursor = 'pointer'
+            }}
+            onPointerOut={() => {
+              document.body.style.cursor = 'auto'
+            }}
+          >
+            <cylinderGeometry args={[r, r, 0.012, 9]} />
+            <meshStandardMaterial color="#8fb4cf" transparent opacity={0.8} flatShading />
+          </mesh>
+        </group>
+      ))}
+      {splash && <SplashBurst key={splash.id} at={splash.at} onDone={() => setSplash(null)} />}
+      {hint && (
+        <Html position={[hint[0], -0.5, hint[1]]} center zIndexRange={[10, 0]}>
+          <div className="float-label">🥾❓</div>
+        </Html>
+      )}
+    </group>
+  )
+}
+
+/** A quick ring of droplets kicked up by a boot — half a second of joy. */
+function SplashBurst({ at, onDone }: { at: [number, number]; onDone: () => void }) {
+  const group = useRef<Group>(null)
+  const age = useRef(0)
+  useFrame((_, delta) => {
+    age.current += delta
+    if (age.current > 0.5) {
+      onDone()
+      return
+    }
+    const g = group.current
+    if (!g) return
+    const t = age.current
+    g.children.forEach((drop, i) => {
+      const angle = (i / g.children.length) * Math.PI * 2
+      const out = 0.12 + t * 0.9
+      drop.position.set(Math.cos(angle) * out, t * 1.6 - t * t * 4.2, Math.sin(angle) * out)
+      drop.scale.setScalar(Math.max(0.01, 1 - t * 1.7))
+    })
+  })
+  return (
+    <group ref={group} position={[at[0], -0.84, at[1]]}>
+      {Array.from({ length: 7 }, (_, i) => (
+        <mesh key={i}>
+          <boxGeometry args={[0.05, 0.05, 0.05]} />
+          <meshStandardMaterial color="#a9c8de" />
+        </mesh>
+      ))}
+    </group>
+  )
+}
+
+/**
+ * The bought pond on the south-east lawn: still water, a stone ring, two
+ * cattails and a lily that blooms all summer — when its dragonfly also
+ * patrols. Its collider lives in playerMovement.ts (id 'pond').
+ */
+function GardenPond({ season }: { season: Season }) {
+  return (
+    <group position={[3.1, 0, 4.7]}>
+      {/* the water, sunk a whisker into the lawn */}
+      <mesh position={[0, -0.885, 0]}>
+        <cylinderGeometry args={[0.72, 0.72, 0.035, 10]} />
+        <meshStandardMaterial color="#5d9ac9" transparent opacity={0.92} flatShading />
+      </mesh>
+      {/* stone ring */}
+      {Array.from({ length: 9 }, (_, i) => {
+        const angle = (i / 9) * Math.PI * 2
+        return (
+          <mesh
+            key={i}
+            position={[Math.cos(angle) * 0.78, -0.86, Math.sin(angle) * 0.78]}
+            rotation-y={-angle}
+          >
+            <boxGeometry args={[0.22, 0.12, 0.16]} />
+            <meshStandardMaterial color={STONE} />
+          </mesh>
+        )
+      })}
+      {/* cattails on the north bank */}
+      {(
+        [
+          [-0.35, -0.55, 0.5],
+          [-0.52, -0.4, 0.42],
+        ] as const
+      ).map(([x, z, h]) => (
+        <group key={`${x}:${z}`} position={[x, -0.87, z]}>
+          <mesh position={[0, h / 2, 0]}>
+            <boxGeometry args={[0.035, h, 0.035]} />
+            <meshStandardMaterial color={palette.stem} />
+          </mesh>
+          <mesh position={[0, h + 0.07, 0]}>
+            <boxGeometry args={[0.07, 0.16, 0.07]} />
+            <meshStandardMaterial color="#7a5a3a" />
+          </mesh>
+        </group>
+      ))}
+      {/* the lily pad, flowering through summer */}
+      <group position={[0.18, -0.862, -0.1]}>
+        <mesh>
+          <cylinderGeometry args={[0.16, 0.16, 0.02, 7]} />
+          <meshStandardMaterial color={LEAF} flatShading />
+        </mesh>
+        {season === 'summer' && (
+          <group position={[0, 0.05, 0]}>
+            <mesh>
+              <boxGeometry args={[0.1, 0.08, 0.1]} />
+              <meshStandardMaterial color="#e8b7cd" />
+            </mesh>
+            <mesh position={[0, 0.05, 0]}>
+              <boxGeometry args={[0.05, 0.04, 0.05]} />
+              <meshStandardMaterial color="#e8c94a" />
+            </mesh>
+          </group>
+        )}
+      </group>
+      {season === 'summer' && <Dragonfly />}
+    </group>
+  )
+}
+
+/**
+ * Summer's dragonfly: darts over the pond in quick zig-zags, hovers a beat,
+ * darts again — a high-value guest to greet, never a snack (far too fast for
+ * any trap, and anyway there are none out here).
+ */
+function Dragonfly() {
+  const rewardDispatch = useRewardDispatch()
+  const visiting = useIsVisiting()
+  const group = useRef<Group>(null)
+  const [label, setLabel] = useState<string | null>(null)
+  const labelTimer = useRef(0)
+  const daytime = daylightFactor(sceneNow()) > 0.5
+
+  useFrame((frame) => {
+    const g = group.current
+    if (!g) return
+    const t = frame.clock.elapsedTime
+    // A lissajous dash with a "hover" felt through the fast wing shimmer.
+    g.position.set(
+      Math.sin(t * 1.9) * 0.55,
+      -0.45 + Math.sin(t * 3.1) * 0.14,
+      Math.cos(t * 1.3) * 0.5,
+    )
+    g.rotation.y = Math.atan2(Math.cos(t * 1.9) * 1.9 * 0.55, -Math.sin(t * 1.3) * 1.3 * 0.5)
+    g.children.forEach((part, i) => {
+      if (i > 0) part.rotation.z = Math.sin(t * 40 + i) * 0.5 // wings blur
+    })
+  })
+
+  if (!daytime) return null
+  return (
+    <group
+      ref={group}
+      position={[0, -0.45, 0]}
+      onPointerDown={(e) => {
+        if (visiting) return
+        e.stopPropagation()
+        const gained = rewardDispatch({ type: 'greetDragonfly' })
+        playCatch()
+        setLabel(luckLabel('🫧', gained, luckLeftNow('dragonfly'), '💙'))
+        window.clearTimeout(labelTimer.current)
+        labelTimer.current = window.setTimeout(() => setLabel(null), 1200)
+      }}
+      onPointerOver={() => {
+        if (!visiting) document.body.style.cursor = 'pointer'
+      }}
+      onPointerOut={() => {
+        document.body.style.cursor = 'auto'
+      }}
+    >
+      {/* body first (index 0 — the wing shimmer skips it) */}
+      <mesh rotation-x={Math.PI / 2}>
+        <boxGeometry args={[0.035, 0.035, 0.24]} />
+        <meshStandardMaterial color="#4cc9d9" emissive="#2f9fb0" emissiveIntensity={0.4} />
+      </mesh>
+      <mesh position={[-0.09, 0.02, 0]}>
+        <boxGeometry args={[0.16, 0.012, 0.06]} />
+        <meshStandardMaterial color="#d8f2f5" transparent opacity={0.75} />
+      </mesh>
+      <mesh position={[0.09, 0.02, 0]}>
+        <boxGeometry args={[0.16, 0.012, 0.06]} />
+        <meshStandardMaterial color="#d8f2f5" transparent opacity={0.75} />
+      </mesh>
+      {/* generous invisible hit area for phone thumbs */}
+      <mesh visible={false}>
+        <boxGeometry args={[0.5, 0.4, 0.5]} />
+        <meshStandardMaterial />
+      </mesh>
+      {label && (
+        <Html position={[0, 0.3, 0]} center zIndexRange={[10, 0]}>
+          <div className="float-label">{label}</div>
+        </Html>
+      )}
+    </group>
+  )
+}
+
+/** Loose leaves tumbling across the lawn while the wind is up. */
+const WIND_LEAVES = 12
+const LEAF_COLORS = ['#9bb04f', '#c9a44a', '#b07a5c', '#7da75a']
+
+function WindLeaves() {
+  const mesh = useRef<InstancedMesh>(null)
+  const leaves = useRef<{ x: number; y: number; z: number; speed: number; phase: number }[] | null>(
+    null,
+  )
+  const dummy = useMemo(() => new Object3D(), [])
+  const reduceMotion = useMemo(
+    () => window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+    [],
+  )
+
+  useFrame((frame, delta) => {
+    const m = mesh.current
+    if (!m || reduceMotion) return
+    leaves.current ??= Array.from({ length: WIND_LEAVES }, () => ({
+      x: -7 + Math.random() * 14,
+      y: -0.8 + Math.random() * 0.7,
+      z: -0.6 + Math.random() * 6.6,
+      speed: 1.6 + Math.random() * 1.4,
+      phase: Math.random() * Math.PI * 2,
+    }))
+    const t = frame.clock.elapsedTime
+    for (let i = 0; i < WIND_LEAVES; i++) {
+      const leaf = leaves.current[i]
+      leaf.x += leaf.speed * delta
+      if (leaf.x > 7.2) {
+        leaf.x = -7.2
+        leaf.z = -0.6 + Math.random() * 6.6
+      }
+      const bob = Math.abs(Math.sin(t * 2.4 + leaf.phase)) * 0.35
+      dummy.position.set(leaf.x, -0.85 + bob, leaf.z)
+      dummy.rotation.set(t * 3 + leaf.phase, t * 2 + leaf.phase, t * 2.6)
+      dummy.updateMatrix()
+      m.setMatrixAt(i, dummy.matrix)
+    }
+    m.instanceMatrix.needsUpdate = true
+  })
+
+  if (reduceMotion) return null
+  return (
+    <instancedMesh ref={mesh} args={[undefined, undefined, WIND_LEAVES]} frustumCulled={false}>
+      <boxGeometry args={[0.09, 0.015, 0.07]} />
+      <meshStandardMaterial color={LEAF_COLORS[1]} />
+    </instancedMesh>
+  )
+}
+
 /* --------------------------------- weather ----------------------------------- */
 
 const SKY_BASE = { sun: palette.sky, clouds: palette.skyDim, rain: '#87a0b4' } as const
@@ -963,6 +1505,75 @@ const STARS: [number, number][] = [
   [-64, 4.8],
   [-51, 6.5],
 ]
+
+/** Rainbow band colours, outermost first — five is plenty in blocky. */
+const RAINBOW_BANDS = ['#e2574c', '#e8963c', '#e8c94a', '#7da75a', '#5d84ae']
+const RAINBOW_SEGMENTS = 11
+
+/**
+ * A rainbow across the eastern sky when sunshine follows rain — tap it to
+ * wish, like a shooting star with better dress sense. The sim rules on the
+ * calendar (sun-after-rain plus a roll); the view only hangs it up while
+ * there is daylight to make one.
+ */
+function Rainbow() {
+  const spell = useSceneState((s) => isRainbowSpell(s.rngSeed, s.lastTickAt))
+  const visiting = useIsVisiting()
+  const rewardDispatch = useRewardDispatch()
+  const [label, setLabel] = useState<string | null>(null)
+  const labelTimer = useRef(0)
+  const daytime = daylightFactor(useSceneState((s) => s.lastTickAt)) > 0.5
+
+  if (!spell || !daytime) return null
+  return (
+    <group
+      position={onSky(135, 0.6, 14.4)}
+      rotation-y={faceCenter(135)}
+      onPointerDown={(e) => {
+        if (visiting) return
+        e.stopPropagation()
+        const gained = rewardDispatch({ type: 'wishOnRainbow' })
+        playToast()
+        setLabel(luckLabel('🌈', gained, luckLeftNow('rainbow'), '✨'))
+        window.clearTimeout(labelTimer.current)
+        labelTimer.current = window.setTimeout(() => setLabel(null), 1400)
+      }}
+      onPointerOver={() => {
+        if (!visiting) document.body.style.cursor = 'pointer'
+      }}
+      onPointerOut={() => {
+        document.body.style.cursor = 'auto'
+      }}
+    >
+      {RAINBOW_BANDS.map((color, band) =>
+        Array.from({ length: RAINBOW_SEGMENTS }, (_, i) => {
+          const angle = Math.PI * (0.12 + (0.76 * i) / (RAINBOW_SEGMENTS - 1))
+          const radius = 5.6 - band * 0.42
+          return (
+            <mesh
+              key={`${band}:${i}`}
+              position={[Math.cos(angle) * radius, Math.sin(angle) * radius * 0.72, 0]}
+              rotation-z={angle - Math.PI / 2}
+            >
+              <boxGeometry args={[0.62, 0.4, 0.12]} />
+              <meshStandardMaterial color={color} transparent opacity={0.85} />
+            </mesh>
+          )
+        }),
+      )}
+      {/* generous invisible hit area — the whole arch grants wishes */}
+      <mesh position={[0, 2.6, 0]} visible={false}>
+        <boxGeometry args={[11, 5.4, 0.6]} />
+        <meshStandardMaterial />
+      </mesh>
+      {label && (
+        <Html position={[0, 5.2, 0]} center zIndexRange={[10, 0]}>
+          <div className="float-label">{label}</div>
+        </Html>
+      )}
+    </group>
+  )
+}
 
 /** The sky drum, sun/clouds/stars dressed around it, and rain over the lawn
  * — snow instead, once winter owns the garden. */
@@ -1078,6 +1689,7 @@ function GardenWeather({ winter }: { winter: boolean }) {
         size={0.055}
         spawn={() => ({ x: -6 + Math.random() * 12, z: -0.9 + Math.random() * 7.3 })}
       />
+      <Rainbow />
       {/* golden drops fall in the open — no roof out here to sneak through */}
       <GoldenDrop area={{ x0: -1.2, x1: 2.4, z: 2.3, yTop: 2.8, yBottom: -0.55 }} />
     </group>

@@ -9,14 +9,18 @@ import {
   type PackKind,
   SIM,
   activePlant,
+  adventDayAt,
+  adventDoorWaiting,
   canFeedPlant,
   canMoveTo,
+  canTakeCutting,
   catAtWindow,
   currentWeather,
   spiderAtCorner,
   firstReadyTrap,
   hasGreenhouse,
   hasWeed,
+  isWindyAt,
   mood,
   msToNextStage,
   nextTrapOpenAt,
@@ -70,6 +74,7 @@ export function Hud() {
   const setShowLexicon = useGame((s) => s.setShowLexicon)
   const setShowQuests = useGame((s) => s.setShowQuests)
   const setShowJournal = useGame((s) => s.setShowJournal)
+  const setShowAdvent = useGame((s) => s.setShowAdvent)
   const setStatInfo = useGame((s) => s.setStatInfo)
   const setPhoto = useGame((s) => s.setPhoto)
   const roomView = useGame((s) => s.roomView)
@@ -155,6 +160,8 @@ export function Hud() {
 
   // A plant's birthday arrived (possibly caught up after time away) — throw
   // the little party toast for whoever's diary got the newest birthday page.
+  // Plants are read non-reactively inside: a `state.plants` dependency would
+  // change reference on every tick and cancel the timer without re-arming it.
   const birthdayCount = state.plants.reduce((sum, p) => sum + p.birthdays, 0)
   const prevBirthdays = useRef<number | null>(null)
   useEffect(() => {
@@ -162,7 +169,7 @@ export function Hud() {
       let name = ''
       let age = 0
       let latest = -1
-      for (const p of state.plants) {
+      for (const p of useGame.getState().state.plants) {
         for (const entry of p.journal) {
           if (entry.kind === 'birthday' && entry.at > latest) {
             latest = entry.at
@@ -178,7 +185,7 @@ export function Hud() {
       return () => window.clearTimeout(timer)
     }
     prevBirthdays.current = birthdayCount
-  }, [birthdayCount, state.plants, t])
+  }, [birthdayCount, t])
 
   // The snowman's head went on — the scene played the sound, the HUD says why.
   const snowmanDone = snowmanStage(state, state.lastTickAt) >= SIM.SNOWMAN_STAGES
@@ -201,7 +208,10 @@ export function Hud() {
   const progress = stageProgress(plant)
   const weather = currentWeather(state, now)
   const precip = precipitationAt(now, weather)
+  const windy = isWindyAt(state.rngSeed, now)
   const season = seasonAt(now)
+  const adventOpen = adventDayAt(now) > 0
+  const adventPip = adventOpen && adventDoorWaiting(state, now)
   const barrelLow = state.weather.rainBarrel < SIM.WATER_COST
   const needsWater = plant.water < 99.5 && !plant.dormant && !plant.dead
   const winterRest = season === 'winter' && species.needsDormancy
@@ -287,7 +297,8 @@ export function Hud() {
             {MOOD_ICON[mood(plant, season === 'winter')]} ·{' '}
             <span title={precip === 'snow' ? t('weather.snow') : t(`weather.${weather}`)}>
               {precip === 'snow' ? '🌨️' : WEATHER_ICON[weather]}
-            </span>{' '}
+            </span>
+            {windy && <span title={t('weather.windy')}>🍃</span>}{' '}
             <span title={t(`season.${season}`)}>{SEASON_ICON[season]}</span> · <GameClock />
           </p>
         </div>
@@ -363,6 +374,17 @@ export function Hud() {
               >
                 👥
               </button>
+              {adventOpen && (
+                <button
+                  type="button"
+                  className={`icon-btn${adventPip ? ' has-pip' : ''}`}
+                  aria-label={t('advent.title')}
+                  title={t('advent.title')}
+                  onClick={() => setShowAdvent(true)}
+                >
+                  🎄
+                </button>
+              )}
               <button
                 type="button"
                 className="icon-btn"
@@ -551,6 +573,16 @@ export function Hud() {
               onClick={() => dispatch({ type: 'pullWeed', plantId: plant.id })}
             >
               🌿 <span className="act-label">{t('actions.pullWeed')}</span>
+            </button>
+          )}
+          {canTakeCutting(state, plant, now) && (
+            <button
+              type="button"
+              aria-label={t('actions.takeCutting')}
+              title={t('actions.takeCuttingHint')}
+              onClick={() => dispatch({ type: 'takeCutting' })}
+            >
+              ✂️ <span className="act-label">{t('actions.takeCutting')}</span>
             </button>
           )}
           {barrelLow && needsWater && (

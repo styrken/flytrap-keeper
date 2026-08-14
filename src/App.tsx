@@ -7,10 +7,12 @@ import { PhotoRig } from './scene/PhotoRig'
 import { Player } from './scene/Player'
 import { FLOOR_Y, HEAD_HEIGHT, SPAWN } from './scene/playerMovement'
 import { useIsVisiting } from './sceneView'
+import { AdventDialog } from './ui/AdventDialog'
 import { ArcadeGame } from './ui/ArcadeGame'
 import { ForecastDialog } from './ui/ForecastDialog'
 import { FriendsDialog } from './ui/FriendsDialog'
 import { Hud } from './ui/Hud'
+import { MailDialog } from './ui/MailDialog'
 import { TouchControls } from './ui/Joystick'
 import { JournalDialog } from './ui/JournalDialog'
 import { LexiconDialog } from './ui/LexiconDialog'
@@ -56,6 +58,8 @@ export default function App() {
       <JournalDialog />
       <ArcadeGame />
       <ForecastDialog />
+      <MailDialog />
+      <AdventDialog />
       <PhotoDialog />
       <StatInfoDialog />
       <LexiconDialog />

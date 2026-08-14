@@ -55,6 +55,7 @@ describe('the tadpole jar and the frog', () => {
       lastRobinAt: null,
       lastButterflyAt: null,
       lastHedgehogAt: null,
+      lastDragonflyAt: null,
     }
     expect(frogStage(pets, T0)).toBe(0)
     expect(frogStage(pets, T0 + d(2))).toBe(1)
@@ -325,6 +326,7 @@ describe('save migration v11 -> v12 (pets)', () => {
       lastRobinAt: null,
       lastButterflyAt: null,
       lastHedgehogAt: null,
+      lastDragonflyAt: null, // v20 tops the house up on the way through
     })
   })
 })

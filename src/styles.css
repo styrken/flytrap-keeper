@@ -1205,6 +1205,138 @@ h1 {
   min-width: 0;
 }
 
+/* ------------------------------ seed gifts in chat ---------------------------- */
+
+.chat-bubble.gift {
+  border: 2px dashed rgba(88, 184, 98, 0.55);
+  background: #f4faee;
+}
+
+.chat-bubble.gift.mine {
+  background: #e6f4e0;
+}
+
+.gift-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.gift-content button {
+  min-height: 34px;
+  padding: 0 12px;
+  border: none;
+  border-radius: 10px;
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+  background: #58b862;
+  color: #fffcf5;
+}
+
+.gift-content button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.gift-planted {
+  font-size: 0.85rem;
+  opacity: 0.75;
+}
+
+.gift-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px;
+  border-radius: 12px;
+  background: rgba(88, 184, 98, 0.08);
+}
+
+.gift-picker button {
+  min-height: 38px;
+  padding: 0 12px;
+  border: none;
+  border-radius: 10px;
+  font: inherit;
+  font-size: 0.88rem;
+  text-align: left;
+  cursor: pointer;
+  background: #fffcf5;
+  box-shadow: 0 1px 3px rgba(58, 45, 33, 0.12);
+}
+
+.gift-picker button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+/* ------------------------------ letters & advent ------------------------------ */
+
+.mail-letter {
+  margin: 0;
+  padding: 14px;
+  border-radius: 12px;
+  background: #fffcf5;
+  box-shadow: 0 1px 4px rgba(58, 45, 33, 0.12);
+  font-size: 0.95rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.advent-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+}
+
+@media (max-width: 480px) {
+  .advent-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.advent-door {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-height: 56px;
+  border: none;
+  border-radius: 12px;
+  font: inherit;
+  font-size: 0.85rem;
+  background: #cb4a4a;
+  color: #fffcf5;
+  box-shadow: 0 1px 4px rgba(58, 45, 33, 0.18);
+}
+
+.advent-door.waiting {
+  cursor: pointer;
+  background: #58b862;
+}
+
+.advent-door.waiting:hover {
+  filter: brightness(1.06);
+}
+
+.advent-door.open {
+  background: #fffcf5;
+  color: inherit;
+}
+
+.advent-door.locked {
+  opacity: 0.55;
+}
+
+.advent-day {
+  font-size: 0.72rem;
+  font-weight: 700;
+  opacity: 0.85;
+}
+
 /* ------------------------------ visiting a friend ------------------------------ */
 
 .visit-bar {

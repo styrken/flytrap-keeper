@@ -50,6 +50,10 @@ interface GameStore {
   showArcade: boolean
   /** The shelf radio's weather report — open while the radio plays it. */
   showForecast: boolean
+  /** Today's letter from the letterbox, unfolded on screen. */
+  showMail: boolean
+  /** December's advent calendar, doors and all. */
+  showAdvent: boolean
   /** Stat whose explainer dialog is open — pure view state, never saved. */
   statInfo: StatInfoId | null
   /** A freshly composed postcard (data URL) awaiting save/share, or null. */
@@ -72,6 +76,8 @@ interface GameStore {
   setShowJournal: (show: boolean) => void
   setShowArcade: (show: boolean) => void
   setShowForecast: (show: boolean) => void
+  setShowMail: (show: boolean) => void
+  setShowAdvent: (show: boolean) => void
   setStatInfo: (stat: StatInfoId | null) => void
   setPhoto: (photo: string | null) => void
   setRoomView: (room: RoomView) => void
@@ -99,6 +105,8 @@ export const useGame = create<GameStore>()((set, get) => ({
   showJournal: false,
   showArcade: false,
   showForecast: false,
+  showMail: false,
+  showAdvent: false,
   statInfo: null,
   photo: null,
   roomView: 'bedroom',
@@ -137,6 +145,8 @@ export const useGame = create<GameStore>()((set, get) => ({
   setShowJournal: (show) => set({ showJournal: show }),
   setShowArcade: (show) => set({ showArcade: show }),
   setShowForecast: (show) => set({ showForecast: show }),
+  setShowMail: (show) => set({ showMail: show }),
+  setShowAdvent: (show) => set({ showAdvent: show }),
   setStatInfo: (statInfo) => set({ statInfo }),
   setPhoto: (photo) => set({ photo }),
   setRoomView: (room) => set({ roomView: room }),
@@ -177,6 +187,8 @@ export const useGame = create<GameStore>()((set, get) => ({
       showJournal: false,
       showArcade: false,
       showForecast: false,
+      showMail: false,
+      showAdvent: false,
       statInfo: null,
       photo: null,
       roomView: 'bedroom',

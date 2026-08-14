@@ -1,4 +1,6 @@
 export type SpeciesId = 'dionaea' | 'drosera' | 'nepenthes' | 'sarracenia' | 'pinguicula'
+/** What is actually falling when the weather says 'rain' — snow in winter. */
+export type PrecipitationKind = 'rain' | 'snow'
 /** Real Dionaea cultivars — visual rarities of the same species, same care. */
 export type CultivarId = 'b52' | 'red-dragon' | 'justina'
 /** Pure-silliness plant cosmetics. The googly eyes ride the snapping jaw. */
@@ -11,7 +13,16 @@ export type PackKind = 'fly' | 'mosquito' | 'moth' | 'spider'
 
 /** The little friends whose rewards draw from a daily jar of luck. */
 export type LuckSourceId =
-  'raindrop' | 'star' | 'snail' | 'ladybird' | 'robin' | 'butterfly' | 'hedgehog'
+  | 'raindrop'
+  | 'star'
+  | 'snail'
+  | 'ladybird'
+  | 'robin'
+  | 'butterfly'
+  | 'hedgehog'
+  | 'apple'
+  | 'rainbow'
+  | 'dragonfly'
 export type Season = 'spring' | 'summer' | 'autumn' | 'winter'
 
 export type QuestId = 'water2' | 'catch2' | 'weed2' | 'pet2' | 'pour1' | 'mist1'
@@ -60,6 +71,10 @@ export type ShopItemId =
   | 'moth-pack'
   | 'spider-pack'
   | 'trampoline'
+  | 'pond'
+  | 'sun-hat'
+  | 'raincoat'
+  | 'rain-boots'
 
 export interface TrapState {
   id: string
@@ -85,6 +100,8 @@ export type JournalKind =
   | 'wake'
   | 'repot'
   | 'dressed'
+  | 'birthday'
+  | 'cutting'
   | 'died'
 
 export interface JournalEntry {
@@ -93,6 +110,8 @@ export interface JournalEntry {
   kind: JournalKind
   /** For 'stage' entries: the stage that was reached. */
   stage?: number
+  /** For 'birthday' entries: the age (in whole years) being celebrated. */
+  age?: number
 }
 
 export interface FloweringState {
@@ -136,8 +155,24 @@ export interface PlantState {
   dead: boolean
   /** Hard mode: when health first hit the floor; death after enough hours. */
   criticalSince: number | null
+  /** Game-clock ms when the seed went into the soil — the birthday anchor. */
+  plantedAt: number
+  /** Anniversaries already celebrated (diary page + little payout each). */
+  birthdays: number
+  /** When this plant last donated a leaf pulling — propagation has a rhythm. */
+  lastCuttingAt: number | null
   /** The diary: milestones only, oldest first, capped. */
   journal: JournalEntry[]
+}
+
+/**
+ * The garden snowman: built tap by tap while there is snow on the lawn.
+ * `winter` names the winter it belongs to (the year of its December) — a
+ * snowman from last winter melted long ago and simply isn't there anymore.
+ */
+export interface SnowmanState {
+  stage: number
+  winter: number
 }
 
 /**
@@ -167,6 +202,8 @@ export interface PetsState {
   lastButterflyAt: number | null
   /** Last hedgehog greeting on the greenhouse lawn. */
   lastHedgehogAt: number | null
+  /** Last dragonfly greeting over the garden pond. */
+  lastDragonflyAt: number | null
 }
 
 export interface GameTime {
@@ -191,7 +228,12 @@ export interface GameState {
   /** packs: bought-but-unreleased boxes of insects, counted per kind. */
   inventory: { dewdrops: number; items: string[]; packs: Record<PackKind, number> }
   weather: { rainBarrel: number }
-  minigames: { lastRaindropAt: number | null; lastWishAt: number | null }
+  minigames: {
+    lastRaindropAt: number | null
+    lastWishAt: number | null
+    lastRainbowAt: number | null
+    lastAppleAt: number | null
+  }
   /** Three daily tasks (redrawn each UTC day) and two weekly ones (Mondays). */
   quests: { day: string; items: QuestState[]; week: string; weekItems: WeeklyQuestState[] }
   pets: PetsState
@@ -200,6 +242,16 @@ export interface GameState {
   /** Daily luck jars: how many times each little friend has paid out today.
    * Every jar refills at (UTC) midnight, together with the daily quests. */
   luck: { day: string; paid: Record<LuckSourceId, number> }
+  /** This winter's snowman on the lawn, if one has been started. */
+  snowman: SnowmanState | null
+  /** The letterbox: which (UTC) day's post was last collected. */
+  mail: { lastDay: string | null }
+  /** The year whose autumn volunteer seedling has already been potted up. */
+  volunteerYear: number | null
+  /** December's calendar: the year it belongs to and the doors opened so far. */
+  advent: { year: number; opened: number[] } | null
+  /** Chat-message ids of already-planted seed gifts (oldest scroll out). */
+  redeemedGifts: string[]
   /** locale '' means no explicit choice — the UI follows the browser language. */
   settings: { sound: boolean; music: boolean; locale: string; hardMode: boolean }
   /** Distinct real-world days with at least one care action. */
@@ -215,6 +267,16 @@ export type Action =
   | { type: 'pullWeed'; plantId: string }
   | { type: 'catchRaindrop' }
   | { type: 'wishOnStar' }
+  | { type: 'wishOnRainbow' }
+  | { type: 'pickApple' }
+  | { type: 'stompPuddle' }
+  | { type: 'collectMail' }
+  | { type: 'claimVolunteer' }
+  | { type: 'greetDragonfly' }
+  | { type: 'takeCutting' }
+  | { type: 'giftSeed'; item: ShopItemId }
+  | { type: 'redeemSeedGift'; messageId: string; item: ShopItemId }
+  | { type: 'openAdventDoor'; day: number }
   | { type: 'markFireflies' }
   | { type: 'letCatIn' }
   | { type: 'rescueSnail' }
@@ -225,6 +287,7 @@ export type Action =
   | { type: 'greetButterfly' }
   | { type: 'greetHedgehog' }
   | { type: 'arcadeScore'; score: number }
+  | { type: 'buildSnowman' }
   | { type: 'releasePack'; insect: PackKind }
   | { type: 'feedTrap'; plantId: string; trapId: string }
   | { type: 'feedPlant' }

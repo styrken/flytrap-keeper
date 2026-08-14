@@ -1,4 +1,5 @@
 import { award } from './achievements'
+import { anniversaryAt } from './birthday'
 import { SIM } from './config'
 import { remember } from './journal'
 import { frogStage, hasFullHouse } from './pets'
@@ -13,6 +14,8 @@ import { weatherAt } from './weather'
 
 interface StepEvents {
   bloomed: boolean
+  /** Anniversaries celebrated during this tick, across all plants. */
+  birthdays: number
 }
 
 /**
@@ -40,7 +43,7 @@ export function tick(state: GameState, realNow: number): GameState {
   let plants = state.plants
   let rainBarrel = state.weather.rainBarrel
   let barrelHitCap = false
-  const events: StepEvents = { bloomed: false }
+  const events: StepEvents = { bloomed: false, birthdays: 0 }
   const hardMode = state.settings.hardMode
 
   while (t < now) {
@@ -73,6 +76,17 @@ export function tick(state: GameState, realNow: number): GameState {
     next = award(next, 'in-bloom')
   }
 
+  if (events.birthdays > 0) {
+    next = {
+      ...next,
+      inventory: {
+        ...next.inventory,
+        dewdrops: next.inventory.dewdrops + events.birthdays * SIM.BIRTHDAY_DEWDROPS,
+      },
+    }
+    next = award(next, 'birthday-party')
+  }
+
   const before = state.plants[0]
   const after = plants[0]
   if (before && after) {
@@ -103,13 +117,16 @@ export function tick(state: GameState, realNow: number): GameState {
 }
 
 function stepPlant(
-  plant: PlantState,
+  prev: PlantState,
   hours: number,
   t: number,
   hardMode: boolean,
   events: StepEvents,
 ): PlantState {
-  if (plant.dead) return plant
+  if (prev.dead) return prev
+  // Birthdays first: they are calendar facts, and sleeping through one in
+  // dormancy still counts — the page is simply written with closed eyes.
+  const plant = stepBirthdays(prev, t, events)
   const season = seasonAt(t)
   if (plant.dormant) {
     // Dormancy is a full pause (built-in vacation mode); wake with the spring.
@@ -258,5 +275,21 @@ function stepPlant(
   if (bloomedNow) next = remember(next, 'bloomed', t)
   if (!plant.dead && dead) next = remember(next, 'died', t)
 
+  return next
+}
+
+/**
+ * Write a diary page for every anniversary the step has reached. During
+ * offline catch-up the sub-step that crosses the anniversary writes the page,
+ * so the diary date lands on the birthday itself — and a longer absence still
+ * celebrates on return (a late party beats no party).
+ */
+function stepBirthdays(plant: PlantState, t: number, events: StepEvents): PlantState {
+  let next = plant
+  while (t >= anniversaryAt(next.plantedAt, next.birthdays + 1)) {
+    const age = next.birthdays + 1
+    next = remember({ ...next, birthdays: age }, 'birthday', t, undefined, age)
+    events.birthdays += 1
+  }
   return next
 }

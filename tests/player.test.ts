@@ -333,7 +333,7 @@ describe('garden movement', () => {
 })
 
 describe('doorways', () => {
-  const ALL_ITEMS = ['lamp', 'computer', 'greenhouse', 'trampoline']
+  const ALL_ITEMS = ['lamp', 'computer', 'greenhouse', 'trampoline', 'pond']
   const ROOMS: PlayerRoom[] = ['bedroom', 'garden', 'greenhouse']
 
   it('walking into the bedroom door steps out into the garden', () => {
@@ -384,7 +384,8 @@ describe('doorways', () => {
         expect(spawn.z, `${room}→${to} z`).toBeLessThan(bounds.maxZ + 1e-6)
         // never arrive standing on a mat — that would bounce you straight back
         expect(doorwayAt(to, spawn, true), `${room}→${to} mat`).toBeNull()
-        for (const c of roomColliders(ALL_ITEMS, to)) {
+        // snowmanUp too: even in deepest winter no door drops you into anything
+        for (const c of roomColliders(ALL_ITEMS, to, true)) {
           const overlaps =
             spawn.x > c.minX - PLAYER_RADIUS &&
             spawn.x < c.maxX + PLAYER_RADIUS &&
@@ -394,5 +395,20 @@ describe('doorways', () => {
         }
       }
     }
+  })
+})
+
+describe('the garden snowman', () => {
+  it('is solid only once the first ball is packed', () => {
+    expect(roomColliders([], 'garden').some((c) => c.id === 'snowman')).toBe(false)
+    expect(roomColliders([], 'garden', true).some((c) => c.id === 'snowman')).toBe(true)
+    // and never anywhere but the garden
+    expect(roomColliders([], 'bedroom', true).some((c) => c.id === 'snowman')).toBe(false)
+  })
+
+  it('blocks a stroll straight through it', () => {
+    const lawn = roomColliders([], 'garden', true)
+    const walked = stepPlayer({ x: -2.4, z: 5.3 }, { x: 0, z: -0.7 }, lawn, 0, GARDEN_BOUNDS)
+    expect(walked.z).toBeCloseTo(4.74 + PLAYER_RADIUS, 5)
   })
 })

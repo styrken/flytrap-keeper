@@ -1,7 +1,8 @@
 import { useFrame, useThree } from '@react-three/fiber'
 import { useEffect, useMemo, useRef } from 'react'
-import { type Group, type Mesh, Vector3 } from 'three'
+import { type Group, type InstancedMesh, type Mesh, Object3D, Vector3 } from 'three'
 import { playBoing } from '../audio'
+import { currentWeather, seasonAt, snowmanStage } from '../sim'
 import { useSceneState } from '../sceneView'
 import { useSocial } from '../socialStore'
 import { useGame } from '../store'
@@ -27,10 +28,16 @@ const PANTS = '#6b4f35'
 const SKIN = '#e8c49a'
 const HAIR = '#5f4630'
 const SHOE = '#4c3a28'
+const RAINCOAT = '#e8c94a'
+const BOOT = '#e8b73c'
+const STRAW = '#e3cf8f'
 
 /** The body parts below are authored at ~0.85 units tall; this scales the
  * whole kid up to ~1.36 so the room reads as a room, not a cathedral. */
 const AVATAR_SCALE = 1.6
+
+/** Footprint pool size — roughly four seconds of walking before recycling. */
+const FOOTPRINTS = 26
 
 /** What the follow logic needs from OrbitControls (set via makeDefault). */
 interface FollowControls {
@@ -77,9 +84,29 @@ export function Player() {
   const visitingAt = useSocial((s) => s.visiting?.username ?? null)
   // Displayed decor is solid — the friend's floor lamp blocks you too.
   const items = useSceneState((s) => s.inventory.items)
-  const colliders = useMemo(() => roomColliders(items, room), [items, room])
+  const snowmanUp = useSceneState((s) => snowmanStage(s, s.lastTickAt) > 0)
+  const colliders = useMemo(() => roomColliders(items, room, snowmanUp), [items, room, snowmanUp])
   const bounds = useMemo(() => roomBounds(room), [room])
   const greenhouseOwned = items.includes('greenhouse')
+  // Fresh snow takes footprints — garden lawn only, and only in winter.
+  const winter = useSceneState((s) => seasonAt(s.lastTickAt) === 'winter')
+  const snowUnderfoot = winter && room === 'garden'
+
+  // The keeper dresses for the weather, once the shop has supplied the
+  // wardrobe: raincoat and boots when it pours, the straw hat on bright
+  // spring and summer days. (On a visit this is the friend's wardrobe and
+  // the friend's weather — the avatar belongs to the displayed garden.)
+  const weather = useSceneState((s) => currentWeather(s, s.lastTickAt))
+  const seasonNow = useSceneState((s) => seasonAt(s.lastTickAt))
+  const raining = weather === 'rain'
+  const wearRaincoat = raining && items.includes('raincoat')
+  const wearBoots = raining && items.includes('rain-boots')
+  const wearSunHat =
+    weather === 'sun' &&
+    (seasonNow === 'spring' || seasonNow === 'summer') &&
+    items.includes('sun-hat')
+  const torso = wearRaincoat ? RAINCOAT : SHIRT
+  const feet = wearBoots ? BOOT : SHOE
 
   const root = useRef<Group>(null)
   const shadow = useRef<Mesh>(null)
@@ -97,10 +124,18 @@ export function Player() {
   // Set when walking through a door, so the next room starts just inside it.
   const doorSpawn = useRef<{ x: number; z: number; yaw: number } | null>(null)
 
+  // A small recycled pool of footprints stamped into the snow while walking.
+  const prints = useRef<InstancedMesh>(null)
+  const printsReady = useRef(false)
+  const printIndex = useRef(0)
+  const printSide = useRef(1)
+  const lastPrint = useRef({ x: SPAWN.x, z: SPAWN.z })
+  const printDummy = useMemo(() => new Object3D(), [])
+
   useEffect(() => initPlayerInput(), [])
 
   // Entering a room — through a door, the HUD, or someone else's garden —
-  // puts the keeper at the matching threshold.
+  // puts the keeper at the matching threshold (on untrodden snow, in winter).
   useEffect(() => {
     const spawn = doorSpawn.current ?? roomSpawn(room)
     doorSpawn.current = null
@@ -108,6 +143,8 @@ export function Player() {
     vert.current = { y: 0, vy: 0, grounded: true }
     yaw.current = spawn.yaw
     targetYaw.current = spawn.yaw
+    lastPrint.current = { x: spawn.x, z: spawn.z }
+    printsReady.current = false
   }, [room, visitingAt])
 
   // Priority -2: everything here (movement + the camera-follow shift) lands
@@ -201,6 +238,41 @@ export function Player() {
       shadow.current.scale.setScalar(Math.max(0.55, 1 - (after.y - ground.height) * 0.35))
     }
 
+    // Footprints in the snow: stamped on the lawn every little stride, oldest
+    // recycled first — a short trail that says somebody lives here.
+    const printMesh = prints.current
+    if (printMesh) {
+      if (!printsReady.current) {
+        // Hide the whole pool before its first visible frame.
+        printsReady.current = true
+        printIndex.current = 0
+        printDummy.scale.setScalar(0)
+        printDummy.updateMatrix()
+        for (let i = 0; i < FOOTPRINTS; i++) printMesh.setMatrixAt(i, printDummy.matrix)
+        printDummy.scale.setScalar(1)
+        printMesh.instanceMatrix.needsUpdate = true
+      }
+      if (snowUnderfoot && after.grounded && ground.height === 0) {
+        const dx = pos.current.x - lastPrint.current.x
+        const dz = pos.current.z - lastPrint.current.z
+        if (dx * dx + dz * dz > 0.13) {
+          lastPrint.current = { x: pos.current.x, z: pos.current.z }
+          printSide.current = -printSide.current
+          const side = printSide.current * 0.075
+          printDummy.position.set(
+            pos.current.x + Math.cos(yaw.current) * side,
+            FLOOR_Y + 0.024,
+            pos.current.z - Math.sin(yaw.current) * side,
+          )
+          printDummy.rotation.set(0, yaw.current, 0)
+          printDummy.updateMatrix()
+          printMesh.setMatrixAt(printIndex.current % FOOTPRINTS, printDummy.matrix)
+          printIndex.current += 1
+          printMesh.instanceMatrix.needsUpdate = true
+        }
+      }
+    }
+
     if (DEBUG) {
       ;(window as unknown as { __keeper?: object }).__keeper = {
         x: pos.current.x,
@@ -232,13 +304,24 @@ export function Player() {
         <meshBasicMaterial color="#3a2d21" transparent opacity={0.16} />
       </mesh>
 
+      {/* footprints in the snow (garden, winter) — a recycled little trail */}
+      <instancedMesh
+        ref={prints}
+        args={[undefined, undefined, FOOTPRINTS]}
+        visible={snowUnderfoot}
+        frustumCulled={false}
+      >
+        <boxGeometry args={[0.085, 0.008, 0.15]} />
+        <meshStandardMaterial color="#c3d0da" />
+      </instancedMesh>
+
       <group
         ref={root}
         position={[SPAWN.x, FLOOR_Y, SPAWN.z]}
         rotation-y={SPAWN.yaw}
         scale={AVATAR_SCALE}
       >
-        {/* legs (pivot at the hip) */}
+        {/* legs (pivot at the hip) — yellow wellies in the rain */}
         <group ref={legL} position={[-0.062, 0.3, 0]}>
           <mesh position={[0, -0.15, 0]}>
             <boxGeometry args={[0.095, 0.3, 0.11]} />
@@ -246,8 +329,14 @@ export function Player() {
           </mesh>
           <mesh position={[0, -0.27, 0.025]}>
             <boxGeometry args={[0.1, 0.06, 0.16]} />
-            <meshStandardMaterial color={SHOE} />
+            <meshStandardMaterial color={feet} />
           </mesh>
+          {wearBoots && (
+            <mesh position={[0, -0.21, 0]}>
+              <boxGeometry args={[0.105, 0.09, 0.12]} />
+              <meshStandardMaterial color={BOOT} />
+            </mesh>
+          )}
         </group>
         <group ref={legR} position={[0.062, 0.3, 0]}>
           <mesh position={[0, -0.15, 0]}>
@@ -256,43 +345,58 @@ export function Player() {
           </mesh>
           <mesh position={[0, -0.27, 0.025]}>
             <boxGeometry args={[0.1, 0.06, 0.16]} />
-            <meshStandardMaterial color={SHOE} />
+            <meshStandardMaterial color={feet} />
           </mesh>
+          {wearBoots && (
+            <mesh position={[0, -0.21, 0]}>
+              <boxGeometry args={[0.105, 0.09, 0.12]} />
+              <meshStandardMaterial color={BOOT} />
+            </mesh>
+          )}
         </group>
 
-        {/* torso with a little flytrap badge */}
+        {/* torso with a little flytrap badge (the raincoat hides it) */}
         <mesh position={[0, 0.45, 0]}>
           <boxGeometry args={[0.26, 0.3, 0.15]} />
-          <meshStandardMaterial color={SHIRT} />
+          <meshStandardMaterial color={torso} />
         </mesh>
-        <mesh position={[0.055, 0.49, 0.078]}>
-          <boxGeometry args={[0.07, 0.06, 0.012]} />
-          <meshStandardMaterial color={palette.trap} />
-        </mesh>
+        {!wearRaincoat && (
+          <mesh position={[0.055, 0.49, 0.078]}>
+            <boxGeometry args={[0.07, 0.06, 0.012]} />
+            <meshStandardMaterial color={palette.trap} />
+          </mesh>
+        )}
+        {wearRaincoat && (
+          <mesh position={[0, 0.34, 0]}>
+            <boxGeometry args={[0.28, 0.09, 0.17]} />
+            <meshStandardMaterial color={RAINCOAT} />
+          </mesh>
+        )}
 
         {/* arms (pivot at the shoulder): short sleeves, bare forearms */}
         <group ref={armL} position={[-0.168, 0.575, 0]} rotation-z={0.08}>
           <mesh position={[0, -0.05, 0]}>
             <boxGeometry args={[0.078, 0.11, 0.098]} />
-            <meshStandardMaterial color={SHIRT} />
+            <meshStandardMaterial color={torso} />
           </mesh>
           <mesh position={[0, -0.175, 0]}>
             <boxGeometry args={[0.06, 0.16, 0.075]} />
-            <meshStandardMaterial color={SKIN} />
+            <meshStandardMaterial color={wearRaincoat ? RAINCOAT : SKIN} />
           </mesh>
         </group>
         <group ref={armR} position={[0.168, 0.575, 0]} rotation-z={-0.08}>
           <mesh position={[0, -0.05, 0]}>
             <boxGeometry args={[0.078, 0.11, 0.098]} />
-            <meshStandardMaterial color={SHIRT} />
+            <meshStandardMaterial color={torso} />
           </mesh>
           <mesh position={[0, -0.175, 0]}>
             <boxGeometry args={[0.06, 0.16, 0.075]} />
-            <meshStandardMaterial color={SKIN} />
+            <meshStandardMaterial color={wearRaincoat ? RAINCOAT : SKIN} />
           </mesh>
         </group>
 
-        {/* head: face forward (+z), hair in the back, green keeper's cap on top */}
+        {/* head: face forward (+z), hair in the back — and on top the green
+            keeper's cap, the raincoat's hood, or the summer straw hat */}
         <group position={[0, 0.7, 0]}>
           <mesh>
             <boxGeometry args={[0.21, 0.2, 0.19]} />
@@ -310,14 +414,46 @@ export function Player() {
             <boxGeometry args={[0.22, 0.18, 0.11]} />
             <meshStandardMaterial color={HAIR} />
           </mesh>
-          <mesh position={[0, 0.115, 0]}>
-            <boxGeometry args={[0.23, 0.07, 0.21]} />
-            <meshStandardMaterial color={palette.trap} />
-          </mesh>
-          <mesh position={[0, 0.1, 0.13]}>
-            <boxGeometry args={[0.19, 0.03, 0.1]} />
-            <meshStandardMaterial color={palette.trap} />
-          </mesh>
+          {!wearRaincoat && !wearSunHat && (
+            <>
+              <mesh position={[0, 0.115, 0]}>
+                <boxGeometry args={[0.23, 0.07, 0.21]} />
+                <meshStandardMaterial color={palette.trap} />
+              </mesh>
+              <mesh position={[0, 0.1, 0.13]}>
+                <boxGeometry args={[0.19, 0.03, 0.1]} />
+                <meshStandardMaterial color={palette.trap} />
+              </mesh>
+            </>
+          )}
+          {wearRaincoat && (
+            <>
+              <mesh position={[0, 0.1, -0.02]}>
+                <boxGeometry args={[0.24, 0.1, 0.23]} />
+                <meshStandardMaterial color={RAINCOAT} />
+              </mesh>
+              <mesh position={[0, -0.01, -0.11]}>
+                <boxGeometry args={[0.24, 0.18, 0.05]} />
+                <meshStandardMaterial color={RAINCOAT} />
+              </mesh>
+            </>
+          )}
+          {wearSunHat && (
+            <>
+              <mesh position={[0, 0.1, 0]}>
+                <boxGeometry args={[0.34, 0.03, 0.32]} />
+                <meshStandardMaterial color={STRAW} />
+              </mesh>
+              <mesh position={[0, 0.15, 0]}>
+                <boxGeometry args={[0.2, 0.09, 0.19]} />
+                <meshStandardMaterial color={STRAW} />
+              </mesh>
+              <mesh position={[0, 0.13, 0]}>
+                <boxGeometry args={[0.21, 0.025, 0.2]} />
+                <meshStandardMaterial color="#cb4a4a" />
+              </mesh>
+            </>
+          )}
         </group>
       </group>
     </>

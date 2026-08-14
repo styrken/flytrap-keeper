@@ -43,6 +43,9 @@ export function createPlant(
     dormant: false,
     dead: false,
     criticalSince: null,
+    plantedAt: now,
+    birthdays: 0,
+    lastCuttingAt: null,
     journal: [{ at: now, kind: 'planted' }],
   }
 }
@@ -59,7 +62,7 @@ export function createInitialState(now: number, seed: number): GameState {
     activePlantId: plant.id,
     inventory: { dewdrops: 0, items: [], packs: { fly: 0, mosquito: 0, moth: 0, spider: 0 } },
     weather: { rainBarrel: SIM.BARREL_INITIAL },
-    minigames: { lastRaindropAt: null, lastWishAt: null },
+    minigames: { lastRaindropAt: null, lastWishAt: null, lastRainbowAt: null, lastAppleAt: null },
     quests: {
       ...drawQuests(seed >>> 0, now, [plant]),
       ...drawWeeklyQuests(seed >>> 0, now, [plant]),
@@ -67,8 +70,24 @@ export function createInitialState(now: number, seed: number): GameState {
     arcade: { best: 0, day: '', paidToday: 0 },
     luck: {
       day: '',
-      paid: { raindrop: 0, star: 0, snail: 0, ladybird: 0, robin: 0, butterfly: 0, hedgehog: 0 },
+      paid: {
+        raindrop: 0,
+        star: 0,
+        snail: 0,
+        ladybird: 0,
+        robin: 0,
+        butterfly: 0,
+        hedgehog: 0,
+        apple: 0,
+        rainbow: 0,
+        dragonfly: 0,
+      },
     },
+    snowman: null,
+    mail: { lastDay: null },
+    volunteerYear: null,
+    advent: null,
+    redeemedGifts: [],
     pets: {
       tadpoleSince: null,
       cat: false,
@@ -81,6 +100,7 @@ export function createInitialState(now: number, seed: number): GameState {
       lastRobinAt: null,
       lastButterflyAt: null,
       lastHedgehogAt: null,
+      lastDragonflyAt: null,
     },
     settings: { sound: true, music: true, locale: '', hardMode: false },
     careStreak: { days: 0, lastDay: null },

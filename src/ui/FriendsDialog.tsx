@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { SHOP_ITEMS, type ShopItemId, decodeSeedGift, encodeSeedGift, plantCapacity } from '../sim'
 import { MAX_MESSAGE_LENGTH } from '../social'
 import { useSocial } from '../socialStore'
 import { useGame } from '../store'
@@ -237,9 +238,12 @@ function ChatView() {
   const pollChat = useSocial((s) => s.pollChat)
   const sendMessage = useSocial((s) => s.sendMessage)
   const startVisit = useSocial((s) => s.startVisit)
+  const dispatchGame = useGame((s) => s.dispatch)
+  const dewdrops = useGame((s) => s.state.inventory.dewdrops)
   const [draft, setDraft] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
+  const [showGifts, setShowGifts] = useState(false)
   const scroller = useRef<HTMLDivElement>(null)
 
   // Keep the thread fresh while it is open.
@@ -268,6 +272,24 @@ function ChatView() {
     })
   }
 
+  // A gift is an ordinary message wearing a bow: send the tagged body first,
+  // then let the sim pay for the seed — the picker only offers what the
+  // dewdrop count can afford, so the payment guard is a formality.
+  const sendGift = (item: ShopItemId) => {
+    if (busy) return
+    setBusy(true)
+    setError(null)
+    void sendMessage(encodeSeedGift(item)).then((err) => {
+      setBusy(false)
+      if (err) {
+        setError(err)
+        return
+      }
+      dispatchGame({ type: 'giftSeed', item })
+      setShowGifts(false)
+    })
+  }
+
   const timeOf = (at: number) =>
     new Intl.DateTimeFormat(i18n.language, { hour: '2-digit', minute: '2-digit' }).format(at)
 
@@ -283,17 +305,51 @@ function ChatView() {
       </div>
       <div className="chat-messages" ref={scroller}>
         {messages.length === 0 && <p className="muted">{t('friends.noMessages')}</p>}
-        {messages.map((message) => (
-          <div key={message.id} className={`chat-bubble${message.fromMe ? ' mine' : ''}`}>
-            {message.body}
-            <span className="chat-time">{timeOf(message.at)}</span>
-          </div>
-        ))}
+        {messages.map((message) => {
+          const gift = decodeSeedGift(message.body)
+          return (
+            <div
+              key={message.id}
+              className={`chat-bubble${message.fromMe ? ' mine' : ''}${gift ? ' gift' : ''}`}
+            >
+              {gift ? (
+                <GiftContent messageId={message.id} item={gift} fromMe={message.fromMe} />
+              ) : (
+                message.body
+              )}
+              <span className="chat-time">{timeOf(message.at)}</span>
+            </div>
+          )
+        })}
       </div>
       {error && (
         <p className="error">{t(`friends.errors.${error}`, t('friends.errors.unknown'))}</p>
       )}
+      {showGifts && (
+        <div className="gift-picker">
+          <p className="muted">{t('gift.pick', { name: chatWith })}</p>
+          {SHOP_ITEMS.filter((item) => item.kind === 'seed').map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              disabled={busy || dewdrops < item.cost}
+              onClick={() => sendGift(item.id)}
+            >
+              🌱 {t(`shop.items.${item.id}.name`)} · {item.cost} 🫧
+            </button>
+          ))}
+        </div>
+      )}
       <div className="dialog-row chat-input-row">
+        <button
+          type="button"
+          className="icon-btn"
+          aria-label={t('gift.send')}
+          title={t('gift.send')}
+          onClick={() => setShowGifts((open) => !open)}
+        >
+          🎁
+        </button>
         <input
           value={draft}
           placeholder={t('friends.chatPlaceholder')}
@@ -308,5 +364,45 @@ function ChatView() {
         </button>
       </div>
     </section>
+  )
+}
+
+/**
+ * A seed gift inside a chat bubble. Outbound it is a receipt; inbound it
+ * carries the "plant it" button, which the recipient's own sim honours once
+ * per message — and politely holds while every pot is taken.
+ */
+function GiftContent({
+  messageId,
+  item,
+  fromMe,
+}: {
+  messageId: string
+  item: ShopItemId
+  fromMe: boolean
+}) {
+  const { t } = useTranslation()
+  const dispatch = useGame((s) => s.dispatch)
+  const redeemed = useGame((s) => s.state.redeemedGifts.includes(messageId))
+  const hasRoom = useGame((s) => s.state.plants.length < plantCapacity(s.state))
+  const name = t(`shop.items.${item}.name`)
+  if (fromMe) return <span>{t('gift.sent', { item: name })}</span>
+  return (
+    <span className="gift-content">
+      <span>{t('gift.received', { item: name })}</span>
+      {redeemed ? (
+        <span className="gift-planted">{t('gift.planted')}</span>
+      ) : (
+        <button
+          type="button"
+          className="primary"
+          disabled={!hasRoom}
+          title={hasRoom ? undefined : t('gift.noRoom')}
+          onClick={() => dispatch({ type: 'redeemSeedGift', messageId, item })}
+        >
+          {t('gift.plant')}
+        </button>
+      )}
+    </span>
   )
 }

@@ -1,7 +1,8 @@
+import { birthdaysPassed } from './birthday'
 import type { GameState } from './types'
 
 export const SAVE_KEY = 'flytrap-keeper:save'
-export const SAVE_VERSION = 18
+export const SAVE_VERSION = 20
 
 type RawSave = Record<string, unknown>
 type Migration = (data: RawSave) => RawSave
@@ -168,6 +169,50 @@ const MIGRATIONS: Record<number, Migration> = {
       paid: { raindrop: 0, star: 0, snail: 0, ladybird: 0, robin: 0, butterfly: 0, hedgehog: 0 },
     },
   }),
+  // v18 -> v19: winter snow and plant birthdays. The snowman slot starts
+  // empty, and each plant learns its planting date from its diary's first
+  // page — the closest thing to a birth certificate an old save has. Already
+  // passed anniversaries count as celebrated: no retroactive parties, the
+  // next one arrives soon enough.
+  18: (data) => {
+    const base = typeof data.lastTickAt === 'number' ? data.lastTickAt : 0
+    return {
+      ...data,
+      snowman: null,
+      plants: ((Array.isArray(data.plants) ? data.plants : []) as RawSave[]).map((plant) => {
+        const journal = (Array.isArray(plant.journal) ? plant.journal : []) as RawSave[]
+        const first = journal.find((entry) => entry.kind === 'planted') ?? journal[0]
+        const plantedAt = typeof first?.at === 'number' ? first.at : base
+        return { ...plant, plantedAt, birthdays: birthdaysPassed(plantedAt, base) }
+      }),
+    }
+  },
+  // v19 -> v20: the rest of the brainstorm — rainbows, apples, puddles, post,
+  // the volunteer seedling, the pond dragonfly, cuttings, seed gifts and the
+  // advent calendar. Everything starts untouched: empty letterbox history,
+  // full luck jars for the newcomers, no doors opened, nothing redeemed.
+  19: (data) => {
+    const minigames = (data.minigames ?? {}) as RawSave
+    const pets = (data.pets ?? {}) as RawSave
+    const luck = (data.luck ?? { day: '', paid: {} }) as RawSave
+    return {
+      ...data,
+      minigames: { ...minigames, lastRainbowAt: null, lastAppleAt: null },
+      pets: { ...pets, lastDragonflyAt: null },
+      luck: {
+        ...luck,
+        paid: { ...(luck.paid as RawSave), apple: 0, rainbow: 0, dragonfly: 0 },
+      },
+      mail: { lastDay: null },
+      volunteerYear: null,
+      advent: null,
+      redeemedGifts: [],
+      plants: ((Array.isArray(data.plants) ? data.plants : []) as RawSave[]).map((plant) => ({
+        ...plant,
+        lastCuttingAt: null,
+      })),
+    }
+  },
 }
 
 export function saveToString(state: GameState): string {

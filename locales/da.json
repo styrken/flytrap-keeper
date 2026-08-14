@@ -54,7 +54,18 @@
   "weather": {
     "sun": "Solskin",
     "clouds": "Overskyet",
-    "rain": "Regn"
+    "rain": "Regn",
+    "snow": "Snevejr",
+    "windy": "Blæsende"
+  },
+  "forecast": {
+    "title": "Vejrudsigten",
+    "jingle": "🎵 Du lytter til Radio Fluefanger — her er vejret til din vindueskarm…",
+    "now": "Lige nu",
+    "nextRain": "Næste regn til tønden: {{time}}",
+    "nextSnow": "Næste sne til tønden: {{time}}",
+    "rainingNow": "Det siler ned lige nu — tønden nyder det.",
+    "noRain": "Ingen regn de næste par dage — få tønden til at række!"
   },
   "season": {
     "spring": "Forår",
@@ -106,6 +117,8 @@
     "removePlant": "Ryd potten",
     "letCatIn": "Luk den ind",
     "letSpiderStay": "Lad den blive",
+    "takeCutting": "Tag en stikling",
+    "takeCuttingHint": "Klip et stiklingeblad af den frodige plante — det slår rod som en lille gratis klon.",
     "release": {
       "fly": "Slip fluer fri",
       "mosquito": "Slip myg fri",
@@ -136,6 +149,9 @@
     "trapDigesting": "{{name}} fordøjer — fælden åbner igen om {{time}}",
     "fullFed": "{{name}} er mæt — kan fodres igen om {{time}}",
     "rainFilling": "Det regner — tønden fyldes op",
+    "snowFilling": "Det sner — smeltende fnug siver ned i tønden",
+    "birthday": "{{name}} fylder {{age}} i dag! +{{n}} dugdråber",
+    "snowmanDone": "Snemanden er færdig! +{{n}} dugdråber",
     "growingEta": "{{stage}} om ca. {{time}} med denne pasning",
     "weed": "Der spirer ukrudt i {{name}}s potte — hiv det op!",
     "dailyBonus": "Daglig pasningsbonus: +5 dugdråber",
@@ -221,6 +237,22 @@
       "trampoline": {
         "name": "Havetrampolin",
         "desc": "En stor trampolin til plænen. Hop op på den, og tim dine hop i landingen — så går det højere og højere!"
+      },
+      "pond": {
+        "name": "Havedam",
+        "desc": "Et stille vandspejl til plænen: stenkant, dunhammere, en åkande — og hver sommer flytter en guldsmed ind."
+      },
+      "sun-hat": {
+        "name": "Stråhat",
+        "desc": "Til lyse forårs- og sommerdage. Passeren tager den på, når solen skinner."
+      },
+      "raincoat": {
+        "name": "Gul regnjakke",
+        "desc": "Passeren tager den på, når det siler ned. Selvfølgelig med hætte."
+      },
+      "rain-boots": {
+        "name": "Gummistøvler",
+        "desc": "Rigtigt vandpyt-fodtøj. Passeren har dem på i regnvejr — og pludselig er pythop ikke bare muligt, men nødvendigt."
       },
       "rug": {
         "name": "Hyggeligt tæppe",
@@ -332,7 +364,18 @@
     "evening-snuffler": "Aftensnuseren",
     "full-house": "Fuldt hus",
     "full-collection": "Fuld samling",
-    "high-score": "Highscore!"
+    "high-score": "Highscore!",
+    "snowman": "En rigtig cool ven",
+    "birthday-party": "Fødselsdagsfest!",
+    "rainbow-wish": "Over regnbuen",
+    "apple-picker": "Et æble om dagen",
+    "puddle-jumper": "Pythopperen",
+    "pen-pal": "Pennevennen",
+    "volunteer": "Blæst ind med vinden",
+    "sky-dancer": "Himmeldanseren",
+    "propagator": "Et skud af gammel stamme",
+    "gift-sent": "Bedre at give",
+    "advent-star": "Decemberpasseren"
   },
   "onboarding": {
     "welcome1": "Flytrap Keeper er et roligt pasningsspil i realtid. Din kødædende plante lever videre, mens du er væk — kig forbi et par gange om dagen, pas den, og se den vokse fra spire til blomst.",
@@ -367,7 +410,63 @@
     "wake": "Vågnede — hej igen, verden ☀️",
     "repot": "Flyttede i ny potte 🪴",
     "dressed": "Blev fint pyntet ✨",
+    "birthday": "Fyldte {{age}} i dag — tillykke med fødselsdagen! 🎂",
+    "cutting": "Donerede et stiklingeblad — et sted slår en lille klon rod 🌱",
     "died": "Enden på et lille liv 🪦"
+  },
+  "mail": {
+    "title": "Post",
+    "collected": "Der lå {{n}} 🫧 i kuverten",
+    "letters": {
+      "0": {
+        "from": "Fra tante Soldug 🌱",
+        "text": "Mine soldugge fangede tre myg i denne uge uden at løfte et blad. Ubesværet, min ven. Hvordan har din vindueskarm det?"
+      },
+      "1": {
+        "from": "Fra onkel Kandebærer 🏺",
+        "text": "Hilsner fra junglehjørnet! Husk: en kandebærer vil hellere have dis end pylren. Varmt og fugtigt — det er hele hemmeligheden."
+      },
+      "2": {
+        "from": "Fra bedstefar Trompetkande 🎺",
+        "text": "I mine unge dage stod trompeter i FULD sol hele sommeren og sov hele vinteren. Det burde de stadig. Ret ryggen derude!"
+      },
+      "3": {
+        "from": "Fra Frøklubben ✉️",
+        "text": "Kære medlem: sæsonens tip er regnvand, regnvand, regnvand. Det var hele nyhedsbrevet. På gensyn."
+      },
+      "4": {
+        "from": "Fra kusine Vibefedt 💜",
+        "text": "Jeg har siddet på kalksten hele måneden og har det vidunderligt. Postevand? Rører mig ikke det mindste. Kys til samlingen!"
+      },
+      "5": {
+        "from": "Fra Haveselskabet 🏡",
+        "text": "Din plæne er nomineret til Årets Hyggeligste Hjørne. Dommerpanelet består af tre snegle og et pindsvin."
+      },
+      "6": {
+        "from": "Fra tante Soldug 🌱",
+        "text": "Hvad du end gør: overfodr ikke fælderne. En plante med fotosyntese sulter aldrig rigtigt — insekter er dessert, ikke aftensmad."
+      },
+      "7": {
+        "from": "Fra postbuddet 📯",
+        "text": "Intet rigtigt brev i dag, men kassen så ensom ud, så her er en hilsen. Bliv ved med at vande! — P."
+      }
+    }
+  },
+  "advent": {
+    "title": "Julekalender",
+    "hint": "En låge om dagen hele december — og glemte låger venter pænt. At indhente er halvdelen af traditionen. 🎄",
+    "day": "Låge {{day}}",
+    "locked": "Ikke endnu!",
+    "done": "Alle fireogtyve! Sikke en december — +{{n}} bonus"
+  },
+  "gift": {
+    "send": "Send en frøgave",
+    "pick": "Vælg frø til {{name}}:",
+    "sent": "🎁 Du sendte {{item}}",
+    "received": "🎁 En gave: {{item}}!",
+    "plant": "Plant det 🌱",
+    "planted": "Plantet 💚",
+    "noRoom": "Ingen ledige potter lige nu — gaven venter."
   },
   "arcade": {
     "title": "SNAP!",

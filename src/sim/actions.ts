@@ -1,19 +1,22 @@
 import { type AchievementId, award } from './achievements'
+import { adventDayAt, adventGift, adventOpened } from './advent'
 import { SIM } from './config'
+import { hasMailWaiting, isRainbowSpell, puddlesAbout, volunteerAbout } from './garden'
+import { REDEEMED_GIFTS_MAX } from './gifts'
 import { INSECTS, isFireflyNight } from './insects'
 import { remember, remembers } from './journal'
 import { progressQuest, progressWeekly } from './quests'
-import { seasonAt } from './season'
+import { seasonAt, winterKeyAt } from './season'
 import { currentWeather } from './weather'
 import { catAtWindow, hasFullHouse, spiderAtCorner, webLootReady } from './pets'
 import { seasonAt as seasonOf } from './season'
-import { canMoveTo, isTrapReady } from './selectors'
+import { canMoveTo, canTakeCutting, isTrapReady, snowmanStage } from './selectors'
 import { MAX_PLANTS, hasGreenhouse, plantCapacity, shopItem, sillPlantCount } from './shop'
 import { CULTIVARS, SPECIES } from './species'
 import { createPlant } from './state'
 import { tick } from './tick'
 import { TIME_SCALES, toGameTime, withTimeScale } from './time'
-import type { Action, GameState, LuckSourceId, PlantState } from './types'
+import type { Action, CultivarId, GameState, LuckSourceId, PlantState, SpeciesId } from './types'
 import { clamp, dayKey, HOUR_MS } from './util'
 
 /**
@@ -78,6 +81,122 @@ function applyAction(s: GameState, action: Action, now: number, realNow: number)
         minigames: { ...s.minigames, lastWishAt: now },
       }
       return award(payLuck(wished, now, 'star', SIM.STAR_WISH_DEWDROPS), 'first-wish')
+    }
+    case 'wishOnRainbow': {
+      // Only while the sky is actually showing off; the repeat window folds
+      // a tap-burst on one rainbow into a single wish, the jar does the rest.
+      if (!isRainbowSpell(s.rngSeed, now)) return s
+      const last = s.minigames.lastRainbowAt
+      if (last !== null && now - last < SIM.RAINBOW_REPEAT_SECONDS * 1000) return s
+      const wished: GameState = {
+        ...s,
+        minigames: { ...s.minigames, lastRainbowAt: now },
+      }
+      return award(payLuck(wished, now, 'rainbow', SIM.RAINBOW_WISH_DEWDROPS), 'rainbow-wish')
+    }
+    case 'pickApple': {
+      // Autumn's apple tree. The visible apples ARE the day's luck jar, so an
+      // empty tree simply has nothing left to tap until midnight regrows it.
+      if (seasonOf(now) !== 'autumn') return s
+      const last = s.minigames.lastAppleAt
+      if (last !== null && now - last < SIM.APPLE_REPEAT_SECONDS * 1000) return s
+      const picked: GameState = {
+        ...s,
+        minigames: { ...s.minigames, lastAppleAt: now },
+      }
+      return award(payLuck(picked, now, 'apple', SIM.APPLE_DEWDROPS), 'apple-picker')
+    }
+    case 'stompPuddle': {
+      // Splashing takes boots (the shop sells them) and an actual puddle.
+      // Pure joy, no payout — the badge is the trophy.
+      if (!s.inventory.items.includes('rain-boots')) return s
+      if (!puddlesAbout(s.rngSeed, now)) return s
+      return award(s, 'puddle-jumper')
+    }
+    case 'collectMail': {
+      // One envelope per delivery day; collecting pays the enclosed treat.
+      if (!hasMailWaiting(s, now)) return s
+      return award(
+        {
+          ...s,
+          mail: { lastDay: dayKey(now) },
+          inventory: { ...s.inventory, dewdrops: s.inventory.dewdrops + SIM.MAIL_DEWDROPS },
+        },
+        'pen-pal',
+      )
+    }
+    case 'claimVolunteer': {
+      // Pot up the windblown seedling and pass it on to a fellow collector —
+      // one volunteer per autumn, which is all a flower box can manage.
+      if (!volunteerAbout(s, now)) return s
+      return award(
+        {
+          ...s,
+          volunteerYear: new Date(now).getUTCFullYear(),
+          inventory: { ...s.inventory, dewdrops: s.inventory.dewdrops + SIM.VOLUNTEER_DEWDROPS },
+        },
+        'volunteer',
+      )
+    }
+    case 'greetDragonfly': {
+      // Summer's fast little jewel — it only hunts over the bought pond.
+      if (!s.inventory.items.includes('pond') || seasonOf(now) !== 'summer') return s
+      return greetGuest(
+        s,
+        now,
+        'lastDragonflyAt',
+        'dragonfly',
+        'sky-dancer',
+        SIM.DRAGONFLY_DEWDROPS,
+      )
+    }
+    case 'takeCutting': {
+      // Propagation, the real keeper's trick: a thriving grown plant donates
+      // a leaf pulling that roots into a free clone — cultivar included.
+      if (!canTakeCutting(s, plant, now)) return s
+      const rested = withPlant(s, remember({ ...plant, lastCuttingAt: now }, 'cutting', now))
+      const potted = plantSeed(rested, plant.speciesId, plant.cultivar, now, 0)
+      if (!potted) return s
+      return bumpCareStreak(award(potted, 'propagator'), now)
+    }
+    case 'giftSeed': {
+      // Pay for the seed that rides along in chat. The server never knows it
+      // carried a present — both ends' sims keep the books.
+      const item = shopItem(action.item)
+      if (!item || item.kind !== 'seed' || s.inventory.dewdrops < item.cost) return s
+      return award(
+        { ...s, inventory: { ...s.inventory, dewdrops: s.inventory.dewdrops - item.cost } },
+        'gift-sent',
+      )
+    }
+    case 'redeemSeedGift': {
+      // Plant a gifted seed — once per message, capacity permitting.
+      const item = shopItem(action.item)
+      if (!item || item.kind !== 'seed' || !item.speciesId) return s
+      if (!action.messageId || s.redeemedGifts.includes(action.messageId)) return s
+      const potted = plantSeed(s, item.speciesId, item.cultivarId ?? null, now, 0)
+      if (!potted) return s
+      return {
+        ...potted,
+        redeemedGifts: [...potted.redeemedGifts, action.messageId].slice(-REDEEMED_GIFTS_MAX),
+      }
+    }
+    case 'openAdventDoor': {
+      // December's ritual: today's door, or a missed one — catching up is
+      // half the tradition. Each opens once and pays its little something.
+      const day = Math.floor(action.day)
+      const latest = adventDayAt(now)
+      if (latest === 0 || day < 1 || day > latest) return s
+      const opened = adventOpened(s, now)
+      if (opened.includes(day)) return s
+      const doors = [...opened, day]
+      let next: GameState = {
+        ...s,
+        advent: { year: new Date(now).getUTCFullYear(), opened: doors },
+        inventory: { ...s.inventory, dewdrops: s.inventory.dewdrops + adventGift(day) },
+      }
+      if (doors.length >= 24) next = award(next, 'advent-star')
+      return next
     }
     case 'markFireflies': {
       // View says "the player is watching fireflies" — verify the calendar agrees.
@@ -152,6 +271,29 @@ function applyAction(s: GameState, action: Action, now: number, realNow: number)
         inventory: { ...s.inventory, dewdrops: s.inventory.dewdrops + pay },
       }
       if (score >= SIM.ARCADE_HIGHSCORE_AT) next = award(next, 'high-score')
+      return next
+    }
+    case 'buildSnowman': {
+      // Only while there is snow on the lawn — and each winter builds its own
+      // snowman from scratch (last year's melted, as snowmen do). Three taps
+      // of packed snow; the little payout comes when the head goes on.
+      if (seasonOf(now) !== 'winter') return s
+      const stage = snowmanStage(s, now)
+      if (stage >= SIM.SNOWMAN_STAGES) return s
+      const built = stage + 1
+      let next: GameState = { ...s, snowman: { stage: built, winter: winterKeyAt(now) } }
+      if (built >= SIM.SNOWMAN_STAGES) {
+        next = award(
+          {
+            ...next,
+            inventory: {
+              ...next.inventory,
+              dewdrops: next.inventory.dewdrops + SIM.SNOWMAN_DEWDROPS,
+            },
+          },
+          'snowman',
+        )
+      }
       return next
     }
     case 'releasePack': {
@@ -348,24 +490,8 @@ function applyAction(s: GameState, action: Action, now: number, realNow: number)
         }
       }
       if (item.kind === 'seed') {
-        if (s.plants.length >= plantCapacity(s) || !item.speciesId) return s
-        const id = `p${s.plants.map((p) => p.id).reduce((max, pid) => Math.max(max, Number(pid.slice(1)) || 0), 0) + 1}`
-        const sprout = createPlant(id, item.speciesId, now, item.cultivarId ?? null)
-        // A full sill sends the new sprout straight to the greenhouse bench.
-        if (sillPlantCount(s) >= MAX_PLANTS) sprout.placement = 'greenhouse'
-        let next: GameState = {
-          ...s,
-          plants: [...s.plants, sprout],
-          activePlantId: sprout.id,
-          inventory: { ...s.inventory, dewdrops: s.inventory.dewdrops - item.cost },
-        }
-        const grown = new Set(next.plants.map((p) => p.cultivar))
-        if (CULTIVARS.every((c) => grown.has(c))) next = award(next, 'cultivar-collector')
-        const speciesOwned = new Set(next.plants.map((p) => p.speciesId))
-        if (speciesOwned.size >= Object.keys(SPECIES).length) {
-          next = award(next, 'full-collection')
-        }
-        return next
+        if (!item.speciesId) return s
+        return plantSeed(s, item.speciesId, item.cultivarId ?? null, now, item.cost) ?? s
       }
       if (item.kind === 'unlock' || item.kind === 'deco') {
         if (s.inventory.items.includes(item.id)) return s
@@ -479,6 +605,39 @@ const activeOf = (s: GameState): PlantState | undefined =>
 
 const unavailable = (plant: PlantState) => plant.dead || plant.dormant
 
+/**
+ * Put a new plant in a pot — the shared end of buying a seed, planting a
+ * gifted one, and potting a leaf pulling (cost 0 for the free paths). Null
+ * when every pot is taken; collection achievements are checked either way
+ * the newcomer arrived.
+ */
+function plantSeed(
+  s: GameState,
+  speciesId: SpeciesId,
+  cultivarId: CultivarId | null,
+  now: number,
+  cost: number,
+): GameState | null {
+  if (s.plants.length >= plantCapacity(s)) return null
+  const id = `p${s.plants.map((p) => p.id).reduce((max, pid) => Math.max(max, Number(pid.slice(1)) || 0), 0) + 1}`
+  const sprout = createPlant(id, speciesId, now, cultivarId)
+  // A full sill sends the new sprout straight to the greenhouse bench.
+  if (sillPlantCount(s) >= MAX_PLANTS) sprout.placement = 'greenhouse'
+  let next: GameState = {
+    ...s,
+    plants: [...s.plants, sprout],
+    activePlantId: sprout.id,
+    inventory: { ...s.inventory, dewdrops: s.inventory.dewdrops - cost },
+  }
+  const grown = new Set(next.plants.map((p) => p.cultivar))
+  if (CULTIVARS.every((c) => grown.has(c))) next = award(next, 'cultivar-collector')
+  const speciesOwned = new Set(next.plants.map((p) => p.speciesId))
+  if (speciesOwned.size >= Object.keys(SPECIES).length) {
+    next = award(next, 'full-collection')
+  }
+  return next
+}
+
 function spendTrapUse(plant: PlantState, trapId: string, now: number, digestFactor: number) {
   return plant.traps.map((trap) =>
     trap.id === trapId
@@ -500,9 +659,10 @@ function spendTrapUse(plant: PlantState, trapId: string, now: number, digestFact
 function greetGuest(
   s: GameState,
   now: number,
-  field: 'lastRobinAt' | 'lastButterflyAt' | 'lastHedgehogAt',
+  field: 'lastRobinAt' | 'lastButterflyAt' | 'lastHedgehogAt' | 'lastDragonflyAt',
   source: LuckSourceId,
   achievement: AchievementId,
+  amount: number = SIM.GUEST_DEWDROPS,
 ): GameState {
   const last = s.pets[field]
   if (last !== null && now - last < SIM.GUEST_REPEAT_SECONDS * 1000) return s
@@ -510,7 +670,7 @@ function greetGuest(
     { ...s, pets: { ...s.pets, [field]: now } },
     now,
     source,
-    SIM.GUEST_DEWDROPS,
+    amount,
   )
   return progressWeekly(award(greeted, achievement), 'greetWeek')
 }
@@ -531,6 +691,9 @@ const EMPTY_LUCK: Record<LuckSourceId, number> = {
   robin: 0,
   butterfly: 0,
   hedgehog: 0,
+  apple: 0,
+  rainbow: 0,
+  dragonfly: 0,
 }
 
 /**

@@ -1,9 +1,9 @@
 import { Html } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
-import { useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import type { Group } from 'three'
 import { playCatch, playPet } from '../audio'
-import { type PlantState, hasWeed } from '../sim'
+import { type PlantState, hasWeed, isBirthdayToday } from '../sim'
 import { useIsVisiting, useRewardDispatch, useSceneDispatch, useSceneState } from '../sceneView'
 import { useGame } from '../store'
 import { PlantKit } from './kits'
@@ -27,6 +27,7 @@ export function PlantPot({ plant, slot }: { plant: PlantState; slot: number }) {
   const [label, setLabel] = useState<string | null>(null)
   const labelTimer = useRef(0)
   const weed = hasWeed(plant, now)
+  const birthday = isBirthdayToday(plant, now) && !plant.dead
 
   const popLabel = (text: string) => {
     setLabel(text)
@@ -132,12 +133,64 @@ export function PlantPot({ plant, slot }: { plant: PlantState; slot: number }) {
           </mesh>
         </group>
       )}
+      {birthday && !hideKit && <BirthdayConfetti />}
       {label && (
         <Html position={[0, 0.95, 0]} center zIndexRange={[10, 0]}>
           <div className="float-label">{label}</div>
         </Html>
       )}
       {plant.placement === 'growlight' && <GrowLamp />}
+    </group>
+  )
+}
+
+const CONFETTI_COLORS = ['#e2574c', '#e8c94a', '#5d84ae', '#c86ba8', '#7da75a', '#f6f1e6']
+const CONFETTI_PIECES = 12
+
+/**
+ * Gentle confetti over the pot, all birthday long. Pieces drift down a short
+ * column and loop back to the top; with reduced motion they simply hover —
+ * still a party, just a very calm one.
+ */
+function BirthdayConfetti() {
+  const group = useRef<Group>(null)
+  const reduceMotion = useMemo(
+    () => window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+    [],
+  )
+
+  useFrame((frame) => {
+    const g = group.current
+    if (!g || reduceMotion) return
+    const t = frame.clock.elapsedTime
+    g.children.forEach((piece, i) => {
+      const phase = i * 1.7
+      const fall = (t * (0.14 + (i % 3) * 0.05) + phase) % 1
+      piece.position.set(
+        Math.sin(phase * 3.1) * 0.24 + Math.sin(t * 0.8 + phase) * 0.05,
+        1.08 - fall * 0.78,
+        Math.cos(phase * 2.3) * 0.22,
+      )
+      piece.rotation.set(t * 1.3 + phase, t * 1.1 + phase, 0)
+    })
+  })
+
+  return (
+    <group ref={group}>
+      {Array.from({ length: CONFETTI_PIECES }, (_, i) => (
+        <mesh
+          key={i}
+          position={[
+            Math.sin(i * 1.7 * 3.1) * 0.24,
+            0.45 + (i % 4) * 0.16,
+            Math.cos(i * 1.7 * 2.3) * 0.22,
+          ]}
+          rotation={[i * 0.7, i * 1.1, 0]}
+        >
+          <boxGeometry args={[0.035, 0.035, 0.008]} />
+          <meshStandardMaterial color={CONFETTI_COLORS[i % CONFETTI_COLORS.length]} />
+        </mesh>
+      ))}
     </group>
   )
 }

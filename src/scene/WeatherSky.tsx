@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import type { Group, InstancedMesh, Mesh, MeshStandardMaterial } from 'three'
 import { Color, Object3D } from 'three'
 import { playCatch, playToast, setRainAmbience } from '../audio'
-import { currentWeather, isFireflyNight } from '../sim'
+import { currentWeather, isFireflyNight, seasonAt } from '../sim'
 import {
   luckLabel,
   luckLeftNow,
@@ -65,9 +65,80 @@ export function SkyMood() {
   return null
 }
 
+/**
+ * Snowfall over an area: what a 'rain' period looks like in winter. One
+ * shared drift of instanced flakes serves the window pane, the garden lawn
+ * and the greenhouse surroundings — each site says where flakes may spawn.
+ */
+export function Snowfall({
+  active,
+  count,
+  yTop,
+  yBottom,
+  size,
+  spawn,
+}: {
+  active: boolean
+  count: number
+  yTop: number
+  yBottom: number
+  /** Flake edge length — smaller behind the window glass, chunkier outdoors. */
+  size: number
+  spawn: () => { x: number; z: number }
+}) {
+  const mesh = useRef<InstancedMesh>(null)
+  const flakes = useRef<{ x: number; z: number; y: number; speed: number; phase: number }[] | null>(
+    null,
+  )
+  const dummy = useMemo(() => new Object3D(), [])
+  const reduceMotion = useMemo(
+    () => window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+    [],
+  )
+
+  useFrame((frame, delta) => {
+    const snowMesh = mesh.current
+    if (!snowMesh) return
+    const falling = active && !reduceMotion
+    snowMesh.visible = falling
+    if (!falling) return
+    flakes.current ??= Array.from({ length: count }, () => ({
+      ...spawn(),
+      y: yBottom + Math.random() * (yTop - yBottom),
+      speed: 0.28 + Math.random() * 0.25,
+      phase: Math.random() * Math.PI * 2,
+    }))
+    const t = frame.clock.elapsedTime
+    for (let i = 0; i < count; i++) {
+      const flake = flakes.current[i]
+      flake.y -= flake.speed * delta
+      if (flake.y < yBottom) {
+        const next = spawn()
+        flake.x = next.x
+        flake.z = next.z
+        flake.y = yTop
+      }
+      // The lazy sideways waft that makes snow snow and not white rain.
+      dummy.position.set(flake.x + Math.sin(t * 0.9 + flake.phase) * 0.1, flake.y, flake.z)
+      dummy.rotation.set(0, t * 0.6 + flake.phase, 0)
+      dummy.updateMatrix()
+      snowMesh.setMatrixAt(i, dummy.matrix)
+    }
+    snowMesh.instanceMatrix.needsUpdate = true
+  })
+
+  return (
+    <instancedMesh ref={mesh} args={[undefined, undefined, count]} visible={false}>
+      <boxGeometry args={[size, size, size]} />
+      <meshStandardMaterial color="#f7fafc" emissive="#dfe8ef" emissiveIntensity={0.35} />
+    </instancedMesh>
+  )
+}
+
 /** The weather as seen through the bedroom window. */
 export function WeatherSky() {
   const weather = useSceneState((s) => currentWeather(s, s.lastTickAt))
+  const winter = useSceneState((s) => seasonAt(s.lastTickAt) === 'winter')
   const skyMat = useRef<MeshStandardMaterial>(null)
   const sun = useRef<Mesh>(null)
   const clouds = useRef<Group>(null)
@@ -101,7 +172,7 @@ export function WeatherSky() {
 
     const rainMesh = rain.current
     if (rainMesh) {
-      const active = weather === 'rain' && !reduceMotion
+      const active = weather === 'rain' && !winter && !reduceMotion
       rainMesh.visible = active
       if (active) {
         if (!drops.current) {
@@ -153,6 +224,15 @@ export function WeatherSky() {
         <boxGeometry args={[0.012, 0.09, 0.012]} />
         <meshStandardMaterial color="#7fa8c9" transparent opacity={0.65} />
       </instancedMesh>
+      {/* in winter the same weather drifts down as snow instead */}
+      <Snowfall
+        active={weather === 'rain' && winter}
+        count={70}
+        yTop={2.02}
+        yBottom={0.18}
+        size={0.026}
+        spawn={() => ({ x: -1.15 + Math.random() * 2.3, z: -0.465 + Math.random() * 0.02 })}
+      />
       <GoldenDrop area={{ x0: -1.05, x1: 1.05, z: -0.45, yTop: 2.0, yBottom: 0.2 }} />
       <NightSky clear={weather === 'sun'} raining={weather === 'rain'} />
     </group>

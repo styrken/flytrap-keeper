@@ -43,6 +43,8 @@ export function createPlant(
     dormant: false,
     dead: false,
     criticalSince: null,
+    plantedAt: now,
+    birthdays: 0,
     journal: [{ at: now, kind: 'planted' }],
   }
 }
@@ -69,6 +71,7 @@ export function createInitialState(now: number, seed: number): GameState {
       day: '',
       paid: { raindrop: 0, star: 0, snail: 0, ladybird: 0, robin: 0, butterfly: 0, hedgehog: 0 },
     },
+    snowman: null,
     pets: {
       tadpoleSince: null,
       cat: false,

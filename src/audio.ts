@@ -84,6 +84,14 @@ export const playToast = () => {
   blip(880, 1320, 0.16, 'sine', 0.1)
   window.setTimeout(() => blip(1100, 1650, 0.14, 'sine', 0.08), 110)
 }
+/** The radio's three-note station jingle before the weather. */
+export const playJingle = () => {
+  blip(660, 660, 0.1, 'triangle', 0.09)
+  window.setTimeout(() => blip(880, 880, 0.1, 'triangle', 0.09), 120)
+  window.setTimeout(() => blip(990, 1320, 0.16, 'triangle', 0.08), 240)
+}
+/** A soft snow pouf — packing another ball onto the snowman. */
+export const playPouf = () => blip(240, 90, 0.18, 'triangle', 0.09)
 
 /** Soft brown-noise loop while it rains. */
 export function setRainAmbience(on: boolean) {

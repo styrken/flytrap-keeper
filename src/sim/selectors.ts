@@ -1,4 +1,5 @@
 import { SIM } from './config'
+import { seasonAt, winterKeyAt } from './season'
 import {
   GREENHOUSE_CAPACITY,
   MAX_PLANTS,
@@ -36,6 +37,18 @@ export const canRainWater = (state: GameState): boolean => {
 export const luckLeft = (state: GameState, source: LuckSourceId, now: number): number => {
   const paid = state.luck.day === dayKey(now) ? state.luck.paid[source] : 0
   return Math.max(0, SIM.DAILY_LUCK[source] - paid)
+}
+
+/**
+ * How far this winter's snowman has come: 0 (still just good packing snow) up
+ * to SNOWMAN_STAGES (finished, cap and all). Outside winter — or when the
+ * stored snowman belongs to a past winter — there is simply nothing on the
+ * lawn: snowmen melt, that is the deal.
+ */
+export function snowmanStage(state: GameState, now: number): number {
+  if (seasonAt(now) !== 'winter') return 0
+  const snowman = state.snowman
+  return snowman && snowman.winter === winterKeyAt(now) ? snowman.stage : 0
 }
 
 export const canFeedPlant = (plant: PlantState, now: number): boolean =>

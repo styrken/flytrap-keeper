@@ -43,6 +43,7 @@ export function JournalDialog() {
               <span>
                 {t(`journal.${entry.kind}`, {
                   stage: entry.stage !== undefined ? t(`stage.${entry.stage}`) : '',
+                  age: entry.age ?? '',
                 })}
               </span>
             </li>

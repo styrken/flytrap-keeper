@@ -157,6 +157,17 @@ const GARDEN_TRAMPOLINE: Collider = {
   height: TRAMPOLINE_TOP,
 }
 
+/** This winter's snowman on the lawn — solid from the first packed ball on.
+ * (Walking through a snowman would give it away as a ghost.) */
+const GARDEN_SNOWMAN: Collider = {
+  id: 'snowman',
+  minX: -2.74,
+  maxX: -2.06,
+  minZ: 4.06,
+  maxZ: 4.74,
+  height: WALL,
+}
+
 /** Decor that becomes solid once it actually stands in the room. */
 const LAMP: Collider = {
   id: 'lamp',
@@ -175,13 +186,19 @@ const COMPUTER: Collider = {
   height: WALL,
 }
 
-/** The solid obstacles of a room, given the displayed garden's shop items. */
-export function roomColliders(items: readonly string[], room: PlayerRoom = 'bedroom'): Collider[] {
+/** The solid obstacles of a room, given the displayed garden's shop items —
+ * and, in winter, whether a snowman stands on the lawn. */
+export function roomColliders(
+  items: readonly string[],
+  room: PlayerRoom = 'bedroom',
+  snowmanUp = false,
+): Collider[] {
   if (room === 'greenhouse') return [...GREENHOUSE_FURNITURE]
   if (room === 'garden') {
     const colliders = [...GARDEN_FURNITURE]
     if (items.includes('greenhouse')) colliders.push(GARDEN_GREENHOUSE)
     if (items.includes('trampoline')) colliders.push(GARDEN_TRAMPOLINE)
+    if (snowmanUp) colliders.push(GARDEN_SNOWMAN)
     return colliders
   }
   const colliders = [...FURNITURE]

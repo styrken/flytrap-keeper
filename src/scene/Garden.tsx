@@ -6,16 +6,18 @@
 // real: their mats live in playerMovement.ts, so the keeper walks between
 // rooms instead of teleporting. Weather happens to you out here — rain falls
 // on the lawn.
+import { Html } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
-import { useMemo, useRef } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import type { Group, InstancedMesh, Mesh, MeshStandardMaterial } from 'three'
 import { BackSide, Color, DoubleSide, Object3D } from 'three'
-import { currentWeather } from '../sim'
-import { sceneNow, useSceneState } from '../sceneView'
+import { playPouf, playToast } from '../audio'
+import { SIM, currentWeather, seasonAt, snowmanStage } from '../sim'
+import { sceneNow, useIsVisiting, useRewardDispatch, useSceneState } from '../sceneView'
 import { daylightFactor } from './daylight'
 import { DollhouseWall } from './dollhouse'
 import { palette } from './palette'
-import { GoldenDrop } from './WeatherSky'
+import { GoldenDrop, Snowfall } from './WeatherSky'
 
 const GRASS = '#7da75a'
 const HOUSE_WALL = '#ecd9a8'
@@ -35,6 +37,7 @@ const GH_GLASS = '#d8ecef'
 export function Garden() {
   const items = useSceneState((s) => s.inventory.items)
   const lastTickAt = useSceneState((s) => s.lastTickAt)
+  const winter = seasonAt(lastTickAt) === 'winter'
   const dark = daylightFactor(lastTickAt) < 0.6
   return (
     <group>
@@ -47,6 +50,7 @@ export function Garden() {
       {/* the facade's front face sits at z ≈ -1.02 — hide the house beyond it */}
       <DollhouseWall z={-1.02}>
         <House dark={dark} />
+        {winter && <HouseSnow />}
       </DollhouseWall>
       <FlowerBed />
       <Downspout />
@@ -61,8 +65,222 @@ export function Garden() {
       <Sunflowers />
       {items.includes('greenhouse') && <GardenGreenhouse />}
       {items.includes('trampoline') && <GardenTrampoline />}
+      {winter && <WinterDressing greenhouseOwned={items.includes('greenhouse')} />}
+      {winter && <Snowman />}
 
-      <GardenWeather />
+      <GardenWeather winter={winter} />
+    </group>
+  )
+}
+
+/* --------------------------------- winter ------------------------------------ */
+
+const SNOW = '#f2f6f9'
+
+/** Snow on the roof edge and window ledge — part of the facade, so it ducks
+ * out of sight together with the house while the camera orbits behind it. */
+function HouseSnow() {
+  return (
+    <group>
+      <mesh position={[-2.325, 3.12, -1.06]}>
+        <boxGeometry args={[9.04, 0.09, 0.44]} />
+        <meshStandardMaterial color={SNOW} />
+      </mesh>
+      <mesh position={[-2.4, 0.18, -0.93]}>
+        <boxGeometry args={[2.22, 0.05, 0.2]} />
+        <meshStandardMaterial color={SNOW} />
+      </mesh>
+    </group>
+  )
+}
+
+/**
+ * The rest of winter's blanket: the lawn under snow, caps on the flower box,
+ * the mailbox, the tree's canopy — and the greenhouse ridge, when one stands
+ * in the corner. Pure dressing; every collider stays exactly where it was.
+ */
+function WinterDressing({ greenhouseOwned }: { greenhouseOwned: boolean }) {
+  return (
+    <group>
+      {/* the lawn, tucked in — tall grass tufts still poke through the crust */}
+      <mesh position={[0, -0.885, 2.4]}>
+        <boxGeometry args={[13.4, 0.03, 9.4]} />
+        <meshStandardMaterial color={SNOW} />
+      </mesh>
+      {/* flower box wearing a little duvet */}
+      <mesh position={[-2.4, -0.52, -0.83]}>
+        <boxGeometry args={[2.34, 0.07, 0.58]} />
+        <meshStandardMaterial color={SNOW} />
+      </mesh>
+      {/* mailbox roof cap */}
+      <mesh position={[1.7, 0.165, 6.0]}>
+        <boxGeometry args={[0.34, 0.05, 0.44]} />
+        <meshStandardMaterial color={SNOW} />
+      </mesh>
+      {/* the apple tree's canopy under snow */}
+      <group position={[5.4, 0, 5.9]}>
+        <mesh position={[0, 3.44, 0]}>
+          <boxGeometry args={[1.94, 0.1, 1.94]} />
+          <meshStandardMaterial color={SNOW} />
+        </mesh>
+        <mesh position={[-0.4, 3.74, 0.3]}>
+          <boxGeometry args={[0.94, 0.08, 0.84]} />
+          <meshStandardMaterial color={SNOW} />
+        </mesh>
+      </group>
+      {greenhouseOwned && (
+        <mesh position={[4.6, 1.245, -0.075]}>
+          <boxGeometry args={[2.84, 0.06, 0.17]} />
+          <meshStandardMaterial color={SNOW} />
+        </mesh>
+      )}
+    </group>
+  )
+}
+
+/** Where the snowman grows, tap by tap — matches its collider in
+ * playerMovement.ts (id 'snowman'). */
+const SNOWMAN_SPOT: [number, number, number] = [-2.4, -0.87, 4.4]
+
+/**
+ * The snowman: winter's own little build project. A promising pile of packing
+ * snow, then three taps — ball, body, head (cap and carrot included). The sim
+ * pays a small reward when the head goes on; in spring the whole fellow melts
+ * and next winter starts fresh.
+ */
+function Snowman() {
+  const stage = useSceneState((s) => snowmanStage(s, s.lastTickAt))
+  const visiting = useIsVisiting()
+  const rewardDispatch = useRewardDispatch()
+  const [label, setLabel] = useState<string | null>(null)
+  const labelTimer = useRef(0)
+  const done = stage >= SIM.SNOWMAN_STAGES
+
+  const popLabel = (text: string) => {
+    setLabel(text)
+    window.clearTimeout(labelTimer.current)
+    labelTimer.current = window.setTimeout(() => setLabel(null), 1200)
+  }
+
+  return (
+    <group
+      position={SNOWMAN_SPOT}
+      onPointerDown={(e) => {
+        if (visiting) return // look, don't build
+        e.stopPropagation()
+        if (done) {
+          popLabel('⛄')
+          return
+        }
+        const gained = rewardDispatch({ type: 'buildSnowman' })
+        playPouf()
+        if (stage + 1 >= SIM.SNOWMAN_STAGES) {
+          playToast()
+          popLabel(gained > 0 ? `⛄ +${gained} 🫧` : '⛄')
+        } else {
+          popLabel('⛄…')
+        }
+      }}
+      onPointerOver={() => {
+        if (!visiting) document.body.style.cursor = 'pointer'
+      }}
+      onPointerOut={() => {
+        document.body.style.cursor = 'auto'
+      }}
+    >
+      {stage === 0 && (
+        <group>
+          {/* a pile of good packing snow, with an inviting sparkle */}
+          <mesh position={[0, 0.07, 0]} rotation-y={0.4}>
+            <boxGeometry args={[0.55, 0.14, 0.5]} />
+            <meshStandardMaterial color={SNOW} />
+          </mesh>
+          <mesh position={[0.06, 0.17, -0.04]} rotation-y={-0.3}>
+            <boxGeometry args={[0.38, 0.1, 0.34]} />
+            <meshStandardMaterial color={SNOW} />
+          </mesh>
+          <mesh position={[-0.08, 0.26, 0.08]} rotation-y={0.6}>
+            <boxGeometry args={[0.06, 0.06, 0.06]} />
+            <meshStandardMaterial color="#ffffff" emissive="#dfe8ef" emissiveIntensity={0.8} />
+          </mesh>
+        </group>
+      )}
+      {stage >= 1 && (
+        <mesh position={[0, 0.27, 0]} rotation-y={0.15}>
+          <boxGeometry args={[0.62, 0.55, 0.62]} />
+          <meshStandardMaterial color="#f6f9fc" />
+        </mesh>
+      )}
+      {stage >= 2 && (
+        <group>
+          <mesh position={[0, 0.75, 0]} rotation-y={-0.1}>
+            <boxGeometry args={[0.46, 0.44, 0.46]} />
+            <meshStandardMaterial color="#f6f9fc" />
+          </mesh>
+          {[0.68, 0.83].map((y) => (
+            <mesh key={y} position={[0, y, 0.235]}>
+              <boxGeometry args={[0.05, 0.05, 0.03]} />
+              <meshStandardMaterial color="#3c2f24" />
+            </mesh>
+          ))}
+          {/* twig arms */}
+          <mesh position={[-0.38, 0.88, 0]} rotation-z={0.45}>
+            <boxGeometry args={[0.34, 0.035, 0.035]} />
+            <meshStandardMaterial color={TRUNK} />
+          </mesh>
+          <mesh position={[0.38, 0.88, 0]} rotation-z={-0.45}>
+            <boxGeometry args={[0.34, 0.035, 0.035]} />
+            <meshStandardMaterial color={TRUNK} />
+          </mesh>
+        </group>
+      )}
+      {stage >= 3 && (
+        <group>
+          {/* a cosy scarf before the head goes on */}
+          <mesh position={[0, 0.99, 0]} rotation-y={0.2}>
+            <boxGeometry args={[0.4, 0.08, 0.4]} />
+            <meshStandardMaterial color="#cb4a4a" />
+          </mesh>
+          <mesh position={[0.14, 0.87, 0.17]} rotation-z={-0.15}>
+            <boxGeometry args={[0.09, 0.22, 0.03]} />
+            <meshStandardMaterial color="#cb4a4a" />
+          </mesh>
+          <mesh position={[0, 1.19, 0]}>
+            <boxGeometry args={[0.34, 0.32, 0.34]} />
+            <meshStandardMaterial color="#f6f9fc" />
+          </mesh>
+          {[-0.07, 0.07].map((x) => (
+            <mesh key={x} position={[x, 1.23, 0.175]}>
+              <boxGeometry args={[0.045, 0.045, 0.02]} />
+              <meshStandardMaterial color="#3c2f24" />
+            </mesh>
+          ))}
+          {/* carrot nose, pointing at whoever built it */}
+          <mesh position={[0, 1.17, 0.28]} rotation-x={Math.PI / 2}>
+            <cylinderGeometry args={[0.001, 0.045, 0.22, 4]} />
+            <meshStandardMaterial color="#e08a3c" flatShading />
+          </mesh>
+          {/* the keeper's green cap — every snowman is staff */}
+          <mesh position={[0, 1.4, 0]}>
+            <boxGeometry args={[0.36, 0.1, 0.34]} />
+            <meshStandardMaterial color={palette.trap} />
+          </mesh>
+          <mesh position={[0, 1.38, 0.21]}>
+            <boxGeometry args={[0.3, 0.04, 0.12]} />
+            <meshStandardMaterial color={palette.trap} />
+          </mesh>
+        </group>
+      )}
+      {/* generous invisible hit area for phone thumbs */}
+      <mesh position={[0, 0.7, 0]} visible={false}>
+        <boxGeometry args={[0.95, 1.7, 0.95]} />
+        <meshStandardMaterial />
+      </mesh>
+      {label && (
+        <Html position={[0, 1.75, 0]} center zIndexRange={[10, 0]}>
+          <div className="float-label">{label}</div>
+        </Html>
+      )}
     </group>
   )
 }
@@ -746,8 +964,9 @@ const STARS: [number, number][] = [
   [-51, 6.5],
 ]
 
-/** The sky drum, sun/clouds/stars dressed around it, and rain over the lawn. */
-function GardenWeather() {
+/** The sky drum, sun/clouds/stars dressed around it, and rain over the lawn
+ * — snow instead, once winter owns the garden. */
+function GardenWeather({ winter }: { winter: boolean }) {
   const weather = useSceneState((s) => currentWeather(s, s.lastTickAt))
   const skyMat = useRef<MeshStandardMaterial>(null)
   const sun = useRef<Mesh>(null)
@@ -784,7 +1003,7 @@ function GardenWeather() {
 
     const rainMesh = rain.current
     if (rainMesh) {
-      const active = weather === 'rain' && !reduceMotion
+      const active = weather === 'rain' && !winter && !reduceMotion
       rainMesh.visible = active
       if (active) {
         drops.current ??= Array.from({ length: RAIN_DROPS }, () => ({
@@ -850,6 +1069,15 @@ function GardenWeather() {
         <boxGeometry args={[0.014, 0.12, 0.014]} />
         <meshStandardMaterial color="#7fa8c9" transparent opacity={0.55} />
       </instancedMesh>
+      {/* the same weather, drifting down softly once it's cold enough */}
+      <Snowfall
+        active={weather === 'rain' && winter}
+        count={170}
+        yTop={RAIN_TOP}
+        yBottom={-0.86}
+        size={0.055}
+        spawn={() => ({ x: -6 + Math.random() * 12, z: -0.9 + Math.random() * 7.3 })}
+      />
       {/* golden drops fall in the open — no roof out here to sneak through */}
       <GoldenDrop area={{ x0: -1.2, x1: 2.4, z: 2.3, yTop: 2.8, yBottom: -0.55 }} />
     </group>

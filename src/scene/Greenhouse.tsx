@@ -7,11 +7,11 @@ import { useFrame } from '@react-three/fiber'
 import { useMemo, useRef } from 'react'
 import type { Group, InstancedMesh, Mesh, MeshStandardMaterial } from 'three'
 import { BackSide, Color, DoubleSide, Object3D } from 'three'
-import { currentWeather } from '../sim'
+import { currentWeather, seasonAt } from '../sim'
 import { sceneNow, useSceneState } from '../sceneView'
 import { daylightFactor } from './daylight'
 import { palette } from './palette'
-import { GoldenDrop } from './WeatherSky'
+import { GoldenDrop, Snowfall } from './WeatherSky'
 
 const FRAME = '#e8e2d2'
 const FRAME_DARK = '#cfc7b2'
@@ -38,6 +38,7 @@ function GlassPane({
 }
 
 export function Greenhouse() {
+  const winter = useSceneState((s) => seasonAt(s.lastTickAt) === 'winter')
   return (
     <group>
       {/* lawn around the greenhouse, and a warmer gravel floor inside */}
@@ -49,6 +50,24 @@ export function Greenhouse() {
         <boxGeometry args={[7.2, 0.02, 4.4]} />
         <meshStandardMaterial color="#cbb490" />
       </mesh>
+      {/* winter tucks the lawn in around the glass — inside stays snug */}
+      {winter && (
+        <group>
+          {(
+            [
+              [-4.63, 1.2, 1.74, 8.5],
+              [4.63, 1.2, 1.74, 8.5],
+              [0, -2.12, 7.52, 1.86],
+              [0, 4.4, 7.52, 2.1],
+            ] as const
+          ).map(([x, z, w, d]) => (
+            <mesh key={`${x}:${z}`} position={[x, -0.884, z]}>
+              <boxGeometry args={[w, 0.03, d]} />
+              <meshStandardMaterial color="#f2f6f9" />
+            </mesh>
+          ))}
+        </group>
+      )}
 
       {/* knee-high brick base walls */}
       <mesh position={[0, -0.64, -1.14]}>
@@ -254,9 +273,11 @@ const rainSpot = (): { x: number; z: number } => {
   }
 }
 
-/** Sky drum, sun/clouds around it, and rain on the lawn outside the glass. */
+/** Sky drum, sun/clouds around it, and rain on the lawn outside the glass —
+ * snow in winter, drifting past the panes while the plants sit in the warm. */
 function GreenhouseWeather() {
   const weather = useSceneState((s) => currentWeather(s, s.lastTickAt))
+  const winter = useSceneState((s) => seasonAt(s.lastTickAt) === 'winter')
   const skyMat = useRef<MeshStandardMaterial>(null)
   const sun = useRef<Mesh>(null)
   const clouds = useRef<Group>(null)
@@ -281,7 +302,7 @@ function GreenhouseWeather() {
 
     const rainMesh = rain.current
     if (rainMesh) {
-      const active = weather === 'rain' && !reduceMotion
+      const active = weather === 'rain' && !winter && !reduceMotion
       rainMesh.visible = active
       if (active) {
         drops.current ??= Array.from({ length: RAIN_DROPS }, () => ({
@@ -338,6 +359,15 @@ function GreenhouseWeather() {
         <boxGeometry args={[0.014, 0.11, 0.014]} />
         <meshStandardMaterial color="#7fa8c9" transparent opacity={0.6} />
       </instancedMesh>
+      {/* winter's version of the same weather, on the same lawn */}
+      <Snowfall
+        active={weather === 'rain' && winter}
+        count={120}
+        yTop={RAIN_TOP}
+        yBottom={-0.85}
+        size={0.055}
+        spawn={rainSpot}
+      />
       {/* the roof vent stands open — golden drops sneak in when it rains */}
       <GoldenDrop area={{ x0: -1.0, x1: 1.0, z: 0.7, yTop: 2.3, yBottom: 0.2 }} />
     </group>

@@ -1,4 +1,6 @@
 export type SpeciesId = 'dionaea' | 'drosera' | 'nepenthes' | 'sarracenia' | 'pinguicula'
+/** What is actually falling when the weather says 'rain' — snow in winter. */
+export type PrecipitationKind = 'rain' | 'snow'
 /** Real Dionaea cultivars — visual rarities of the same species, same care. */
 export type CultivarId = 'b52' | 'red-dragon' | 'justina'
 /** Pure-silliness plant cosmetics. The googly eyes ride the snapping jaw. */
@@ -85,6 +87,7 @@ export type JournalKind =
   | 'wake'
   | 'repot'
   | 'dressed'
+  | 'birthday'
   | 'died'
 
 export interface JournalEntry {
@@ -93,6 +96,8 @@ export interface JournalEntry {
   kind: JournalKind
   /** For 'stage' entries: the stage that was reached. */
   stage?: number
+  /** For 'birthday' entries: the age (in whole years) being celebrated. */
+  age?: number
 }
 
 export interface FloweringState {
@@ -136,8 +141,22 @@ export interface PlantState {
   dead: boolean
   /** Hard mode: when health first hit the floor; death after enough hours. */
   criticalSince: number | null
+  /** Game-clock ms when the seed went into the soil — the birthday anchor. */
+  plantedAt: number
+  /** Anniversaries already celebrated (diary page + little payout each). */
+  birthdays: number
   /** The diary: milestones only, oldest first, capped. */
   journal: JournalEntry[]
+}
+
+/**
+ * The garden snowman: built tap by tap while there is snow on the lawn.
+ * `winter` names the winter it belongs to (the year of its December) — a
+ * snowman from last winter melted long ago and simply isn't there anymore.
+ */
+export interface SnowmanState {
+  stage: number
+  winter: number
 }
 
 /**
@@ -200,6 +219,8 @@ export interface GameState {
   /** Daily luck jars: how many times each little friend has paid out today.
    * Every jar refills at (UTC) midnight, together with the daily quests. */
   luck: { day: string; paid: Record<LuckSourceId, number> }
+  /** This winter's snowman on the lawn, if one has been started. */
+  snowman: SnowmanState | null
   /** locale '' means no explicit choice — the UI follows the browser language. */
   settings: { sound: boolean; music: boolean; locale: string; hardMode: boolean }
   /** Distinct real-world days with at least one care action. */
@@ -225,6 +246,7 @@ export type Action =
   | { type: 'greetButterfly' }
   | { type: 'greetHedgehog' }
   | { type: 'arcadeScore'; score: number }
+  | { type: 'buildSnowman' }
   | { type: 'releasePack'; insect: PackKind }
   | { type: 'feedTrap'; plantId: string; trapId: string }
   | { type: 'feedPlant' }

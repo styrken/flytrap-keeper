@@ -4,6 +4,7 @@
 // trick). The window wall needs solid boxes for its reveals, so it plays the
 // trick differently: <DollhouseWall> hides it while the camera is behind it —
 // and the same wrapper puts a fourth wall behind the camera's usual seat.
+import { playJingle } from '../audio'
 import { useIsVisiting, useSceneState } from '../sceneView'
 import { useGame } from '../store'
 import { daylightFactor } from './daylight'
@@ -477,8 +478,24 @@ function Poster() {
 }
 
 function Radio() {
+  const visiting = useIsVisiting()
+  const setShowForecast = useGame((s) => s.setShowForecast)
   return (
-    <group position={[2.68, 1.43, -0.36]}>
+    <group
+      position={[2.68, 1.43, -0.36]}
+      onPointerDown={(e) => {
+        if (visiting) return // it's tuned to their garden's weather anyway
+        e.stopPropagation()
+        playJingle()
+        setShowForecast(true)
+      }}
+      onPointerOver={() => {
+        if (!visiting) document.body.style.cursor = 'pointer'
+      }}
+      onPointerOut={() => {
+        document.body.style.cursor = 'auto'
+      }}
+    >
       <mesh>
         <boxGeometry args={[0.34, 0.2, 0.15]} />
         <meshStandardMaterial color="#b25b4a" />
@@ -496,6 +513,11 @@ function Radio() {
       <mesh position={[0.13, 0.2, 0]} rotation-z={-0.5}>
         <cylinderGeometry args={[0.008, 0.008, 0.28, 6]} />
         <meshStandardMaterial color="#3c2f24" flatShading />
+      </mesh>
+      {/* generous invisible hit area for phone thumbs */}
+      <mesh visible={false}>
+        <boxGeometry args={[0.5, 0.42, 0.35]} />
+        <meshStandardMaterial />
       </mesh>
     </group>
   )

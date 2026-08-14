@@ -88,6 +88,21 @@ export const SIM = {
   RAINDROP_DEWDROPS: 1,
   RAINDROP_REPEAT_SECONDS: 4,
 
+  /** The radio forecast: how many periods it reads out, and how far ahead it
+   * scans for the next rain before giving up (weather is deterministic, so
+   * this is knowledge the world already had — the radio just says it aloud). */
+  FORECAST_PERIODS: 3,
+  FORECAST_RAIN_SCAN_HOURS: 48,
+
+  /** The garden snowman: three taps of packed snow, one little payout when the
+   * head goes on — and each winter's snowman is its own (they melt in spring). */
+  SNOWMAN_STAGES: 3,
+  SNOWMAN_DEWDROPS: 5,
+
+  /** Plant birthdays: every anniversary of the planting writes a diary page
+   * and pays a small present. Missed ones are caught up by the next tick. */
+  BIRTHDAY_DEWDROPS: 5,
+
   /** Daily quests: three per day, paid on completion, bonus for the full set. */
   QUEST_DEWDROPS: 5,
   QUEST_ALL_BONUS: 10,

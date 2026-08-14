@@ -48,6 +48,8 @@ interface GameStore {
   showQuests: boolean
   showJournal: boolean
   showArcade: boolean
+  /** The shelf radio's weather report — open while the radio plays it. */
+  showForecast: boolean
   /** Stat whose explainer dialog is open — pure view state, never saved. */
   statInfo: StatInfoId | null
   /** A freshly composed postcard (data URL) awaiting save/share, or null. */
@@ -69,6 +71,7 @@ interface GameStore {
   setShowQuests: (show: boolean) => void
   setShowJournal: (show: boolean) => void
   setShowArcade: (show: boolean) => void
+  setShowForecast: (show: boolean) => void
   setStatInfo: (stat: StatInfoId | null) => void
   setPhoto: (photo: string | null) => void
   setRoomView: (room: RoomView) => void
@@ -95,6 +98,7 @@ export const useGame = create<GameStore>()((set, get) => ({
   showQuests: false,
   showJournal: false,
   showArcade: false,
+  showForecast: false,
   statInfo: null,
   photo: null,
   roomView: 'bedroom',
@@ -132,6 +136,7 @@ export const useGame = create<GameStore>()((set, get) => ({
   setShowQuests: (show) => set({ showQuests: show }),
   setShowJournal: (show) => set({ showJournal: show }),
   setShowArcade: (show) => set({ showArcade: show }),
+  setShowForecast: (show) => set({ showForecast: show }),
   setStatInfo: (statInfo) => set({ statInfo }),
   setPhoto: (photo) => set({ photo }),
   setRoomView: (room) => set({ roomView: room }),
@@ -171,6 +176,7 @@ export const useGame = create<GameStore>()((set, get) => ({
       showQuests: false,
       showJournal: false,
       showArcade: false,
+      showForecast: false,
       statInfo: null,
       photo: null,
       roomView: 'bedroom',

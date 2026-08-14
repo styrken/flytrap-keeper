@@ -3,11 +3,11 @@ import { SIM } from './config'
 import { INSECTS, isFireflyNight } from './insects'
 import { remember, remembers } from './journal'
 import { progressQuest, progressWeekly } from './quests'
-import { seasonAt } from './season'
+import { seasonAt, winterKeyAt } from './season'
 import { currentWeather } from './weather'
 import { catAtWindow, hasFullHouse, spiderAtCorner, webLootReady } from './pets'
 import { seasonAt as seasonOf } from './season'
-import { canMoveTo, isTrapReady } from './selectors'
+import { canMoveTo, isTrapReady, snowmanStage } from './selectors'
 import { MAX_PLANTS, hasGreenhouse, plantCapacity, shopItem, sillPlantCount } from './shop'
 import { CULTIVARS, SPECIES } from './species'
 import { createPlant } from './state'
@@ -152,6 +152,29 @@ function applyAction(s: GameState, action: Action, now: number, realNow: number)
         inventory: { ...s.inventory, dewdrops: s.inventory.dewdrops + pay },
       }
       if (score >= SIM.ARCADE_HIGHSCORE_AT) next = award(next, 'high-score')
+      return next
+    }
+    case 'buildSnowman': {
+      // Only while there is snow on the lawn — and each winter builds its own
+      // snowman from scratch (last year's melted, as snowmen do). Three taps
+      // of packed snow; the little payout comes when the head goes on.
+      if (seasonOf(now) !== 'winter') return s
+      const stage = snowmanStage(s, now)
+      if (stage >= SIM.SNOWMAN_STAGES) return s
+      const built = stage + 1
+      let next: GameState = { ...s, snowman: { stage: built, winter: winterKeyAt(now) } }
+      if (built >= SIM.SNOWMAN_STAGES) {
+        next = award(
+          {
+            ...next,
+            inventory: {
+              ...next.inventory,
+              dewdrops: next.inventory.dewdrops + SIM.SNOWMAN_DEWDROPS,
+            },
+          },
+          'snowman',
+        )
+      }
       return next
     }
     case 'releasePack': {

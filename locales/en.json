@@ -54,7 +54,17 @@
   "weather": {
     "sun": "Sunny",
     "clouds": "Cloudy",
-    "rain": "Raining"
+    "rain": "Raining",
+    "snow": "Snowing"
+  },
+  "forecast": {
+    "title": "The weather report",
+    "jingle": "🎵 This is Radio Flytrap with the weather for your windowsill…",
+    "now": "Right now",
+    "nextRain": "Next rain for the barrel: {{time}}",
+    "nextSnow": "Next snow for the barrel: {{time}}",
+    "rainingNow": "It's coming down right now — the barrel is loving it.",
+    "noRain": "No rain in the next couple of days — make the barrel last!"
   },
   "season": {
     "spring": "Spring",
@@ -136,6 +146,9 @@
     "trapDigesting": "{{name}} is digesting — the trap reopens in {{time}}",
     "fullFed": "{{name}} is full — feeding again in {{time}}",
     "rainFilling": "It's raining — the barrel is filling up",
+    "snowFilling": "It's snowing — melting flakes trickle into the barrel",
+    "birthday": "{{name}} turns {{age}} today! +{{n}} dewdrops",
+    "snowmanDone": "The snowman is finished! +{{n}} dewdrops",
     "growingEta": "{{stage}} in about {{time}} with this care",
     "weed": "A weed is sprouting in {{name}}'s pot — pull it!",
     "dailyBonus": "Daily care bonus: +5 dewdrops",
@@ -329,7 +342,9 @@
     "evening-snuffler": "Evening snuffler",
     "full-house": "Full house",
     "full-collection": "Full collection",
-    "high-score": "High score!"
+    "high-score": "High score!",
+    "snowman": "A very cool friend",
+    "birthday-party": "Birthday party!"
   },
   "onboarding": {
     "welcome1": "Flytrap Keeper is a calm, real-time care game. Your carnivorous plant lives on while you're away — drop by a few times a day, tend to it, and watch it grow from seedling to bloom.",
@@ -364,6 +379,7 @@
     "wake": "Woke up — hello again, world ☀️",
     "repot": "Moved into a fresh pot 🪴",
     "dressed": "Got dressed up ✨",
+    "birthday": "Turned {{age}} today — happy birthday! 🎂",
     "died": "The end of a little life 🪦"
   },
   "arcade": {

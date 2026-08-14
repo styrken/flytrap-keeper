@@ -26,6 +26,8 @@ export const ACHIEVEMENTS = [
   'full-house',
   'full-collection',
   'high-score',
+  'snowman',
+  'birthday-party',
 ] as const
 
 export type AchievementId = (typeof ACHIEVEMENTS)[number]

@@ -54,7 +54,17 @@
   "weather": {
     "sun": "Solskin",
     "clouds": "Overskyet",
-    "rain": "Regn"
+    "rain": "Regn",
+    "snow": "Snevejr"
+  },
+  "forecast": {
+    "title": "Vejrudsigten",
+    "jingle": "🎵 Du lytter til Radio Fluefanger — her er vejret til din vindueskarm…",
+    "now": "Lige nu",
+    "nextRain": "Næste regn til tønden: {{time}}",
+    "nextSnow": "Næste sne til tønden: {{time}}",
+    "rainingNow": "Det siler ned lige nu — tønden nyder det.",
+    "noRain": "Ingen regn de næste par dage — få tønden til at række!"
   },
   "season": {
     "spring": "Forår",
@@ -136,6 +146,9 @@
     "trapDigesting": "{{name}} fordøjer — fælden åbner igen om {{time}}",
     "fullFed": "{{name}} er mæt — kan fodres igen om {{time}}",
     "rainFilling": "Det regner — tønden fyldes op",
+    "snowFilling": "Det sner — smeltende fnug siver ned i tønden",
+    "birthday": "{{name}} fylder {{age}} i dag! +{{n}} dugdråber",
+    "snowmanDone": "Snemanden er færdig! +{{n}} dugdråber",
     "growingEta": "{{stage}} om ca. {{time}} med denne pasning",
     "weed": "Der spirer ukrudt i {{name}}s potte — hiv det op!",
     "dailyBonus": "Daglig pasningsbonus: +5 dugdråber",
@@ -332,7 +345,9 @@
     "evening-snuffler": "Aftensnuseren",
     "full-house": "Fuldt hus",
     "full-collection": "Fuld samling",
-    "high-score": "Highscore!"
+    "high-score": "Highscore!",
+    "snowman": "En rigtig cool ven",
+    "birthday-party": "Fødselsdagsfest!"
   },
   "onboarding": {
     "welcome1": "Flytrap Keeper er et roligt pasningsspil i realtid. Din kødædende plante lever videre, mens du er væk — kig forbi et par gange om dagen, pas den, og se den vokse fra spire til blomst.",
@@ -367,6 +382,7 @@
     "wake": "Vågnede — hej igen, verden ☀️",
     "repot": "Flyttede i ny potte 🪴",
     "dressed": "Blev fint pyntet ✨",
+    "birthday": "Fyldte {{age}} i dag — tillykke med fødselsdagen! 🎂",
     "died": "Enden på et lille liv 🪦"
   },
   "arcade": {

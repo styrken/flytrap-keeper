@@ -11,8 +11,11 @@ export function remember(
   kind: JournalKind,
   at: number,
   stage?: number,
+  age?: number,
 ): PlantState {
-  const entry: JournalEntry = stage === undefined ? { at, kind } : { at, kind, stage }
+  const entry: JournalEntry = { at, kind }
+  if (stage !== undefined) entry.stage = stage
+  if (age !== undefined) entry.age = age
   const journal = [...plant.journal, entry].slice(-SIM.JOURNAL_MAX_ENTRIES)
   return { ...plant, journal }
 }

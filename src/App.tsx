@@ -8,6 +8,7 @@ import { Player } from './scene/Player'
 import { FLOOR_Y, HEAD_HEIGHT, SPAWN } from './scene/playerMovement'
 import { useIsVisiting } from './sceneView'
 import { ArcadeGame } from './ui/ArcadeGame'
+import { ForecastDialog } from './ui/ForecastDialog'
 import { FriendsDialog } from './ui/FriendsDialog'
 import { Hud } from './ui/Hud'
 import { TouchControls } from './ui/Joystick'
@@ -54,6 +55,7 @@ export default function App() {
       <QuestsDialog />
       <JournalDialog />
       <ArcadeGame />
+      <ForecastDialog />
       <PhotoDialog />
       <StatInfoDialog />
       <LexiconDialog />

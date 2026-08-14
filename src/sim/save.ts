@@ -1,7 +1,8 @@
+import { birthdaysPassed } from './birthday'
 import type { GameState } from './types'
 
 export const SAVE_KEY = 'flytrap-keeper:save'
-export const SAVE_VERSION = 18
+export const SAVE_VERSION = 19
 
 type RawSave = Record<string, unknown>
 type Migration = (data: RawSave) => RawSave
@@ -168,6 +169,24 @@ const MIGRATIONS: Record<number, Migration> = {
       paid: { raindrop: 0, star: 0, snail: 0, ladybird: 0, robin: 0, butterfly: 0, hedgehog: 0 },
     },
   }),
+  // v18 -> v19: winter snow and plant birthdays. The snowman slot starts
+  // empty, and each plant learns its planting date from its diary's first
+  // page — the closest thing to a birth certificate an old save has. Already
+  // passed anniversaries count as celebrated: no retroactive parties, the
+  // next one arrives soon enough.
+  18: (data) => {
+    const base = typeof data.lastTickAt === 'number' ? data.lastTickAt : 0
+    return {
+      ...data,
+      snowman: null,
+      plants: ((Array.isArray(data.plants) ? data.plants : []) as RawSave[]).map((plant) => {
+        const journal = (Array.isArray(plant.journal) ? plant.journal : []) as RawSave[]
+        const first = journal.find((entry) => entry.kind === 'planted') ?? journal[0]
+        const plantedAt = typeof first?.at === 'number' ? first.at : base
+        return { ...plant, plantedAt, birthdays: birthdaysPassed(plantedAt, base) }
+      }),
+    }
+  },
 }
 
 export function saveToString(state: GameState): string {

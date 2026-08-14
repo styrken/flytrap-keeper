@@ -1,7 +1,8 @@
 import { useFrame, useThree } from '@react-three/fiber'
 import { useEffect, useMemo, useRef } from 'react'
-import { type Group, type Mesh, Vector3 } from 'three'
+import { type Group, type InstancedMesh, type Mesh, Object3D, Vector3 } from 'three'
 import { playBoing } from '../audio'
+import { seasonAt, snowmanStage } from '../sim'
 import { useSceneState } from '../sceneView'
 import { useSocial } from '../socialStore'
 import { useGame } from '../store'
@@ -31,6 +32,9 @@ const SHOE = '#4c3a28'
 /** The body parts below are authored at ~0.85 units tall; this scales the
  * whole kid up to ~1.36 so the room reads as a room, not a cathedral. */
 const AVATAR_SCALE = 1.6
+
+/** Footprint pool size — roughly four seconds of walking before recycling. */
+const FOOTPRINTS = 26
 
 /** What the follow logic needs from OrbitControls (set via makeDefault). */
 interface FollowControls {
@@ -77,9 +81,13 @@ export function Player() {
   const visitingAt = useSocial((s) => s.visiting?.username ?? null)
   // Displayed decor is solid — the friend's floor lamp blocks you too.
   const items = useSceneState((s) => s.inventory.items)
-  const colliders = useMemo(() => roomColliders(items, room), [items, room])
+  const snowmanUp = useSceneState((s) => snowmanStage(s, s.lastTickAt) > 0)
+  const colliders = useMemo(() => roomColliders(items, room, snowmanUp), [items, room, snowmanUp])
   const bounds = useMemo(() => roomBounds(room), [room])
   const greenhouseOwned = items.includes('greenhouse')
+  // Fresh snow takes footprints — garden lawn only, and only in winter.
+  const winter = useSceneState((s) => seasonAt(s.lastTickAt) === 'winter')
+  const snowUnderfoot = winter && room === 'garden'
 
   const root = useRef<Group>(null)
   const shadow = useRef<Mesh>(null)
@@ -97,10 +105,18 @@ export function Player() {
   // Set when walking through a door, so the next room starts just inside it.
   const doorSpawn = useRef<{ x: number; z: number; yaw: number } | null>(null)
 
+  // A small recycled pool of footprints stamped into the snow while walking.
+  const prints = useRef<InstancedMesh>(null)
+  const printsReady = useRef(false)
+  const printIndex = useRef(0)
+  const printSide = useRef(1)
+  const lastPrint = useRef({ x: SPAWN.x, z: SPAWN.z })
+  const printDummy = useMemo(() => new Object3D(), [])
+
   useEffect(() => initPlayerInput(), [])
 
   // Entering a room — through a door, the HUD, or someone else's garden —
-  // puts the keeper at the matching threshold.
+  // puts the keeper at the matching threshold (on untrodden snow, in winter).
   useEffect(() => {
     const spawn = doorSpawn.current ?? roomSpawn(room)
     doorSpawn.current = null
@@ -108,6 +124,8 @@ export function Player() {
     vert.current = { y: 0, vy: 0, grounded: true }
     yaw.current = spawn.yaw
     targetYaw.current = spawn.yaw
+    lastPrint.current = { x: spawn.x, z: spawn.z }
+    printsReady.current = false
   }, [room, visitingAt])
 
   // Priority -2: everything here (movement + the camera-follow shift) lands
@@ -201,6 +219,41 @@ export function Player() {
       shadow.current.scale.setScalar(Math.max(0.55, 1 - (after.y - ground.height) * 0.35))
     }
 
+    // Footprints in the snow: stamped on the lawn every little stride, oldest
+    // recycled first — a short trail that says somebody lives here.
+    const printMesh = prints.current
+    if (printMesh) {
+      if (!printsReady.current) {
+        // Hide the whole pool before its first visible frame.
+        printsReady.current = true
+        printIndex.current = 0
+        printDummy.scale.setScalar(0)
+        printDummy.updateMatrix()
+        for (let i = 0; i < FOOTPRINTS; i++) printMesh.setMatrixAt(i, printDummy.matrix)
+        printDummy.scale.setScalar(1)
+        printMesh.instanceMatrix.needsUpdate = true
+      }
+      if (snowUnderfoot && after.grounded && ground.height === 0) {
+        const dx = pos.current.x - lastPrint.current.x
+        const dz = pos.current.z - lastPrint.current.z
+        if (dx * dx + dz * dz > 0.13) {
+          lastPrint.current = { x: pos.current.x, z: pos.current.z }
+          printSide.current = -printSide.current
+          const side = printSide.current * 0.075
+          printDummy.position.set(
+            pos.current.x + Math.cos(yaw.current) * side,
+            FLOOR_Y + 0.024,
+            pos.current.z - Math.sin(yaw.current) * side,
+          )
+          printDummy.rotation.set(0, yaw.current, 0)
+          printDummy.updateMatrix()
+          printMesh.setMatrixAt(printIndex.current % FOOTPRINTS, printDummy.matrix)
+          printIndex.current += 1
+          printMesh.instanceMatrix.needsUpdate = true
+        }
+      }
+    }
+
     if (DEBUG) {
       ;(window as unknown as { __keeper?: object }).__keeper = {
         x: pos.current.x,
@@ -231,6 +284,17 @@ export function Player() {
         <circleGeometry args={[0.3, 12]} />
         <meshBasicMaterial color="#3a2d21" transparent opacity={0.16} />
       </mesh>
+
+      {/* footprints in the snow (garden, winter) — a recycled little trail */}
+      <instancedMesh
+        ref={prints}
+        args={[undefined, undefined, FOOTPRINTS]}
+        visible={snowUnderfoot}
+        frustumCulled={false}
+      >
+        <boxGeometry args={[0.085, 0.008, 0.15]} />
+        <meshStandardMaterial color="#c3d0da" />
+      </instancedMesh>
 
       <group
         ref={root}

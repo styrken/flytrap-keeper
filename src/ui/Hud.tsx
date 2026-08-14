@@ -20,8 +20,10 @@ import {
   mood,
   msToNextStage,
   nextTrapOpenAt,
+  precipitationAt,
   readyTrapCount,
   seasonAt,
+  snowmanStage,
   speciesOf,
   stageProgress,
   toGameTime,
@@ -151,6 +153,46 @@ export function Hud() {
     prevCareDays.current = careDays
   }, [careDays, t])
 
+  // A plant's birthday arrived (possibly caught up after time away) — throw
+  // the little party toast for whoever's diary got the newest birthday page.
+  const birthdayCount = state.plants.reduce((sum, p) => sum + p.birthdays, 0)
+  const prevBirthdays = useRef<number | null>(null)
+  useEffect(() => {
+    if (prevBirthdays.current !== null && birthdayCount > prevBirthdays.current) {
+      let name = ''
+      let age = 0
+      let latest = -1
+      for (const p of state.plants) {
+        for (const entry of p.journal) {
+          if (entry.kind === 'birthday' && entry.at > latest) {
+            latest = entry.at
+            name = p.nickname
+            age = entry.age ?? p.birthdays
+          }
+        }
+      }
+      setToast(`🎂 ${t('status.birthday', { name, age, n: SIM.BIRTHDAY_DEWDROPS })}`)
+      playToast()
+      const timer = window.setTimeout(() => setToast(null), 4000)
+      prevBirthdays.current = birthdayCount
+      return () => window.clearTimeout(timer)
+    }
+    prevBirthdays.current = birthdayCount
+  }, [birthdayCount, state.plants, t])
+
+  // The snowman's head went on — the scene played the sound, the HUD says why.
+  const snowmanDone = snowmanStage(state, state.lastTickAt) >= SIM.SNOWMAN_STAGES
+  const prevSnowman = useRef<boolean | null>(null)
+  useEffect(() => {
+    if (prevSnowman.current === false && snowmanDone) {
+      setToast(`⛄ ${t('status.snowmanDone', { n: SIM.SNOWMAN_DEWDROPS })}`)
+      const timer = window.setTimeout(() => setToast(null), 3500)
+      prevSnowman.current = snowmanDone
+      return () => window.clearTimeout(timer)
+    }
+    prevSnowman.current = snowmanDone
+  }, [snowmanDone, t])
+
   if (!plant) return null
 
   const now = state.lastTickAt
@@ -158,6 +200,7 @@ export function Hud() {
   const ready = readyTrapCount(plant, now)
   const progress = stageProgress(plant)
   const weather = currentWeather(state, now)
+  const precip = precipitationAt(now, weather)
   const season = seasonAt(now)
   const barrelLow = state.weather.rainBarrel < SIM.WATER_COST
   const needsWater = plant.water < 99.5 && !plant.dormant && !plant.dead
@@ -189,7 +232,7 @@ export function Hud() {
       }
     }
     if (weather === 'rain' && state.weather.rainBarrel < SIM.BARREL_CAP - 1) {
-      return `🌧️ ${t('status.rainFilling')}`
+      return precip === 'snow' ? `🌨️ ${t('status.snowFilling')}` : `🌧️ ${t('status.rainFilling')}`
     }
     const eta = msToNextStage(plant)
     if (eta !== null) {
@@ -242,7 +285,9 @@ export function Hud() {
               {t(`stage.${plant.stage}`)}
             </span>{' '}
             {MOOD_ICON[mood(plant, season === 'winter')]} ·{' '}
-            <span title={t(`weather.${weather}`)}>{WEATHER_ICON[weather]}</span>{' '}
+            <span title={precip === 'snow' ? t('weather.snow') : t(`weather.${weather}`)}>
+              {precip === 'snow' ? '🌨️' : WEATHER_ICON[weather]}
+            </span>{' '}
             <span title={t(`season.${season}`)}>{SEASON_ICON[season]}</span> · <GameClock />
           </p>
         </div>

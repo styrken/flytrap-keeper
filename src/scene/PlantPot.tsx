@@ -147,6 +147,11 @@ export function PlantPot({ plant, slot }: { plant: PlantState; slot: number }) {
 const CONFETTI_COLORS = ['#e2574c', '#e8c94a', '#5d84ae', '#c86ba8', '#7da75a', '#f6f1e6']
 const CONFETTI_PIECES = 12
 
+/** Confetti must never catch a tap: it floats exactly where the traps are,
+ * and a piece that intercepts the ray would bubble the event to the pot's
+ * pet handler — a 💚 where the player aimed a snap. Party in the eyes only. */
+const noRaycast = () => null
+
 /**
  * Gentle confetti over the pot, all birthday long. Pieces drift down a short
  * column and loop back to the top; with reduced motion they simply hover —
@@ -180,6 +185,7 @@ function BirthdayConfetti() {
       {Array.from({ length: CONFETTI_PIECES }, (_, i) => (
         <mesh
           key={i}
+          raycast={noRaycast}
           position={[
             Math.sin(i * 1.7 * 3.1) * 0.24,
             0.45 + (i % 4) * 0.16,

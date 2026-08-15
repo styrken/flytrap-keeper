@@ -1,7 +1,8 @@
 // Blocky, procedurally assembled plant kits — one per species. Growth is just
 // "more/larger modules", wilting is a droop pose with duller colors.
+import { Html } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
-import { useMemo, useRef } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import type { Group } from 'three'
 import { playSnap, playTease } from '../audio'
 import { type CultivarId, type PlantState, type TrapState, isTrapReady } from '../sim'
@@ -150,10 +151,18 @@ function Trap({
   const teaseUntil = useRef(-1)
   const popStart = useRef(-1)
   const prevDigesting = useRef(trap.digestingUntil !== null)
+  const [label, setLabel] = useState<string | null>(null)
+  const labelTimer = useRef(0)
 
   const withered = trap.witheredAt !== null
   const closed = trap.digestingUntil !== null || withered
   const interactive = !plant.wilted && !plant.dormant && !plant.dead && !visiting
+
+  const popLabel = (text: string) => {
+    setLabel(text)
+    window.clearTimeout(labelTimer.current)
+    labelTimer.current = window.setTimeout(() => setLabel(null), 1100)
+  }
 
   useFrame((frame, delta) => {
     const g = upper.current
@@ -196,7 +205,14 @@ function Trap({
       position={position}
       rotation-z={withered ? 0.5 : 0}
       onPointerDown={(e) => {
-        if (!interactive || !isTrapReady(trap, sceneNow())) return
+        if (!interactive) return
+        if (!isTrapReady(trap, sceneNow())) {
+          // A closed trap can't snap — say so right here, instead of letting
+          // the tap fall through to the pot and read as an accidental pet.
+          e.stopPropagation()
+          popLabel(withered ? '🥀' : '⏳')
+          return
+        }
         e.stopPropagation()
         const presence = insectBus.presence
         if (presence && presence.plantId === plant.id && presence.trapIndex === index) {
@@ -256,6 +272,11 @@ function Trap({
         <group position={[0, 0.045, 0.215]} rotation-x={0.35}>
           <BowKnot size={0.9} />
         </group>
+      )}
+      {label && (
+        <Html position={[0, 0.25, 0.1]} center zIndexRange={[10, 0]}>
+          <div className="float-label">{label}</div>
+        </Html>
       )}
     </group>
   )
